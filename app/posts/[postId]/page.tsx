@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 
 // 임시 블로그 데이터
 const blogPosts = [
