@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "format": "prettier --config ./config/.prettierrc --ignore-path ./config/.prettierignore \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --config ./config/.prettierrc --ignore-path ./config/.prettierignore --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "dependencies": {
     "axios": "^1.8.4",
@@ -24,14 +24,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.14",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "postcss": "^8.4.23",
     "prettier": "^3.5.3",
-    "tailwindcss": "^4",
+    "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
 }
