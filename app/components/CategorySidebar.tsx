@@ -8,13 +8,16 @@ interface CategorySidebarProps {
   categories?: Category[];
 }
 
-export default function CategorySidebar({ selectedCategory, categories = [] }: CategorySidebarProps) {
+export default function CategorySidebar({
+  selectedCategory,
+  categories = [],
+}: CategorySidebarProps) {
   return (
     <div className="sticky top-24 bg-white p-5 rounded-lg border border-gray-100 shadow-sm">
       <h2 className="text-lg font-semibold mb-4">카테고리</h2>
       <ul className="space-y-2">
         <li>
-          <Link 
+          <Link
             href="/blog"
             className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
               !selectedCategory ? 'font-semibold bg-gray-100' : ''
@@ -23,10 +26,10 @@ export default function CategorySidebar({ selectedCategory, categories = [] }: C
             전체
           </Link>
         </li>
-        
-        {categories.map((category) => (
+
+        {categories.map(category => (
           <li key={category.id}>
-            <Link 
+            <Link
               href={`/blog?category=${encodeURIComponent(category.id)}`}
               className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
                 selectedCategory === category.id ? 'font-semibold bg-gray-100' : ''
@@ -40,4 +43,4 @@ export default function CategorySidebar({ selectedCategory, categories = [] }: C
       </ul>
     </div>
   );
-} 
+}

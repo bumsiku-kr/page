@@ -17,7 +17,7 @@ export default function EditPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState<Post | null>(null);
-  
+
   const router = useRouter();
 
   // 게시물 및 카테고리 데이터 로드
@@ -32,7 +32,7 @@ export default function EditPostPage() {
         setContent(postData.content);
         setSummary(postData.summary);
         setCategoryId(postData.category);
-        
+
         // 카테고리 목록 가져오기
         const categories = await api.categories.getList();
         setCategories(categories);
@@ -62,7 +62,7 @@ export default function EditPostPage() {
         title,
         content,
         summary,
-        category: categoryId
+        category: categoryId,
       });
       router.push('/admin/posts');
     } catch (err) {
@@ -90,7 +90,7 @@ export default function EditPostPage() {
       <div className="px-6 py-5 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900">게시물 수정</h3>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="p-6">
         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
           {/* 제목 필드 */}
@@ -104,7 +104,7 @@ export default function EditPostPage() {
                 name="title"
                 id="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 placeholder="게시물 제목을 입력하세요"
                 disabled={isSubmitting}
@@ -122,12 +122,12 @@ export default function EditPostPage() {
                 id="category"
                 name="category"
                 value={categoryId}
-                onChange={(e) => setCategoryId(parseInt(e.target.value, 10))}
+                onChange={e => setCategoryId(parseInt(e.target.value, 10))}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 disabled={isSubmitting}
               >
                 <option value="">카테고리를 선택하세요</option>
-                {categories.map((cat) => (
+                {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
@@ -147,7 +147,7 @@ export default function EditPostPage() {
                 name="summary"
                 rows={2}
                 value={summary}
-                onChange={(e) => setSummary(e.target.value)}
+                onChange={e => setSummary(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 placeholder="게시물 요약을 입력하세요 (목록에 표시됩니다)"
                 disabled={isSubmitting}
@@ -166,22 +166,23 @@ export default function EditPostPage() {
                 name="content"
                 rows={10}
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={e => setContent(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 placeholder="게시물 내용을 입력하세요"
                 disabled={isSubmitting}
               />
             </div>
-            <p className="mt-2 text-sm text-gray-500">
-              마크다운 또는 HTML을 지원합니다.
-            </p>
+            <p className="mt-2 text-sm text-gray-500">마크다운 또는 HTML을 지원합니다.</p>
           </div>
 
           {/* 메타 정보 */}
           <div className="sm:col-span-6 border-t border-gray-200 pt-4 text-sm text-gray-500">
             <p>게시물 ID: {id}</p>
             <p>작성일: {post?.createdAt && new Date(post.createdAt).toLocaleDateString('ko-KR')}</p>
-            <p>마지막 수정일: {post?.updatedAt && new Date(post.updatedAt).toLocaleDateString('ko-KR')}</p>
+            <p>
+              마지막 수정일:{' '}
+              {post?.updatedAt && new Date(post.updatedAt).toLocaleDateString('ko-KR')}
+            </p>
           </div>
         </div>
 
@@ -195,9 +196,25 @@ export default function EditPostPage() {
           >
             {isSubmitting ? (
               <span className="inline-flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 저장 중...
               </span>
@@ -209,4 +226,4 @@ export default function EditPostPage() {
       </form>
     </div>
   );
-} 
+}

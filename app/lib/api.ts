@@ -12,7 +12,7 @@ import {
   CreateCategoryRequest,
   LoginRequest,
   APIResponse,
-  UploadImageResponse
+  UploadImageResponse,
 } from '../types';
 
 // API 엔드포인트 상수
@@ -24,7 +24,7 @@ const API_ENDPOINTS = {
   COMMENTS: '/comments',
   ADMIN_COMMENTS: '/admin/comments',
   ADMIN_IMAGES: '/admin/images',
-  LOGIN: '/login'
+  LOGIN: '/login',
 } as const;
 
 // API 클라이언트 설정
@@ -33,7 +33,7 @@ class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    const API_URL = 'https://api.bumsiku.kr';
+    const API_URL = 'https://api.bumsiku.kr'; // 직접 API 서버 호출
 
     this.client = axios.create({
       baseURL: API_URL,
@@ -63,7 +63,7 @@ class APIClient {
           method: config.method,
           baseURL: config.baseURL,
           params: config.params,
-          data: config.data
+          data: config.data,
         });
         return config;
       },
@@ -80,7 +80,7 @@ class APIClient {
           status: response.status,
           statusText: response.statusText,
           url: response.config.url,
-          data: response.data
+          data: response.data,
         });
         return response;
       },
@@ -90,7 +90,7 @@ class APIClient {
           status: error.response?.status,
           statusText: error.response?.statusText,
           url: error.config?.url,
-          data: error.response?.data
+          data: error.response?.data,
         });
         return Promise.reject(error);
       }
@@ -108,15 +108,18 @@ class APIClient {
   }
 
   // 재시도 로직을 포함한 요청 함수
-  private async retryRequest<T>(config: AxiosRequestConfig, maxRetries: number = 3): Promise<AxiosResponse<T>> {
-    let lastError: any;
+  private async retryRequest<T>(
+    config: AxiosRequestConfig,
+    maxRetries: number = 3
+  ): Promise<AxiosResponse<T>> {
+    let lastError: Error | AxiosError = new Error();
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         return await this.client.request<T>(config);
       } catch (error) {
         console.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries}):`, error);
-        lastError = error;
+        lastError = error as Error | AxiosError;
 
         if (attempt < maxRetries - 1) {
           const delay = Math.pow(2, attempt) * 1000;
@@ -159,8 +162,8 @@ class APIClient {
             page,
             size,
             sort,
-            ...(category && { category })
-          }
+            ...(category && { category }),
+          },
         });
         console.log('게시물 목록 응답:', response);
         return response;
@@ -170,7 +173,7 @@ class APIClient {
           content: [],
           totalElements: 0,
           pageNumber: page,
-          pageSize: size
+          pageSize: size,
         };
       }
     },
@@ -180,7 +183,7 @@ class APIClient {
         console.log('게시물 상세 요청:', { postId });
         const response = await this.request<Post>({
           url: `${API_ENDPOINTS.POSTS}/${postId}`,
-          method: 'GET'
+          method: 'GET',
         });
         console.log('게시물 상세 응답:', response);
         return response;
@@ -196,7 +199,7 @@ class APIClient {
         const response = await this.request<Post>({
           url: API_ENDPOINTS.ADMIN_POSTS,
           method: 'POST',
-          data
+          data,
         });
         console.log('게시물 생성 응답:', response);
         return response;
@@ -212,7 +215,7 @@ class APIClient {
         const response = await this.request<Post>({
           url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}`,
           method: 'PUT',
-          data
+          data,
         });
         console.log('게시물 수정 응답:', response);
         return response;
@@ -227,7 +230,7 @@ class APIClient {
         console.log('게시물 삭제 요청:', { postId });
         const response = await this.request<string>({
           url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}`,
-          method: 'DELETE'
+          method: 'DELETE',
         });
         console.log('게시물 삭제 응답:', response);
         return response;
@@ -235,7 +238,7 @@ class APIClient {
         console.error('게시물 삭제 오류:', error);
         throw error;
       }
-    }
+    },
   };
 
   // Categories API
@@ -245,7 +248,7 @@ class APIClient {
         console.log('카테고리 목록 요청');
         const response = await this.request<Category[]>({
           url: API_ENDPOINTS.CATEGORIES,
-          method: 'GET'
+          method: 'GET',
         });
         console.log('카테고리 목록 응답:', response);
         return response;
@@ -261,7 +264,7 @@ class APIClient {
         const response = await this.request<Category>({
           url: API_ENDPOINTS.ADMIN_CATEGORIES,
           method: 'POST',
-          data
+          data,
         });
         console.log('카테고리 생성 응답:', response);
         return response;
@@ -277,7 +280,7 @@ class APIClient {
         const response = await this.request<Category>({
           url: `${API_ENDPOINTS.ADMIN_CATEGORIES}/${id}`,
           method: 'PUT',
-          data
+          data,
         });
         console.log('카테고리 수정 응답:', response);
         return response;
@@ -285,7 +288,7 @@ class APIClient {
         console.error('카테고리 수정 오류:', error);
         throw error;
       }
-    }
+    },
   };
 
   // Comments API
@@ -295,7 +298,7 @@ class APIClient {
         console.log('댓글 목록 요청:', { postId });
         const response = await this.request<Comment[]>({
           url: `${API_ENDPOINTS.COMMENTS}/${postId}`,
-          method: 'GET'
+          method: 'GET',
         });
         console.log('댓글 목록 응답:', response);
         return response;
@@ -311,7 +314,7 @@ class APIClient {
         const response = await this.request<Comment>({
           url: `${API_ENDPOINTS.COMMENTS}/${postId}`,
           method: 'POST',
-          data
+          data,
         });
         console.log('댓글 생성 응답:', response);
         return response;
@@ -326,7 +329,7 @@ class APIClient {
         console.log('댓글 삭제 요청:', { commentId });
         const response = await this.request<string>({
           url: `${API_ENDPOINTS.ADMIN_COMMENTS}/${commentId}`,
-          method: 'DELETE'
+          method: 'DELETE',
         });
         console.log('댓글 삭제 응답:', response);
         return response;
@@ -334,7 +337,7 @@ class APIClient {
         console.error('댓글 삭제 오류:', error);
         throw error;
       }
-    }
+    },
   };
 
   // Images API
@@ -356,18 +359,18 @@ class APIClient {
         console.error('이미지 업로드 오류:', error);
         throw error;
       }
-    }
+    },
   };
 
   // Auth API
   public readonly auth = {
     login: async (credentials: LoginRequest) => {
       try {
-        console.log('로그인 요청');  // 보안을 위해 자격증명은 로깅하지 않음
+        console.log('로그인 요청'); // 보안을 위해 자격증명은 로깅하지 않음
         const response = await this.request<string>({
           url: API_ENDPOINTS.LOGIN,
           method: 'POST',
-          data: credentials
+          data: credentials,
         });
         console.log('로그인 응답:', { success: !!response });
         return response;
@@ -383,7 +386,7 @@ class APIClient {
         await this.client.request({
           url: API_ENDPOINTS.ADMIN_POSTS,
           method: 'GET',
-          params: { page: 0, size: 1 }
+          params: { page: 0, size: 1 },
         });
         console.log('인증 상태 확인 응답: 인증됨');
         return true;
@@ -396,9 +399,9 @@ class APIClient {
         console.error('인증 상태 확인 오류:', error);
         throw error;
       }
-    }
+    },
   };
 }
 
 // API 클라이언트 인스턴스 생성 및 export
-export const api = APIClient.getInstance(); 
+export const api = APIClient.getInstance();

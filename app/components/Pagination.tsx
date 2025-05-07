@@ -25,16 +25,16 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
     const maxPagesToShow = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-    
+
     // 시작 페이지 조정
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
-    
+
     return pageNumbers;
   };
 
@@ -53,9 +53,9 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
             </Link>
           </li>
         )}
-        
+
         {/* 페이지 번호 */}
-        {getPageNumbers().map((pageNumber) => (
+        {getPageNumbers().map(pageNumber => (
           <li key={pageNumber}>
             <Link
               href={createPageURL(pageNumber)}
@@ -70,7 +70,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
             </Link>
           </li>
         ))}
-        
+
         {/* 다음 페이지 버튼 */}
         {currentPage < totalPages && (
           <li>
@@ -86,4 +86,4 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
       </ul>
     </nav>
   );
-} 
+}

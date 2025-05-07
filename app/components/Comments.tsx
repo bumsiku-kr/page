@@ -27,7 +27,7 @@ export default function Comments({ postId }: CommentsProps) {
         if (!postId) {
           throw new Error('게시물 ID가 없습니다.');
         }
-        
+
         const response = await api.comments.getList(parseInt(postId, 10));
         console.log('댓글 데이터:', response);
         setComments(response || []);
@@ -46,7 +46,7 @@ export default function Comments({ postId }: CommentsProps) {
   // 댓글 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!author.trim() || !content.trim()) {
       setSubmitError('작성자 이름과 댓글 내용을 모두 입력해주세요.');
       return;
@@ -55,22 +55,22 @@ export default function Comments({ postId }: CommentsProps) {
     try {
       setSubmitting(true);
       setSubmitError(null);
-      
+
       if (!postId) {
         throw new Error('게시물 ID가 없습니다.');
       }
-      
+
       const commentData: CreateCommentRequest = {
         author,
-        content
+        content,
       };
-      
+
       const newComment = await api.comments.create(parseInt(postId, 10), commentData);
-      
+
       // 새 댓글이 성공적으로 생성된 경우에만 목록에 추가
       if (newComment && newComment.id) {
         setComments(prevComments => [...prevComments, newComment]);
-        
+
         // 폼 초기화
         setAuthor('');
         setContent('');
@@ -90,7 +90,7 @@ export default function Comments({ postId }: CommentsProps) {
     try {
       // UTC 시간을 Date 객체로 변환
       const utcDate = new Date(dateString + 'Z'); // 'Z'를 추가하여 명시적으로 UTC임을 표시
-      
+
       // 로컬 시간대로 포맷팅
       return new Intl.DateTimeFormat('ko-KR', {
         year: 'numeric',
@@ -99,7 +99,7 @@ export default function Comments({ postId }: CommentsProps) {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false, // 24시간 형식 사용
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // 사용자의 로컬 시간대 사용
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // 사용자의 로컬 시간대 사용
       }).format(utcDate);
     } catch (error) {
       console.error('날짜 포맷팅 오류:', error, '입력값:', dateString);
@@ -115,7 +115,7 @@ export default function Comments({ postId }: CommentsProps) {
       {/* 댓글 목록 */}
       {comments.length > 0 ? (
         <div className="space-y-6">
-          {comments.map((comment) => {
+          {comments.map(comment => {
             console.log('개별 댓글 데이터:', comment);
             return (
               <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
@@ -137,13 +137,11 @@ export default function Comments({ postId }: CommentsProps) {
       {/* 댓글 작성 폼 */}
       <div className="bg-gray-50 p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">댓글 작성</h3>
-        
+
         {submitError && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
-            {submitError}
-          </div>
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">{submitError}</div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
@@ -153,13 +151,13 @@ export default function Comments({ postId }: CommentsProps) {
               type="text"
               id="author"
               value={author}
-              onChange={(e) => setAuthor(e.target.value)}
+              onChange={e => setAuthor(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               disabled={submitting}
               maxLength={20}
             />
           </div>
-          
+
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
               댓글 내용
@@ -167,14 +165,14 @@ export default function Comments({ postId }: CommentsProps) {
             <textarea
               id="content"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={e => setContent(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               rows={4}
               disabled={submitting}
               maxLength={500}
             ></textarea>
           </div>
-          
+
           <div className="text-right">
             <button
               type="submit"
@@ -188,4 +186,4 @@ export default function Comments({ postId }: CommentsProps) {
       </div>
     </div>
   );
-} 
+}

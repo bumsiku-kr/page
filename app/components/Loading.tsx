@@ -5,4 +5,4 @@ export default function Loading() {
       <span className="sr-only">로딩 중...</span>
     </div>
   );
-} 
+}

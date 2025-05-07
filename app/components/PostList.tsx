@@ -21,34 +21,29 @@ export default function PostList({ posts, currentPage, totalPages, categories }:
     <div className="max-w-3xl">
       {posts.length > 0 ? (
         <>
-          {posts.map((post) => (
-            <article
-              key={post.id}
-              className="mb-8 pb-8 border-b border-gray-200 last:border-0"
-            >
+          {posts.map(post => (
+            <article key={post.id} className="mb-8 pb-8 border-b border-gray-200 last:border-0">
               <div className="flex justify-between items-start mb-2">
                 <p className="text-sm text-gray-500">
                   {new Date(post.createdAt).toLocaleDateString('ko-KR', {
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
                   })}
                 </p>
                 <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
                   {getCategoryName(post.category)}
                 </span>
               </div>
-              
+
               <Link href={`/posts/${post.id}`}>
                 <h2 className="text-2xl font-bold mb-3 hover:text-blue-600 transition-colors">
                   {post.title}
                 </h2>
               </Link>
-              
-              <p className="text-gray-600 mb-4">
-                {post.summary}
-              </p>
-              
+
+              <p className="text-gray-600 mb-4">{post.summary}</p>
+
               <Link
                 href={`/posts/${post.id}`}
                 className="text-blue-600 hover:text-blue-800 transition-colors"
@@ -57,7 +52,7 @@ export default function PostList({ posts, currentPage, totalPages, categories }:
               </Link>
             </article>
           ))}
-          
+
           {totalPages > 1 && (
             <div className="flex justify-center mt-8">
               <nav className="inline-flex rounded-md shadow">
@@ -74,7 +69,7 @@ export default function PostList({ posts, currentPage, totalPages, categories }:
                 </Link>
 
                 {/* 페이지 번호 */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <Link
                     key={page}
                     href={`/blog?page=${page}`}
@@ -110,4 +105,4 @@ export default function PostList({ posts, currentPage, totalPages, categories }:
       )}
     </div>
   );
-} 
+}
