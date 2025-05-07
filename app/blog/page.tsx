@@ -4,14 +4,19 @@ import PostList from '../components/PostList';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 
+interface SearchParams {
+  page?: string;
+  category?: string;
+  [key: string]: string | string[] | undefined;
+}
+
+interface PageProps {
+  searchParams?: Promise<SearchParams>;
+}
+
 // URL에서 페이지와 카테고리 파라미터 추출
-export default async function BlogPage({
-  searchParams = {}
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined }
-}) {
-  // searchParams를 Promise.resolve()로 감싸서 비동기적으로 처리
-  const params = await Promise.resolve(searchParams);
+export default async function BlogPage({ searchParams }: PageProps) {
+  const params = await (searchParams || Promise.resolve<SearchParams>({}));
   
   const currentPage = typeof params.page === 'string' 
     ? parseInt(params.page, 10) - 1 
