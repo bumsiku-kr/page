@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '../lib/api';
+import apiClient, { api } from '../lib/api';
 
 // 인증 컨텍스트 타입 정의
 interface AuthContextType {
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const status = await api.auth.checkAuth();
+        const status = await apiClient.auth.checkAuth();
         setIsLoggedIn(status);
       } catch (error) {
         console.error('인증 상태 확인 오류:', error);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
 
     try {
-      await api.auth.login({ username, password });
+      await apiClient.auth.login({ username, password });
       setIsLoggedIn(true);
       return true;
     } catch (error) {

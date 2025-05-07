@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '../../lib/api';
-import { PostSummary, Category } from '../../types';
+import { api } from '../../../lib/api';
+import { PostSummary, Category } from '../../../types';
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<PostSummary[]>([]);

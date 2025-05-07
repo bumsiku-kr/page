@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '../../../../lib/api';
-import { Category, Post } from '../../../../types';
+import { api } from '../../../../../lib/api';
+import { Category, Post } from '../../../../../types';
 
 export default function EditPostPage() {
   const params = useParams();

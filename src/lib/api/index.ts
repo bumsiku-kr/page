@@ -13,7 +13,7 @@ import {
   LoginRequest,
   APIResponse,
   UploadImageResponse,
-} from '../types';
+} from '../../types';
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
@@ -403,5 +403,9 @@ class APIClient {
   };
 }
 
-// API 클라이언트 인스턴스 생성 및 export
-export const api = APIClient.getInstance();
+// API 클라이언트 인스턴스 생성 및 내보내기
+const apiClient = APIClient.getInstance();
+export default apiClient;
+
+// 하위 호환성을 위한 export
+export const api = apiClient;

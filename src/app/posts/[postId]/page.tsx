@@ -3,14 +3,14 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '../../lib/api';
-import Loading from '../../components/Loading';
-import ErrorMessage from '../../components/ErrorMessage';
-import Comments from '../../components/Comments';
+import { api } from '../../../lib/api';
+import Loading from '../../../components/ui/feedback/Loading';
+import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
+import Comments from '../../../components/blog/Comments';
 
 // 마크다운 콘텐츠를 HTML로 렌더링하기 위한 컴포넌트
-import MarkdownRenderer from '../../components/MarkdownRenderer';
-import { Post, Category } from '../../types';
+import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
+import { Post, Category } from '../../../types';
 
 export default function PostDetailPage() {
   const params = useParams();

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { api } from '../../lib/api';
-import { Category } from '../../types';
+import { api } from '../../../lib/api';
+import { Category } from '../../../types';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 

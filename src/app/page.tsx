@@ -24,10 +24,10 @@ export default function Home() {
           <div className="flex flex-col space-y-6 text-center md:text-left">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                안녕하세요, 프론트엔드 개발자입니다.
+                안녕하세요, 백엔드 개발자 SIKU(시쿠)입니다.
               </h1>
               <p className="text-xl text-gray-600">
-                React와 TypeScript를 중심으로 사용자 친화적인 UI를 만듭니다.
+                멘트
               </p>
             </div>
 

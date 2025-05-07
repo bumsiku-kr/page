@@ -6,17 +6,24 @@ import { usePathname, useSearchParams } from 'next/navigation';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  pageParamName?: string;  // 페이지 파라미터 이름 (기본값: page)
+  baseUrl?: string;        // 기본 URL (지정된 경우 pathname 대신 사용)
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+export default function Pagination({ 
+  currentPage, 
+  totalPages, 
+  pageParamName = 'page',
+  baseUrl
+}: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // 현재 URL 쿼리 파라미터를 유지하면서 페이지만 변경하는 함수
   const createPageURL = (pageNumber: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', pageNumber.toString());
-    return `${pathname}?${params.toString()}`;
+    params.set(pageParamName, pageNumber.toString());
+    return `${baseUrl || pathname}?${params.toString()}`;
   };
 
   // 페이지 번호 범위 계산 (최대 5개 표시)

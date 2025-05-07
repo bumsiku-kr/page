@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '../../../lib/api';
-import { Category } from '../../../types';
+import { api } from '../../../../lib/api';
+import { Category } from '../../../../types';
 
 export default function NewPostPage() {
   const [title, setTitle] = useState('');

@@ -1,7 +1,7 @@
-import { api } from '../lib/api';
-import CategorySidebar from '../components/CategorySidebar';
-import PostList from '../components/PostList';
-import ErrorMessage from '../components/ErrorMessage';
+import { api } from '../../lib/api';
+import CategorySidebar from '../../components/blog/CategorySidebar';
+import PostList from '../../components/blog/PostList';
+import ErrorMessage from '../../components/ui/feedback/ErrorMessage';
 
 interface SearchParams {
   page?: string;
