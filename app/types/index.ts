@@ -1,64 +1,87 @@
 // 게시물 관련 타입
 export interface Post {
-  postId: string;
+  id: number;
   title: string;
   content: string;
   summary: string;
-  category: string;
+  category: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PostSummary {
+  id: number;
+  title: string;
+  summary: string;
+  category: number;
   createdAt: string;
   updatedAt: string;
 }
 
 // 카테고리 관련 타입
 export interface Category {
-  category: string;
+  id: number;
+  name: string;
   order: number;
   createdAt: string;
+  postCount: number;
 }
 
 // 댓글 관련 타입
 export interface Comment {
-  commentId: string;
-  postId: string;
+  id: number;
+  authorName: string;
   content: string;
-  nickname: string;
   createdAt: string;
 }
 
 // API 에러 관련 타입
-export interface APIError {
-  code: string;
+export interface ErrorInfo {
+  code: number;
   message: string;
 }
 
 export interface ErrorResponse {
   success: boolean;
-  error: APIError;
+  error: ErrorInfo;
 }
 
 // API 요청 관련 타입
 export interface CreatePostRequest {
+  /** @maxLength 100 @minLength 1 */
   title: string;
+  /** @maxLength 10000 @minLength 1 */
   content: string;
+  /** @maxLength 200 @minLength 1 */
   summary: string;
-  category: string;
+  category: number;
 }
 
 export interface UpdatePostRequest {
-  title: string;
-  content: string;
-  summary: string;
-  category: string;
+  /** @maxLength 100 @minLength 1 */
+  title?: string;
+  /** @maxLength 10000 @minLength 1 */
+  content?: string;
+  /** @maxLength 200 @minLength 1 */
+  summary?: string;
+  category?: number;
 }
 
 export interface CreateCommentRequest {
+  author: string;
   content: string;
-  nickname: string;
 }
 
 export interface UpdateCategoryRequest {
-  category: string;
-  order: number;
+  /** @minLength 1 */
+  name: string;
+  orderNum: number;
+}
+
+export interface CreateCategoryRequest {
+  /** @minLength 1 */
+  name: string;
+  orderNum: number;
 }
 
 export interface LoginRequest {
@@ -67,13 +90,24 @@ export interface LoginRequest {
 }
 
 // API 응답 관련 타입
-export interface GetPostsResponse {
-  posts: Post[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
+export interface PostListResponse {
+  content: PostSummary[];
+  totalElements: number;
+  pageNumber: number;
+  pageSize: number;
 }
 
-export interface GetCategoriesResponse {
-  categories: Category[];
+export interface APIResponse<T> {
+  success: boolean;
+  data: T;
+  error?: ErrorInfo;
+}
+
+export type GetPostsResponse = APIResponse<PostListResponse>;
+export type GetCategoriesResponse = APIResponse<Category[]>;
+
+// 이미지 업로드 관련 타입
+export interface UploadImageResponse {
+  url: string;
+  size: number; // API Spec 에서는 int64지만, JavaScript 에서는 number 로 충분
 } 
