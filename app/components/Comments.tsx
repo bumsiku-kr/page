@@ -14,7 +14,7 @@ export default function Comments({ postId }: CommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [nickname, setNickname] = useState('');
+  const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -28,9 +28,9 @@ export default function Comments({ postId }: CommentsProps) {
           throw new Error('게시물 ID가 없습니다.');
         }
         
-        const commentsData = await api.comments.getComments(postId);
-        // API 응답이 null이나 undefined인 경우 빈 배열로 처리
-        setComments(Array.isArray(commentsData) ? commentsData : []);
+        const response = await api.comments.getList(parseInt(postId, 10));
+        console.log('댓글 데이터:', response);
+        setComments(response || []);
         setError(null);
       } catch (err) {
         setError('댓글을 불러오는 중 오류가 발생했습니다.');
@@ -47,8 +47,8 @@ export default function Comments({ postId }: CommentsProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!nickname.trim() || !content.trim()) {
-      setSubmitError('닉네임과 댓글 내용을 모두 입력해주세요.');
+    if (!author.trim() || !content.trim()) {
+      setSubmitError('작성자 이름과 댓글 내용을 모두 입력해주세요.');
       return;
     }
 
@@ -61,18 +61,18 @@ export default function Comments({ postId }: CommentsProps) {
       }
       
       const commentData: CreateCommentRequest = {
-        nickname,
+        author,
         content
       };
       
-      const newComment = await api.comments.createComment(postId, commentData);
+      const newComment = await api.comments.create(parseInt(postId, 10), commentData);
       
       // 새 댓글이 성공적으로 생성된 경우에만 목록에 추가
-      if (newComment && newComment.commentId) {
+      if (newComment && newComment.id) {
         setComments(prevComments => [...prevComments, newComment]);
         
         // 폼 초기화
-        setNickname('');
+        setAuthor('');
         setContent('');
       } else {
         throw new Error('댓글이 생성되지 않았습니다.');
@@ -88,14 +88,21 @@ export default function Comments({ postId }: CommentsProps) {
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('ko-KR', {
+      // UTC 시간을 Date 객체로 변환
+      const utcDate = new Date(dateString + 'Z'); // 'Z'를 추가하여 명시적으로 UTC임을 표시
+      
+      // 로컬 시간대로 포맷팅
+      return new Intl.DateTimeFormat('ko-KR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
-      });
+        minute: '2-digit',
+        hour12: false, // 24시간 형식 사용
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // 사용자의 로컬 시간대 사용
+      }).format(utcDate);
     } catch (error) {
+      console.error('날짜 포맷팅 오류:', error, '입력값:', dateString);
       return '날짜 정보 없음';
     }
   };
@@ -108,15 +115,18 @@ export default function Comments({ postId }: CommentsProps) {
       {/* 댓글 목록 */}
       {comments.length > 0 ? (
         <div className="space-y-6">
-          {comments.map((comment) => (
-            <div key={comment.commentId} className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-medium">{comment.nickname}</span>
-                <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+          {comments.map((comment) => {
+            console.log('개별 댓글 데이터:', comment);
+            return (
+              <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-medium">{comment.authorName}</span>
+                  <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                </div>
+                <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
               </div>
-              <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
@@ -136,14 +146,14 @@ export default function Comments({ postId }: CommentsProps) {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-1">
-              닉네임
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+              작성자
             </label>
             <input
               type="text"
-              id="nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              id="author"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               disabled={submitting}
               maxLength={20}

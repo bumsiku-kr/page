@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Category } from '../types';
 
 interface CategorySidebarProps {
-  selectedCategory?: string;
+  selectedCategory?: number;
   categories?: Category[];
 }
 
@@ -25,14 +25,15 @@ export default function CategorySidebar({ selectedCategory, categories = [] }: C
         </li>
         
         {categories.map((category) => (
-          <li key={category.category}>
+          <li key={category.id}>
             <Link 
-              href={`/blog?category=${encodeURIComponent(category.category)}`}
+              href={`/blog?category=${encodeURIComponent(category.id)}`}
               className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
-                selectedCategory === category.category ? 'font-semibold bg-gray-100' : ''
+                selectedCategory === category.id ? 'font-semibold bg-gray-100' : ''
               }`}
             >
-              {category.category}
+              {category.name}
+              <span className="text-xs text-gray-500 ml-2">({category.postCount})</span>
             </Link>
           </li>
         ))}

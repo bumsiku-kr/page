@@ -1,355 +1,404 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import {
   Post,
   Category,
   Comment,
   ErrorResponse,
   GetPostsResponse,
-  GetCategoriesResponse,
   CreatePostRequest,
   UpdatePostRequest,
   CreateCommentRequest,
   UpdateCategoryRequest,
+  CreateCategoryRequest,
   LoginRequest,
+  APIResponse,
+  UploadImageResponse
 } from '../types';
 
-// 기본 API URL 설정
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-console.log('API URL:', API_URL); // 현재 API URL 로깅
+// API 엔드포인트 상수
+const API_ENDPOINTS = {
+  POSTS: '/posts',
+  ADMIN_POSTS: '/admin/posts',
+  CATEGORIES: '/categories',
+  ADMIN_CATEGORIES: '/admin/categories',
+  COMMENTS: '/comments',
+  ADMIN_COMMENTS: '/admin/comments',
+  ADMIN_IMAGES: '/admin/images',
+  LOGIN: '/login'
+} as const;
 
-// 디버깅을 위한 환경 변수 확인
-console.log('환경 변수:', {
-  NODE_ENV: process.env.NODE_ENV,
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
-});
+// API 클라이언트 설정
+class APIClient {
+  private client: AxiosInstance;
+  private static instance: APIClient;
 
-// API 클라이언트 인스턴스 생성
-const apiClient = axios.create({
-  baseURL: API_URL,
-  withCredentials: true, // 쿠키 기반 인증을 위해 필요
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000, // 10초 타임아웃 설정
-});
+  private constructor() {
+    const API_URL = 'https://api.bumsiku.kr';
 
-// 요청 인터셉터 추가
-apiClient.interceptors.request.use(
-  config => {
-    console.log('API 요청:', {
-      url: config.url,
-      method: config.method,
-      baseURL: config.baseURL,
-      params: config.params,
-      data: config.data
+    this.client = axios.create({
+      baseURL: API_URL,
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
     });
-    return config;
-  },
-  error => {
-    console.error('API 요청 오류:', error);
-    return Promise.reject(error);
-  }
-);
 
-// 응답 인터셉터 추가
-apiClient.interceptors.response.use(
-  response => {
-    console.log('API 응답 성공:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.config.url,
-      data: response.data
-    });
-    return response;
-  },
-  error => {
-    console.error('API 응답 오류:', {
-      message: error.message,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      url: error.config?.url,
-      data: error.response?.data
-    });
-    return Promise.reject(error);
+    this.setupInterceptors();
   }
-);
 
-// 응답 데이터 추출 헬퍼 함수
-const handleResponse = <T>(response: AxiosResponse<any>) => {
-  // API 응답 형식이 { success: boolean, data: T } 구조인 경우 내부 data 객체 반환
-  const responseData = response.data;
-  if (responseData && responseData.success === true && responseData.data) {
-    console.log('응답 데이터에서 내부 data 객체 추출:', responseData.data);
-    return responseData.data as T;
+  public static getInstance(): APIClient {
+    if (!APIClient.instance) {
+      APIClient.instance = new APIClient();
+    }
+    return APIClient.instance;
   }
-  
-  // 기존 구조는 그대로 반환
-  return responseData as T;
-};
 
-// 에러 처리 헬퍼 함수
-const handleError = (error: AxiosError<ErrorResponse>) => {
-  if (error.response) {
-    // 서버에서 응답이 왔지만 2xx 상태 코드가 아닌 경우
-    const errorMessage = error.response.data.error?.message || '알 수 없는 오류가 발생했습니다.';
-    throw new Error(errorMessage);
-  }
-  
-  if (error.request) {
-    // 요청은 성공했지만 응답을 받지 못한 경우
-    throw new Error('서버로부터 응답을 받지 못했습니다.');
-  }
-  
-  // 요청 설정 중 오류가 발생한 경우
-  throw new Error('요청 중 오류가 발생했습니다.');
-};
-
-// API 요청을 재시도하는 함수
-async function retryApiCall<T>(apiCall: () => Promise<T>, maxRetries: number = 3): Promise<T> {
-  let lastError;
-  
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await apiCall();
-    } catch (error) {
-      console.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries}):`, error);
-      lastError = error;
-      
-      // 마지막 시도가 아니면 잠시 대기 후 재시도
-      if (attempt < maxRetries - 1) {
-        const delay = Math.pow(2, attempt) * 1000; // 지수 백오프
-        await new Promise(resolve => setTimeout(resolve, delay));
+  private setupInterceptors(): void {
+    // 요청 인터셉터
+    this.client.interceptors.request.use(
+      config => {
+        console.log('API 요청:', {
+          url: config.url,
+          method: config.method,
+          baseURL: config.baseURL,
+          params: config.params,
+          data: config.data
+        });
+        return config;
+      },
+      error => {
+        console.error('API 요청 오류:', error);
+        return Promise.reject(error);
       }
+    );
+
+    // 응답 인터셉터
+    this.client.interceptors.response.use(
+      response => {
+        console.log('API 응답 성공:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.config.url,
+          data: response.data
+        });
+        return response;
+      },
+      error => {
+        console.error('API 응답 오류:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url,
+          data: error.response?.data
+        });
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  // 공통 API 호출 함수
+  private async request<T>(config: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.retryRequest<APIResponse<T>>(config);
+      return response.data.data;
+    } catch (error) {
+      return this.handleError(error as AxiosError<ErrorResponse>);
     }
   }
-  
-  // 모든 재시도가 실패하면 마지막 오류 throw
-  throw lastError;
+
+  // 재시도 로직을 포함한 요청 함수
+  private async retryRequest<T>(config: AxiosRequestConfig, maxRetries: number = 3): Promise<AxiosResponse<T>> {
+    let lastError: any;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return await this.client.request<T>(config);
+      } catch (error) {
+        console.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries}):`, error);
+        lastError = error;
+
+        if (attempt < maxRetries - 1) {
+          const delay = Math.pow(2, attempt) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  // 에러 처리 함수
+  private handleError(error: AxiosError<ErrorResponse>): never {
+    if (error.response) {
+      const errorMessage = error.response.data.error?.message || '알 수 없는 오류가 발생했습니다.';
+      throw new Error(errorMessage);
+    }
+
+    if (error.request) {
+      throw new Error('서버로부터 응답을 받지 못했습니다.');
+    }
+
+    throw new Error('요청 중 오류가 발생했습니다.');
+  }
+
+  // Posts API
+  public readonly posts = {
+    getList: async (
+      page: number = 0,
+      size: number = 10,
+      category?: number,
+      sort: string = 'createdAt,desc'
+    ): Promise<GetPostsResponse['data']> => {
+      try {
+        console.log('게시물 목록 요청:', { page, size, category, sort });
+        const response = await this.request<GetPostsResponse['data']>({
+          url: API_ENDPOINTS.POSTS,
+          method: 'GET',
+          params: {
+            page,
+            size,
+            sort,
+            ...(category && { category })
+          }
+        });
+        console.log('게시물 목록 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('게시물 목록 조회 오류:', error);
+        return {
+          content: [],
+          totalElements: 0,
+          pageNumber: page,
+          pageSize: size
+        };
+      }
+    },
+
+    getOne: async (postId: number) => {
+      try {
+        console.log('게시물 상세 요청:', { postId });
+        const response = await this.request<Post>({
+          url: `${API_ENDPOINTS.POSTS}/${postId}`,
+          method: 'GET'
+        });
+        console.log('게시물 상세 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('게시물 상세 조회 오류:', error);
+        throw error;
+      }
+    },
+
+    create: async (data: CreatePostRequest) => {
+      try {
+        console.log('게시물 생성 요청:', data);
+        const response = await this.request<Post>({
+          url: API_ENDPOINTS.ADMIN_POSTS,
+          method: 'POST',
+          data
+        });
+        console.log('게시물 생성 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('게시물 생성 오류:', error);
+        throw error;
+      }
+    },
+
+    update: async (postId: number, data: UpdatePostRequest) => {
+      try {
+        console.log('게시물 수정 요청:', { postId, data });
+        const response = await this.request<Post>({
+          url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}`,
+          method: 'PUT',
+          data
+        });
+        console.log('게시물 수정 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('게시물 수정 오류:', error);
+        throw error;
+      }
+    },
+
+    delete: async (postId: number) => {
+      try {
+        console.log('게시물 삭제 요청:', { postId });
+        const response = await this.request<string>({
+          url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}`,
+          method: 'DELETE'
+        });
+        console.log('게시물 삭제 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('게시물 삭제 오류:', error);
+        throw error;
+      }
+    }
+  };
+
+  // Categories API
+  public readonly categories = {
+    getList: async (): Promise<Category[]> => {
+      try {
+        console.log('카테고리 목록 요청');
+        const response = await this.request<Category[]>({
+          url: API_ENDPOINTS.CATEGORIES,
+          method: 'GET'
+        });
+        console.log('카테고리 목록 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('카테고리 목록 조회 오류:', error);
+        return [];
+      }
+    },
+
+    create: async (data: CreateCategoryRequest) => {
+      try {
+        console.log('카테고리 생성 요청:', data);
+        const response = await this.request<Category>({
+          url: API_ENDPOINTS.ADMIN_CATEGORIES,
+          method: 'POST',
+          data
+        });
+        console.log('카테고리 생성 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('카테고리 생성 오류:', error);
+        throw error;
+      }
+    },
+
+    update: async (id: number, data: UpdateCategoryRequest) => {
+      try {
+        console.log('카테고리 수정 요청:', { id, data });
+        const response = await this.request<Category>({
+          url: `${API_ENDPOINTS.ADMIN_CATEGORIES}/${id}`,
+          method: 'PUT',
+          data
+        });
+        console.log('카테고리 수정 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('카테고리 수정 오류:', error);
+        throw error;
+      }
+    }
+  };
+
+  // Comments API
+  public readonly comments = {
+    getList: async (postId: number): Promise<Comment[]> => {
+      try {
+        console.log('댓글 목록 요청:', { postId });
+        const response = await this.request<Comment[]>({
+          url: `${API_ENDPOINTS.COMMENTS}/${postId}`,
+          method: 'GET'
+        });
+        console.log('댓글 목록 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('댓글 목록 조회 오류:', error);
+        return [];
+      }
+    },
+
+    create: async (postId: number, data: CreateCommentRequest): Promise<Comment> => {
+      try {
+        console.log('댓글 생성 요청:', { postId, data });
+        const response = await this.request<Comment>({
+          url: `${API_ENDPOINTS.COMMENTS}/${postId}`,
+          method: 'POST',
+          data
+        });
+        console.log('댓글 생성 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('댓글 생성 오류:', error);
+        throw error;
+      }
+    },
+
+    delete: async (commentId: string) => {
+      try {
+        console.log('댓글 삭제 요청:', { commentId });
+        const response = await this.request<string>({
+          url: `${API_ENDPOINTS.ADMIN_COMMENTS}/${commentId}`,
+          method: 'DELETE'
+        });
+        console.log('댓글 삭제 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('댓글 삭제 오류:', error);
+        throw error;
+      }
+    }
+  };
+
+  // Images API
+  public readonly images = {
+    upload: async (file: File): Promise<UploadImageResponse> => {
+      try {
+        console.log('이미지 업로드 요청:', { fileName: file.name, fileSize: file.size });
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await this.request<UploadImageResponse>({
+          url: API_ENDPOINTS.ADMIN_IMAGES,
+          method: 'POST',
+          data: formData,
+        });
+        console.log('이미지 업로드 응답:', response);
+        return response;
+      } catch (error) {
+        console.error('이미지 업로드 오류:', error);
+        throw error;
+      }
+    }
+  };
+
+  // Auth API
+  public readonly auth = {
+    login: async (credentials: LoginRequest) => {
+      try {
+        console.log('로그인 요청');  // 보안을 위해 자격증명은 로깅하지 않음
+        const response = await this.request<string>({
+          url: API_ENDPOINTS.LOGIN,
+          method: 'POST',
+          data: credentials
+        });
+        console.log('로그인 응답:', { success: !!response });
+        return response;
+      } catch (error) {
+        console.error('로그인 오류:', error);
+        throw error;
+      }
+    },
+
+    checkAuth: async (): Promise<boolean> => {
+      try {
+        console.log('인증 상태 확인 요청');
+        await this.client.request({
+          url: API_ENDPOINTS.ADMIN_POSTS,
+          method: 'GET',
+          params: { page: 0, size: 1 }
+        });
+        console.log('인증 상태 확인 응답: 인증됨');
+        return true;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 401) {
+          console.log('인증 상태 확인 응답: 인증되지 않음');
+          return false;
+        }
+        console.error('인증 상태 확인 오류:', error);
+        throw error;
+      }
+    }
+  };
 }
 
-// 게시물 관련 API
-export const postsApi = {
-  // 게시물 목록 조회
-  getPosts: async (page: number = 1, pageSize: number = 10, category?: string): Promise<GetPostsResponse> => {
-    try {
-      const params = { page, pageSize, ...(category && { category }) };
-      console.log('API 요청 URL (getPosts):', `${API_URL}/posts`, params);
-      
-      // 재시도 메커니즘 적용 및 method:GET 명시
-      const response = await retryApiCall(() => 
-        apiClient.request<GetPostsResponse>({
-          url: '/posts',
-          method: 'GET',
-          params: params
-        })
-      );
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (getPosts):', error);
-      // 오류 발생 시 기본값 반환
-      return {
-        posts: [],
-        totalCount: 0,
-        totalPages: 1,
-        currentPage: page
-      };
-    }
-  },
-
-  // 게시물 상세 조회
-  getPost: async (id: string): Promise<Post> => {
-    try {
-      console.log('API 요청 URL (getPost):', `${API_URL}/posts/${id}`);
-      
-      // 재시도 메커니즘 적용 및 method:GET 명시
-      const response = await retryApiCall(() => 
-        apiClient.request<Post>({
-          url: `/posts/${id}`,
-          method: 'GET'
-        })
-      );
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (getPost):', error);
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-
-  // 게시물 작성 (관리자 전용)
-  createPost: async (postData: CreatePostRequest): Promise<Post> => {
-    try {
-      const response = await apiClient.post<Post>('/admin/posts', postData);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-
-  // 게시물 수정 (관리자 전용)
-  updatePost: async (id: string, postData: UpdatePostRequest): Promise<Post> => {
-    try {
-      const response = await apiClient.put<Post>(`/admin/posts/${id}`, postData);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-
-  // 게시물 삭제 (관리자 전용)
-  deletePost: async (id: string): Promise<{ message: string }> => {
-    try {
-      const response = await apiClient.delete<{ message: string }>(`/admin/posts/${id}`);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-};
-
-// 카테고리 관련 API
-export const categoriesApi = {
-  // 카테고리 목록 조회
-  getCategories: async (): Promise<GetCategoriesResponse> => {
-    try {
-      console.log('API 요청 URL (getCategories):', `${API_URL}/categories`);
-      
-      // 재시도 메커니즘 적용 및 method:GET 명시
-      const response = await retryApiCall(() => 
-        apiClient.request<GetCategoriesResponse>({
-          url: '/categories', 
-          method: 'GET'
-        })
-      );
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (getCategories):', error);
-      // 오류 발생 시 기본값 반환
-      return {
-        categories: []
-      };
-    }
-  },
-
-  // 카테고리 추가/수정 (관리자 전용)
-  updateCategory: async (categoryData: UpdateCategoryRequest): Promise<Category> => {
-    try {
-      const response = await apiClient.put<Category>('/admin/categories', categoryData);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-};
-
-// 댓글 관련 API
-export const commentsApi = {
-  // 게시물별 댓글 조회
-  getComments: async (postId: string): Promise<Comment[]> => {
-    try {
-      console.log('API 요청 URL (getComments):', `${API_URL}/comments/${postId}`);
-      
-      // method:GET 명시
-      const response = await apiClient.request<Comment[]>({
-        url: `/comments/${postId}`,
-        method: 'GET'
-      });
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (getComments):', error);
-      // 오류 발생 시 빈 배열 반환
-      return [];
-    }
-  },
-
-  // 댓글 등록
-  createComment: async (postId: string, commentData: CreateCommentRequest): Promise<Comment> => {
-    try {
-      // method:POST 명시
-      const response = await apiClient.request<Comment>({
-        url: `/comments/${postId}`,
-        method: 'POST',
-        data: commentData
-      });
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (createComment):', error);
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-
-  // 댓글 삭제 (관리자 전용)
-  deleteComment: async (commentId: string): Promise<{ message: string }> => {
-    try {
-      // method:DELETE 명시
-      const response = await apiClient.request<{ message: string }>({
-        url: `/admin/comments/${commentId}`,
-        method: 'DELETE'
-      });
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (deleteComment):', error);
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-};
-
-// 인증 관련 API
-export const authApi = {
-  // 관리자 로그인
-  login: async (credentials: LoginRequest): Promise<{ message: string }> => {
-    try {
-      // method:POST 명시
-      const response = await apiClient.request<{ message: string }>({
-        url: '/login',
-        method: 'POST',
-        data: credentials
-      });
-      
-      return handleResponse(response);
-    } catch (error) {
-      console.error('API 오류 (login):', error);
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-
-  // 로그인 상태 확인 (추가 기능, 백엔드에 해당 API가 없으므로 간접적으로 확인)
-  checkAuth: async (): Promise<boolean> => {
-    try {
-      // 관리자 전용 API를 호출하여 인증 상태 확인
-      // 실제 데이터는 사용하지 않고 응답 코드만 확인
-      // method:GET 명시
-      await apiClient.request({
-        url: '/admin/posts',
-        method: 'GET',
-        params: { page: 1, pageSize: 1 }
-      });
-      
-      return true; // 인증된 상태
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      console.error('API 오류 (checkAuth):', error);
-      
-      if (axiosError.response?.status === 401) {
-        return false; // 인증되지 않은 상태
-      }
-      // 기타 오류는 정상적으로 처리
-      return handleError(error as AxiosError<ErrorResponse>);
-    }
-  },
-};
-
-// API 유틸리티 모음
-export const api = {
-  posts: postsApi,
-  categories: categoriesApi,
-  comments: commentsApi,
-  auth: authApi,
-};
-
-export default api; 
+// API 클라이언트 인스턴스 생성 및 export
+export const api = APIClient.getInstance(); 
