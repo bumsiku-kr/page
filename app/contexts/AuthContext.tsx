@@ -60,9 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoggedIn(true);
       return true;
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : '로그인 중 오류가 발생했습니다';
+      const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다';
       setError(errorMessage);
       return false;
     } finally {
@@ -85,4 +83,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default AuthContext; 
+export default AuthContext;

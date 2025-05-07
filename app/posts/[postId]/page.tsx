@@ -16,7 +16,7 @@ export default function PostDetailPage() {
   const params = useParams();
   const postId = params.postId as string;
   const router = useRouter();
-  
+
   const [post, setPost] = useState<Post | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,30 +28,33 @@ export default function PostDetailPage() {
         // API에서 게시물 상세 정보와 카테고리 목록 가져오기
         const [postData, categoriesData] = await Promise.all([
           api.posts.getOne(parseInt(postId, 10)),
-          api.categories.getList()
+          api.categories.getList(),
         ]);
-        
+
         // API 응답에 대한 안전성 검사
         if (!postData || !postData.id) {
           router.push('/404');
           return;
         }
-        
+
         setPost(postData);
         setCategories(categoriesData);
       } catch (err) {
         console.error('데이터 로딩 중 오류 발생:', err);
         setError('데이터를 불러오는 중 오류가 발생했습니다.');
-        
+
         // 404 에러인 경우 notFound 페이지로 리다이렉트
-        if ((err as Error).message.includes("404") || (err as Error).message.includes("찾을 수 없음")) {
+        if (
+          (err as Error).message.includes('404') ||
+          (err as Error).message.includes('찾을 수 없음')
+        ) {
           router.push('/404');
         }
       } finally {
         setIsLoading(false);
       }
     }
-    
+
     fetchData();
   }, [postId, router]);
 
@@ -64,7 +67,7 @@ export default function PostDetailPage() {
   if (error) {
     return <ErrorMessage message={error} />;
   }
-  
+
   if (!post) {
     return null;
   }
@@ -79,7 +82,7 @@ export default function PostDetailPage() {
   const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   return (
@@ -110,7 +113,7 @@ export default function PostDetailPage() {
         </div>
 
         <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-        
+
         <div className="flex gap-2 mb-6">
           <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
             {getCategoryName(post.category)}
@@ -134,4 +137,4 @@ export default function PostDetailPage() {
       </section>
     </div>
   );
-} 
+}

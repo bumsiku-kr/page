@@ -110,4 +110,4 @@ export type GetCategoriesResponse = APIResponse<Category[]>;
 export interface UploadImageResponse {
   url: string;
   size: number; // API Spec 에서는 int64지만, JavaScript 에서는 number 로 충분
-} 
+}

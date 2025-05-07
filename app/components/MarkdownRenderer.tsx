@@ -11,9 +11,7 @@ interface MarkdownRendererProps {
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="prose prose-lg max-w-none">
-      <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
-        {content}
-      </ReactMarkdown>
+      <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>{content}</ReactMarkdown>
     </div>
   );
-} 
+}

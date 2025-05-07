@@ -19,11 +19,7 @@ export default function Header() {
         </Link>
 
         {/* 모바일 햄버거 메뉴 */}
-        <button
-          className="md:hidden text-gray-700"
-          onClick={toggleMenu}
-          aria-label="메뉴 토글"
-        >
+        <button className="md:hidden text-gray-700" onClick={toggleMenu} aria-label="메뉴 토글">
           <svg
             className="w-6 h-6"
             fill="none"
@@ -35,7 +31,7 @@ export default function Header() {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
             />
           </svg>
         </button>
@@ -132,4 +128,4 @@ export default function Header() {
       )}
     </header>
   );
-} 
+}

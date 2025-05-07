@@ -14,7 +14,7 @@ export default function NewPostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const router = useRouter();
 
   // 카테고리 목록 불러오기
@@ -23,7 +23,7 @@ export default function NewPostPage() {
       try {
         const categories = await api.categories.getList();
         setCategories(categories);
-        
+
         // 첫 번째 카테고리를 기본값으로 설정
         if (categories.length > 0) {
           setCategoryId(categories[0].id);
@@ -54,7 +54,7 @@ export default function NewPostPage() {
         title,
         content,
         summary,
-        category: categoryId
+        category: categoryId,
       });
       router.push('/admin/posts');
     } catch (err) {
@@ -87,7 +87,7 @@ export default function NewPostPage() {
               name="title"
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)}
               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
               placeholder="게시물 제목을 입력하세요"
               disabled={isSubmitting}
@@ -105,12 +105,12 @@ export default function NewPostPage() {
               id="category"
               name="category"
               value={categoryId || ''}
-              onChange={(e) => setCategoryId(parseInt(e.target.value, 10))}
+              onChange={e => setCategoryId(parseInt(e.target.value, 10))}
               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
               disabled={isSubmitting}
             >
               <option value="">카테고리를 선택하세요</option>
-              {categories.map((cat) => (
+              {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
@@ -130,7 +130,7 @@ export default function NewPostPage() {
               name="summary"
               rows={2}
               value={summary}
-              onChange={(e) => setSummary(e.target.value)}
+              onChange={e => setSummary(e.target.value)}
               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
               placeholder="게시물 요약을 입력하세요 (목록에 표시됩니다)"
               disabled={isSubmitting}
@@ -149,15 +149,13 @@ export default function NewPostPage() {
               name="content"
               rows={10}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={e => setContent(e.target.value)}
               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
               placeholder="게시물 내용을 입력하세요"
               disabled={isSubmitting}
             />
           </div>
-          <p className="mt-2 text-sm text-gray-500">
-            마크다운 또는 HTML을 지원합니다.
-          </p>
+          <p className="mt-2 text-sm text-gray-500">마크다운 또는 HTML을 지원합니다.</p>
         </div>
 
         {/* 에러 메시지 */}
@@ -167,7 +165,11 @@ export default function NewPostPage() {
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
@@ -191,4 +193,4 @@ export default function NewPostPage() {
       </div>
     </form>
   );
-} 
+}

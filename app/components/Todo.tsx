@@ -14,39 +14,35 @@ export default function Todo() {
 
   const addTodo = () => {
     if (input.trim() === '') return;
-    
+
     const newTodo: TodoItem = {
       id: Date.now(),
       text: input,
       completed: false,
     };
-    
+
     setTodos([...todos, newTodo]);
     setInput('');
   };
 
   const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    setTodos(todos.map(todo => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
   };
 
   const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">할 일 목록</h2>
-      
+
       <div className="flex mb-4">
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+          onChange={e => setInput(e.target.value)}
+          onKeyPress={e => e.key === 'Enter' && addTodo()}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="할 일 추가..."
         />
@@ -57,9 +53,9 @@ export default function Todo() {
           추가
         </button>
       </div>
-      
+
       <ul className="space-y-2">
-        {todos.map((todo) => (
+        {todos.map(todo => (
           <li
             key={todo.id}
             className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
@@ -72,9 +68,7 @@ export default function Todo() {
                 className="mr-3 h-5 w-5 text-blue-600"
               />
               <span
-                className={`${
-                  todo.completed ? 'line-through text-gray-400' : 'text-gray-800'
-                }`}
+                className={`${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}
               >
                 {todo.text}
               </span>
@@ -102,12 +96,10 @@ export default function Todo() {
           </li>
         ))}
       </ul>
-      
+
       {todos.length === 0 && (
-        <p className="text-center text-gray-500 my-4">
-          할 일이 없습니다. 위에서 추가해보세요.
-        </p>
+        <p className="text-center text-gray-500 my-4">할 일이 없습니다. 위에서 추가해보세요.</p>
       )}
     </div>
   );
-} 
+}

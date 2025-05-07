@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '../../lib/api';
-import { Post, PostSummary, Category } from '../../types';
+import { PostSummary, Category } from '../../types';
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<PostSummary[]>([]);
@@ -15,21 +15,21 @@ export default function AdminPostsPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) - 1 : 0;
-  
+
   // 페이지 로드 시 게시물 목록과 카테고리 목록 가져오기
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         setCurrentPage(page);
-        
+
         const [postsResponse, categoriesData] = await Promise.all([
           api.posts.getList(page, 10),
-          api.categories.getList()
+          api.categories.getList(),
         ]);
 
         setPosts(postsResponse.content);
@@ -60,7 +60,7 @@ export default function AdminPostsPage() {
 
     try {
       await api.posts.delete(postId);
-      
+
       // 현재 페이지 다시 불러오기
       const response = await api.posts.getList(currentPage, 10);
       setPosts(response.content);
@@ -109,7 +109,11 @@ export default function AdminPostsPage() {
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <div className="ml-3">
@@ -138,7 +142,7 @@ export default function AdminPostsPage() {
           <input
             type="text"
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
+            onChange={e => setSearchKeyword(e.target.value)}
             placeholder="게시물 검색..."
             className="rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
           />
@@ -181,16 +185,11 @@ export default function AdminPostsPage() {
                 </td>
               </tr>
             ) : (
-              posts.map((post) => (
+              posts.map(post => (
                 <tr key={post.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {post.id}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <Link
-                      href={`/posts/${post.id}`}
-                      className="hover:text-blue-600"
-                    >
+                    <Link href={`/posts/${post.id}`} className="hover:text-blue-600">
                       {post.title}
                     </Link>
                   </td>
@@ -237,7 +236,7 @@ export default function AdminPostsPage() {
             >
               이전
             </button>
-            
+
             {/* 페이지 번호 */}
             {Array.from({ length: totalPages }, (_, i) => (
               <button
@@ -252,7 +251,7 @@ export default function AdminPostsPage() {
                 {i + 1}
               </button>
             ))}
-            
+
             {/* 다음 페이지 */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
@@ -272,12 +271,26 @@ export default function AdminPostsPage() {
       {/* 삭제 확인 모달 */}
       {deleteTarget && (
         <div className="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black bg-opacity-30" onClick={() => setDeleteTarget(null)}></div>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30"
+            onClick={() => setDeleteTarget(null)}
+          ></div>
           <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
             <div className="sm:flex sm:items-start">
               <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                <svg className="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <svg
+                  className="h-6 w-6 text-red-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
                 </svg>
               </div>
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -310,4 +323,4 @@ export default function AdminPostsPage() {
       )}
     </div>
   );
-} 
+}

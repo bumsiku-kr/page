@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -23,16 +23,18 @@ export default function Home() {
           {/* 자기소개 */}
           <div className="flex flex-col space-y-6 text-center md:text-left">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">안녕하세요, 프론트엔드 개발자입니다.</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                안녕하세요, 프론트엔드 개발자입니다.
+              </h1>
               <p className="text-xl text-gray-600">
                 React와 TypeScript를 중심으로 사용자 친화적인 UI를 만듭니다.
               </p>
             </div>
-            
+
             {/* CTA 버튼 */}
             <div className="flex justify-center md:justify-start">
-              <Link 
-                href="/blog" 
+              <Link
+                href="/blog"
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full text-center transition-colors"
               >
                 블로그 읽기
@@ -46,16 +48,13 @@ export default function Home() {
       <section className="py-12 border-t border-gray-200">
         <h2 className="text-2xl font-semibold mb-8 text-center">주요 기술 스택</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {technologies.map((tech) => (
-            <div key={tech.name} className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+          {technologies.map(tech => (
+            <div
+              key={tech.name}
+              className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <div className="w-16 h-16 flex items-center justify-center mb-3">
-                <Image 
-                  src={tech.icon} 
-                  alt={tech.name} 
-                  width={48} 
-                  height={48}
-                  unoptimized
-                />
+                <Image src={tech.icon} alt={tech.name} width={48} height={48} unoptimized />
               </div>
               <span className="font-medium">{tech.name}</span>
             </div>

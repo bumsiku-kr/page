@@ -8,9 +8,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <p className="text-gray-600 text-sm">
-              © {currentYear} 기술 블로그. 모든 권리 보유.
-            </p>
+            <p className="text-gray-600 text-sm">© {currentYear} 기술 블로그. 모든 권리 보유.</p>
           </div>
           <div className="flex flex-col md:flex-row md:space-x-4 text-sm">
             <a href="/about" className="text-gray-600 hover:text-gray-900 mb-2 md:mb-0">
@@ -27,4 +25,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-} 
+}

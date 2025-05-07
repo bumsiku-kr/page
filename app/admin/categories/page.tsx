@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../lib/api';
 import { Category } from '../../types';
-import type { Identifier, XYCoord } from 'dnd-core';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -27,18 +26,18 @@ interface CategoryItemProps {
 
 const CategoryItem = ({ category, index, moveCategory, handleEdit }: CategoryItemProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  
+
   // 드래그 설정
   const [{ isDragging }, drag] = useDrag({
     type: CATEGORY_ITEM_TYPE,
     item: () => {
-      return { index, id: category.name, type: CATEGORY_ITEM_TYPE }
+      return { index, id: category.name, type: CATEGORY_ITEM_TYPE };
     },
-    collect: (monitor) => ({
+    collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
   });
-  
+
   // 드롭 설정
   const [, drop] = useDrop({
     accept: CATEGORY_ITEM_TYPE,
@@ -46,21 +45,21 @@ const CategoryItem = ({ category, index, moveCategory, handleEdit }: CategoryIte
       if (!ref.current) {
         return;
       }
-      
+
       const dragIndex = item.index;
       const hoverIndex = index;
-      
+
       // 자기 자신에게 드롭하는 경우 무시
       if (dragIndex === hoverIndex) {
         return;
       }
-      
+
       // 호버링 중인 아이템의 위치 계산
       const hoverBoundingRect = ref.current?.getBoundingClientRect();
       const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
       const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0;
-      
+
       // 드래그 방향에 따라 이동 여부 결정
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
         return;
@@ -68,16 +67,16 @@ const CategoryItem = ({ category, index, moveCategory, handleEdit }: CategoryIte
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-      
+
       // 실제 이동 수행
       moveCategory(dragIndex, hoverIndex);
       item.index = hoverIndex;
     },
   });
-  
+
   // 드래그와 드롭 ref 연결
   drag(drop(ref));
-  
+
   return (
     <div
       ref={ref}
@@ -90,10 +89,7 @@ const CategoryItem = ({ category, index, moveCategory, handleEdit }: CategoryIte
           <span className="text-gray-900 font-medium">{category.name}</span>
           <span className="ml-2 text-gray-500 text-sm">순서: {category.order}</span>
         </div>
-        <button
-          onClick={() => handleEdit(category)}
-          className="text-blue-600 hover:text-blue-900"
-        >
+        <button onClick={() => handleEdit(category)} className="text-blue-600 hover:text-blue-900">
           편집
         </button>
       </div>
@@ -109,17 +105,17 @@ export default function CategoriesPage() {
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // 카테고리 데이터 로드
   useEffect(() => {
     fetchCategories();
   }, []);
-  
+
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
       const categories = await api.categories.getList();
-      
+
       // 순서대로 정렬
       const sortedCategories = [...categories].sort((a, b) => a.order - b.order);
       setCategories(sortedCategories);
@@ -130,49 +126,49 @@ export default function CategoriesPage() {
       setIsLoading(false);
     }
   };
-  
+
   // 카테고리 순서 변경 처리
   const moveCategory = (fromIndex: number, toIndex: number) => {
     const updatedCategories = [...categories];
     const [movedCategory] = updatedCategories.splice(fromIndex, 1);
     updatedCategories.splice(toIndex, 0, movedCategory);
-    
+
     // 순서 업데이트
     const reorderedCategories = updatedCategories.map((cat, index) => ({
       ...cat,
       order: index + 1, // 1부터 시작하는 순서
     }));
-    
+
     setCategories(reorderedCategories);
   };
-  
+
   // 카테고리 편집 모달 열기
   const handleEdit = (category: Category) => {
     setEditCategory(category);
     setCategoryName(category.name);
     setIsModalOpen(true);
   };
-  
+
   // 새 카테고리 추가 모달 열기
   const handleAddNew = () => {
     setEditCategory(null);
     setCategoryName('');
     setIsModalOpen(true);
   };
-  
+
   // 변경사항 저장
   const handleSaveChanges = async () => {
     try {
       setIsSubmitting(true);
-      
+
       // 모든 카테고리의 순서 업데이트
       for (const category of categories) {
         await api.categories.update(category.id, {
           name: category.name,
-          orderNum: category.order
+          orderNum: category.order,
         });
       }
-      
+
       alert('카테고리 순서가 저장되었습니다.');
     } catch (err) {
       setError('변경사항을 저장하는 중 오류가 발생했습니다.');
@@ -181,30 +177,30 @@ export default function CategoriesPage() {
       setIsSubmitting(false);
     }
   };
-  
+
   // 카테고리 저장 (추가 또는 편집)
   const handleSaveCategory = async () => {
     if (!categoryName.trim()) {
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
-      
+
       // 기존 카테고리 편집
       if (editCategory) {
         await api.categories.update(editCategory.id, {
           name: categoryName,
-          orderNum: editCategory.order
+          orderNum: editCategory.order,
         });
       } else {
         // 새 카테고리 추가
         await api.categories.create({
           name: categoryName,
-          orderNum: categories.length + 1
+          orderNum: categories.length + 1,
         });
       }
-      
+
       // 카테고리 목록 새로고침
       await fetchCategories();
       setIsModalOpen(false);
@@ -249,11 +245,7 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
         <div className="bg-white rounded-lg shadow p-6">
           {categories.length === 0 ? (
@@ -280,7 +272,7 @@ export default function CategoriesPage() {
               <input
                 type="text"
                 value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
+                onChange={e => setCategoryName(e.target.value)}
                 className="w-full p-2 border rounded mb-4"
                 placeholder="카테고리 이름"
                 disabled={isSubmitting}
@@ -307,4 +299,4 @@ export default function CategoriesPage() {
       </div>
     </DndProvider>
   );
-} 
+}
