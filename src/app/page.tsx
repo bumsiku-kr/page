@@ -1,74 +1,60 @@
-import Image from 'next/image';
-import Link from 'next/link';
+// src/app/page.tsx
+import { api } from '../lib/api';
+import Container from '../components/ui/Container';
+import HeroSection from '../components/sections/HeroSection';
+import BlogSection from '../components/sections/BlogSection';
+import Divider from '../components/ui/Divider';
 
-export default function Home() {
+type SearchParams = {
+  page?: string;
+  category?: string;
+};
+
+export default async function Home({
+  // searchParams는 Promise로 들어올 수 있음을 명시
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  // await로 풀어서 실제 파라미터 객체를 꺼냄
+  const { page, category: cat } = await searchParams;
+
+  // 페이지 번호와 카테고리 파싱
+  const currentPage =
+    typeof page === 'string' ? parseInt(page, 10) - 1 : 0;
+  const category =
+    typeof cat === 'string' ? parseInt(cat, 10) : undefined;
+
+  // API 데이터 가져오기
+  let postsData;
+  let categoriesData;
+
+  try {
+    [postsData, categoriesData] = await Promise.all([
+      api.posts.getList(currentPage, 10, category),
+      api.categories.getList(),
+    ]);
+  } catch (error) {
+    console.error('데이터 로딩 중 오류 발생:', error);
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Container size="md">
       {/* 히어로 섹션 */}
-      <section className="py-12 md:py-20">
-        <div className="flex flex-col md:flex-row items-center gap-8">
-          {/* 프로필 이미지 */}
-          <div className="w-40 h-40 md:w-48 md:h-48 relative overflow-hidden rounded-full border-4 border-gray-200">
-            <Image
-              src="/profile.jpg"
-              alt="프로필 이미지"
-              fill
-              sizes="(max-width: 768px) 160px, 192px"
-              className="object-cover"
-              priority
-              unoptimized
-            />
-          </div>
+      <HeroSection
+        title="안녕하세요, SIKU(시쿠)입니다."
+        subtitle={`건국대학교 컴퓨터공학부 3학년 재학중이며,\n서버 개발을 공부하며 다양한 경험과 배움을 포스팅에 기록하고 있습니다.`}
+        imageSrc="/profile.jpg"
+      />
 
-          {/* 자기소개 */}
-          <div className="flex flex-col space-y-6 text-center md:text-left">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                안녕하세요, 백엔드 개발자 SIKU(시쿠)입니다.
-              </h1>
-              <p className="text-xl text-gray-600">
-                멘트
-              </p>
-            </div>
+      <Divider variant="border" />
 
-            {/* CTA 버튼 */}
-            <div className="flex justify-center md:justify-start">
-              <Link
-                href="/blog"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full text-center transition-colors"
-              >
-                블로그 읽기
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 주요 기술 스택 */}
-      <section className="py-12 border-t border-gray-200">
-        <h2 className="text-2xl font-semibold mb-8 text-center">주요 기술 스택</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {technologies.map(tech => (
-            <div
-              key={tech.name}
-              className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-16 h-16 flex items-center justify-center mb-3">
-                <Image src={tech.icon} alt={tech.name} width={48} height={48} unoptimized />
-              </div>
-              <span className="font-medium">{tech.name}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+      {/* 블로그 섹션 */}
+      <BlogSection
+        posts={postsData}
+        categories={categoriesData}
+        selectedCategory={category}
+      />
+    </Container>
   );
 }
-
-// 임시 기술 스택 데이터
-const technologies = [
-  { name: 'React', icon: '/icons/react.svg' },
-  { name: 'TypeScript', icon: '/icons/typescript.svg' },
-  { name: 'Next.js', icon: '/icons/nextjs.svg' },
-  { name: 'Tailwind CSS', icon: '/icons/tailwind.svg' },
-];

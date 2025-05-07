@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
-import { Comment, CreateCommentRequest } from '../types';
+import { Comment, CreateCommentRequest } from '../../types';
 import Loading from '../ui/feedback/Loading';
 import ErrorMessage from '../ui/feedback/ErrorMessage';
 
@@ -28,7 +28,7 @@ export default function Comments({ postId }: CommentsProps) {
           throw new Error('게시물 ID가 없습니다.');
         }
 
-        const response = await api.comments.getList(parseInt(postId, 10));
+        const response = await api.comments.getByPostId(parseInt(postId, 10));
         console.log('댓글 데이터:', response);
         setComments(response || []);
         setError(null);

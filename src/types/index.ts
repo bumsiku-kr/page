@@ -4,7 +4,7 @@ export interface Post {
   title: string;
   content: string;
   summary: string;
-  category: number;
+  categoryId: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,7 +13,7 @@ export interface PostSummary {
   id: number;
   title: string;
   summary: string;
-  category: number;
+  categoryId: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +54,7 @@ export interface CreatePostRequest {
   content: string;
   /** @maxLength 200 @minLength 1 */
   summary: string;
-  category: number;
+  categoryId: number;
 }
 
 export interface UpdatePostRequest {
@@ -64,7 +64,7 @@ export interface UpdatePostRequest {
   content?: string;
   /** @maxLength 200 @minLength 1 */
   summary?: string;
-  category?: number;
+  categoryId?: number;
 }
 
 export interface CreateCommentRequest {

@@ -1,28 +1,24 @@
 'use client';
 
+import Container from '../ui/Container';
+import Divider from '../ui/Divider';
+
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  // const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-100 py-8 px-6 mt-12">
-      <div className="max-w-7xl mx-auto">
+    <footer className="bg-white py-6 mt-8">
+      <Container size="md">
+        <Divider variant="border" className="my-0" />
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <p className="text-gray-600 text-sm">© {currentYear} 기술 블로그. 모든 권리 보유.</p>
-          </div>
+          <div></div>
           <div className="flex flex-col md:flex-row md:space-x-4 text-sm">
-            <a href="/about" className="text-gray-600 hover:text-gray-900 mb-2 md:mb-0">
-              소개
-            </a>
-            <a href="/privacy" className="text-gray-600 hover:text-gray-900 mb-2 md:mb-0">
-              개인정보처리방침
-            </a>
-            <a href="/contact" className="text-gray-600 hover:text-gray-900">
-              연락처
+            <a href="mailto:peter012677@naver.com" className="text-gray-600 hover:text-gray-900">
+              E-mail
             </a>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

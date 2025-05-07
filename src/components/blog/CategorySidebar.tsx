@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Category } from '../types';
+import { Category } from '../../types';
 
 interface CategorySidebarProps {
   selectedCategory?: number;
@@ -12,14 +12,22 @@ export default function CategorySidebar({
   selectedCategory,
   categories = [],
 }: CategorySidebarProps) {
+  // URL 생성 함수
+  const getCategoryUrl = (categoryId?: number) => {
+    if (!categoryId) {
+      return '/';
+    }
+    return `/?category=${categoryId}`;
+  };
+
   return (
-    <div className="sticky top-24 bg-white p-5 rounded-lg border border-gray-100 shadow-sm">
-      <h2 className="text-lg font-semibold mb-4">카테고리</h2>
+    <div className="bg-white rounded-lg">
+      <h2 className="text-xl font-bold mb-4">카테고리</h2>
       <ul className="space-y-2">
         <li>
           <Link
-            href="/blog"
-            className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
+            href="/"
+            className={`block w-full text-left py-1 px-2 rounded-md transition-colors ${
               !selectedCategory ? 'font-semibold bg-gray-100' : ''
             }`}
           >
@@ -30,13 +38,14 @@ export default function CategorySidebar({
         {categories.map(category => (
           <li key={category.id}>
             <Link
-              href={`/blog?category=${encodeURIComponent(category.id)}`}
-              className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
+              href={getCategoryUrl(category.id)}
+              className={`flex items-center w-full text-left py-1 px-2 rounded-md transition-colors ${
                 selectedCategory === category.id ? 'font-semibold bg-gray-100' : ''
               }`}
             >
               {category.name}
-              <span className="text-xs text-gray-500 ml-2">({category.postCount})</span>
+              <span className="text-sm ml-1">({category.postCount})</span>
+              {selectedCategory === category.id && <span className="ml-2">×</span>}
             </Link>
           </li>
         ))}

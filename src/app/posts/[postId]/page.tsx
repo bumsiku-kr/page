@@ -4,9 +4,12 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { api } from '../../../lib/api';
+import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
 import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
 import Comments from '../../../components/blog/Comments';
+import { getCategoryName } from '../../../lib/utils/category';
+import Divider from '../../../components/ui/Divider';
 
 // 마크다운 콘텐츠를 HTML로 렌더링하기 위한 컴포넌트
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
@@ -72,12 +75,6 @@ export default function PostDetailPage() {
     return null;
   }
 
-  // 카테고리 이름 찾기
-  const getCategoryName = (categoryId: number) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.name : '미분류';
-  };
-
   // 게시물 날짜 포매팅
   const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -86,11 +83,11 @@ export default function PostDetailPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Container size="md" className="py-8">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <Link
-            href="/blog"
+            href="/"
             className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
           >
             <svg
@@ -107,7 +104,7 @@ export default function PostDetailPage() {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-            블로그 목록으로 돌아가기
+            게시글 목록
           </Link>
           <span className="text-sm text-gray-500">{formattedDate}</span>
         </div>
@@ -116,7 +113,7 @@ export default function PostDetailPage() {
 
         <div className="flex gap-2 mb-6">
           <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-            {getCategoryName(post.category)}
+            {getCategoryName(post.categoryId, categories)}
           </span>
         </div>
       </div>
@@ -127,7 +124,7 @@ export default function PostDetailPage() {
         </Suspense>
       </div>
 
-      <hr className="my-12" />
+      <Divider variant="border" />
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold mb-6">댓글</h2>
@@ -135,6 +132,6 @@ export default function PostDetailPage() {
           <Comments postId={postId} />
         </Suspense>
       </section>
-    </div>
+    </Container>
   );
 }
