@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/login');
       });
     } catch (error) {
+      console.error('로그아웃 오류:', error);
       clearSessionData();
       router.push('/login');
     }

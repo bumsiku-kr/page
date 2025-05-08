@@ -147,11 +147,4 @@ export class APIClient {
 export const fetcher = async (url: string) => {
   const response = await axios.get(url);
   return response.data;
-};
-
-export default axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-}); 
+}; 

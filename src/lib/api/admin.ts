@@ -1,7 +1,6 @@
 import { LoginRequest, UploadImageResponse } from '../../types';
 import { APIClient, API_ENDPOINTS } from './client';
 import axios from 'axios';
-import { getToken } from '@/lib/auth';
 
 export class ImagesService {
   private client: APIClient;

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable from '@/components/ui/DataTable';
 import { api } from '@/lib/api';
-import { PostListResponse, PostSummary } from '@/types/blog';
+import { PostSummary } from '@/types/blog';
 import { formatDate } from '@/lib/utils';
 
 export default function PostsManagementPage() {

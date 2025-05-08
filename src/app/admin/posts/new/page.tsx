@@ -16,14 +16,6 @@ const MDEditor = dynamic(
   { ssr: false }
 );
 
-// Markdown 명령 툴바 옵션
-const commands = [
-  'bold', 'italic', 'strikethrough', 'hr', 'divider',
-  'link', 'quote', 'code', 'image', 'divider',
-  'unordered-list', 'ordered-list', 'divider',
-  'preview', 'fullscreen'
-];
-
 export default function NewPostPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
