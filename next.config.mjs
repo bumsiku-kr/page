@@ -1,9 +1,14 @@
+import removeImports from 'next-remove-imports';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // 타입 에러가 있어도 빌드가 진행되도록 설정
-    ignoreBuildErrors: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb'
+    }
   },
+  reactStrictMode: true,
+  swcMinify: true,
 };
 
-export default nextConfig; 
+export default removeImports()(nextConfig); 

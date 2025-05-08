@@ -1,4 +1,5 @@
-import { APIClient } from './client';
+import apiClient from './client';
+import { fetchData, postData, putData, deleteData, ApiResponse } from './methods';
 import { PostsService } from './posts';
 import { CategoriesService } from './categories';
 import { CommentsService } from './comments';

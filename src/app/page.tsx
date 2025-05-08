@@ -1,9 +1,10 @@
 // src/app/page.tsx
-import { api } from '../lib/api';
+import { api } from '../lib/api/index';
 import Container from '../components/ui/Container';
 import HeroSection from '../components/sections/HeroSection';
 import BlogSection from '../components/sections/BlogSection';
 import Divider from '../components/ui/Divider';
+import { PostListResponse, Category } from '../types';
 
 type SearchParams = {
   page?: string;
@@ -26,8 +27,8 @@ export default async function Home({
     typeof cat === 'string' ? parseInt(cat, 10) : undefined;
 
   // API 데이터 가져오기
-  let postsData;
-  let categoriesData;
+  let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 10 };
+  let categoriesData: Category[] = [];
 
   try {
     [postsData, categoriesData] = await Promise.all([

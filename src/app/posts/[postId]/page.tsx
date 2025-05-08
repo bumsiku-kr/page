@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '../../../lib/api';
+import { api } from '../../../lib/api/index';
 import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
 import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';

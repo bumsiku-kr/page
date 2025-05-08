@@ -12,11 +12,13 @@
     "format:check": "prettier --config ./config/.prettierrc --ignore-path ./config/.prettierignore --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "dependencies": {
+    "@uiw/react-md-editor": "^3.6.0",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dnd-core": "^16.0.1",
     "next": "15.2.4",
+    "next-remove-imports": "^1.0.12",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
