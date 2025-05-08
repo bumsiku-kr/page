@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ErrorResponse, APIResponse } from '../../types';
+import { getToken, clearToken } from '@/lib/auth';
 
 // API 엔드포인트 상수
 export const API_ENDPOINTS = {
@@ -19,7 +20,7 @@ export class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    const API_URL = 'https://api.bumsiku.kr'; // 직접 API 서버 호출
+    const API_URL = 'https://api.bumsiku.kr';
 
     this.client = axios.create({
       baseURL: API_URL,
@@ -44,6 +45,10 @@ export class APIClient {
     // 요청 인터셉터
     this.client.interceptors.request.use(
       config => {
+        const token = getToken();
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
         console.log('API 요청:', {
           url: config.url,
           method: config.method,
@@ -78,6 +83,12 @@ export class APIClient {
           url: error.config?.url,
           data: error.response?.data,
         });
+        if (error?.response?.status === 401) {
+          clearToken();
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
+        }
         return Promise.reject(error);
       }
     );
@@ -130,4 +141,17 @@ export class APIClient {
 
     throw new Error('요청 중 오류가 발생했습니다.');
   }
-} 
+}
+
+// SWR 호환 fetcher
+export const fetcher = async (url: string) => {
+  const response = await axios.get(url);
+  return response.data;
+};
+
+export default axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+}); 
