@@ -35,12 +35,10 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
       <ReactMarkdown
         rehypePlugins={[rehypeRaw, rehypeSanitize]}
         components={{
-          // @ts-ignore
           code: ({ node, inline, className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
               <SyntaxHighlighter
-                // @ts-ignore
                 style={oneLight}
                 language={match[1]}
                 PreTag="div"
