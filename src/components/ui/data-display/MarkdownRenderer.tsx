@@ -47,6 +47,8 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
                 customStyle={{
                   backgroundColor: '#fafafa',
                   padding: '1rem',
+                  overflow: 'auto',
+                  maxWidth: '100%',
                 }}
                 {...props}
               >
