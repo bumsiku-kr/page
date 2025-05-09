@@ -83,42 +83,26 @@ export default function PostDetailPage() {
   });
 
   return (
-    <Container size="md" className="py-8">
+    <Container size="md" className="py-4">
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <Link
-            href="/"
-            className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            게시글 목록
-          </Link>
-          <span className="text-sm text-gray-500">{formattedDate}</span>
-        </div>
-
-        <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-
-        <div className="flex gap-2 mb-6">
+        
+        <div className="mb-2">
           <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
             {getCategoryName(post.categoryId, categories)}
           </span>
         </div>
+
+        <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+        
+        <div className="flex items-center text-sm text-gray-500">
+          <span className="mr-2">Siku</span>
+          <span>{formattedDate}</span>
+        </div>
       </div>
 
-      <div className="prose prose-lg max-w-none">
+      <Divider variant="border" />
+
+      <div>
         <Suspense fallback={<Loading />}>
           <MarkdownRenderer content={post.content} />
         </Suspense>
@@ -126,8 +110,11 @@ export default function PostDetailPage() {
 
       <Divider variant="border" />
 
-      <section className="mt-12">
-        <h2 className="text-2xl font-bold mb-6">댓글</h2>
+      <div className="mt-12">
+        <h2 className="text-xl font-bold mb-6 mx-2">댓글</h2>
+      </div>
+
+      <section className="">
         <Suspense fallback={<Loading />}>
           <Comments postId={postId} />
         </Suspense>
