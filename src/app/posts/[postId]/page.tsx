@@ -10,10 +10,79 @@ import Comments from '../../../components/blog/Comments';
 import { getCategoryName } from '../../../lib/utils/category';
 import Divider from '../../../components/ui/Divider';
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
+import { Metadata } from 'next';
+import Link from 'next/link';
 
 interface PostDetailPageProps {
-  // Next.js 15 now wraps route params in a Promise
   params: Promise<{ postId: string }>;
+}
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ postId: string }> 
+}): Promise<Metadata> {
+  const { postId } = await params;
+  const post = await api.posts.getOne(parseInt(postId, 10));
+  
+  if (!post) {
+    return {
+      title: '게시물을 찾을 수 없음 | Siku 기술블로그',
+      description: '요청하신 게시물을 찾을 수 없습니다.'
+    };
+  }
+  
+  const description = post.summary || post.content.slice(0, 150).replace(/[#*`]/g, '');
+  const url = `https://bumsiku.kr/posts/${post.id}`;
+  
+  return {
+    title: `${post.title} | Siku 기술블로그`,
+    description: description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: post.title,
+      description: description,
+      url: url,
+      type: 'article',
+      publishedTime: post.createdAt,
+      modifiedTime: post.updatedAt,
+      authors: ['Siku'],
+      siteName: 'Siku 기술블로그',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: description,
+      creator: '@siku',
+    },
+    authors: [{ name: 'Siku' }],
+    robots: {
+      index: true,
+      follow: true,
+    },
+    other: {
+      'ld+json': JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        datePublished: post.createdAt,
+        dateModified: post.updatedAt,
+        author: {
+          '@type': 'Person',
+          name: 'Siku'
+        },
+        description: description,
+        mainEntityOfPage: url,
+        publisher: {
+          '@type': 'Organization',
+          name: 'Siku 기술블로그',
+          url: 'https://bumsiku.kr'
+        }
+      })
+    }
+  };
 }
 
 export default async function PostDetailPage({
@@ -42,27 +111,52 @@ export default async function PostDetailPage({
 
     return (
       <Container size="md" className="py-4">
-        <div className="mb-8">
-          <div className="mb-2">
-            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-              {getCategoryName(post.categoryId, categories)}
-            </span>
+        <article itemScope itemType="https://schema.org/BlogPosting">
+          <header className="mb-8">
+            <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
+              <ol className="flex">
+                <li className="mr-2">
+                  <Link href="/">홈</Link>
+                </li>
+                <li className="mx-2">
+                  <span>&gt;</span>
+                </li>
+                <li className="mr-2">
+                  <Link href="/posts">블로그</Link>
+                </li>
+                <li className="mx-2">
+                  <span>&gt;</span>
+                </li>
+                <li>
+                  <span>{post.title}</span>
+                </li>
+              </ol>
+            </nav>
+            <div className="mb-2">
+              <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                {getCategoryName(post.categoryId, categories)}
+              </span>
+            </div>
+
+            <h1 className="text-3xl font-bold mb-2" itemProp="headline">{post.title}</h1>
+            <div className="flex items-center text-sm text-gray-500">
+              <span className="mr-2" itemProp="author" itemScope itemType="https://schema.org/Person">
+                <span itemProp="name">Siku</span>
+              </span>
+              <time itemProp="datePublished" dateTime={post.createdAt}>
+                {formattedDate}
+              </time>
+            </div>
+          </header>
+
+          <Divider variant="border" />
+
+          <div itemProp="articleBody">
+            <Suspense fallback={<Loading />}>
+              <MarkdownRenderer content={post.content} />
+            </Suspense>
           </div>
-
-          <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-          <div className="flex items-center text-sm text-gray-500">
-            <span className="mr-2">Siku</span>
-            <span>{formattedDate}</span>
-          </div>
-        </div>
-
-        <Divider variant="border" />
-
-        <div>
-          <Suspense fallback={<Loading />}>
-            <MarkdownRenderer content={post.content} />
-          </Suspense>
-        </div>
+        </article>
 
         <Divider variant="border" />
 
@@ -99,3 +193,5 @@ export async function generateStaticParams() {
     return [];
   }
 }
+
+export const revalidate = 600; 
