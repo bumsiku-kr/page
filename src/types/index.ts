@@ -64,7 +64,7 @@ export interface UpdatePostRequest {
   content?: string;
   /** @maxLength 200 @minLength 1 */
   summary?: string;
-  categoryId?: number;
+  category?: number;
 }
 
 export interface CreateCommentRequest {

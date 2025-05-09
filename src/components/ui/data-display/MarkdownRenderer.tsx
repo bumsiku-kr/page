@@ -26,7 +26,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-ul:my-2 prose-ol:my-2
     prose-li:my-1 prose-li:text-base
     prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none
-    prose-code:text-sm
+    prose-code:text-sm prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
     prose-img:my-4
   `;
   
@@ -53,7 +53,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             ) : (
-              <code className={className} {...props}>
+              <code className={inline ? 'inline-code' : className} {...props}>
                 {children}
               </code>
             );
