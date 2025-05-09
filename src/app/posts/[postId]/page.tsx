@@ -11,6 +11,7 @@ import { getCategoryName } from '../../../lib/utils/category';
 import Divider from '../../../components/ui/Divider';
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
@@ -115,13 +116,13 @@ export default async function PostDetailPage({
             <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
               <ol className="flex">
                 <li className="mr-2">
-                  <a href="/">홈</a>
+                  <Link href="/">홈</Link>
                 </li>
                 <li className="mx-2">
                   <span>&gt;</span>
                 </li>
                 <li className="mr-2">
-                  <a href="/posts">블로그</a>
+                  <Link href="/posts">블로그</Link>
                 </li>
                 <li className="mx-2">
                   <span>&gt;</span>
