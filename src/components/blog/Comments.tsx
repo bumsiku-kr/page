@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '../../lib/api';
+import { api } from '../../lib/api/index';
 import { Comment, CreateCommentRequest } from '../../types';
 import Loading from '../ui/feedback/Loading';
 import ErrorMessage from '../ui/feedback/ErrorMessage';

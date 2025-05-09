@@ -1,5 +1,6 @@
 import { LoginRequest, UploadImageResponse } from '../../types';
 import { APIClient, API_ENDPOINTS } from './client';
+import axios from 'axios';
 
 export class ImagesService {
   private client: APIClient;
@@ -13,19 +14,22 @@ export class ImagesService {
       console.log('이미지 업로드 요청:', { fileName: file.name, fileSize: file.size });
       
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('image', file);
       
-      const response = await this.client.request<UploadImageResponse>({
-        url: API_ENDPOINTS.ADMIN_IMAGES,
-        method: 'POST',
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // 직접 백엔드 서버로 요청
+      const response = await axios.post<{success: boolean, data: UploadImageResponse}>(
+        'https://api.bumsiku.kr/admin/images',
+        formData,
+        {
+          withCredentials: true, // 쿠키 전송을 위해 필요
+          headers: {
+            // 헤더를 설정하지 않아 axios가 자동으로 multipart/form-data와 boundary 설정
+          }
+        }
+      );
       
-      console.log('이미지 업로드 응답:', response);
-      return response;
+      console.log('이미지 업로드 응답:', response.data);
+      return response.data.data;
     } catch (error) {
       console.error('이미지 업로드 오류:', error);
       throw error;

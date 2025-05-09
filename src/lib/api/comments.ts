@@ -43,7 +43,7 @@ export class CommentsService {
     try {
       console.log('댓글 삭제 요청:', { commentId });
       const response = await this.client.request<string>({
-        url: `/comments/${commentId}`,
+        url: `/admin/comments/${commentId}`,
         method: 'DELETE',
       });
       console.log('댓글 삭제 응답:', response);

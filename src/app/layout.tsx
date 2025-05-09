@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Header from '../components/layout/Header';
+import ClientLayout from './client-layout';
 
 export const metadata: Metadata = {
   title: 'Siku 기술블로그',
@@ -13,12 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body
-        className="antialiased min-h-screen flex flex-col"
-      >
-        <Header />
-        <main className="flex-grow pt-24 pb-6">{children}</main>
+    <html lang="ko" data-color-mode="light">
+      <body>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

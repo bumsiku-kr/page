@@ -1,0 +1,154 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import DataTable from '@/components/ui/DataTable';
+import { api } from '@/lib/api';
+import { PostSummary } from '@/types/blog';
+import { formatDate } from '@/lib/utils';
+
+export default function PostsManagementPage() {
+  const router = useRouter();
+  const [posts, setPosts] = useState<PostSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(10);
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.posts.getList(page, pageSize);
+      setPosts(response.content);
+      setTotalPosts(response.totalElements);
+      setError(null);
+    } catch (err) {
+      setError('게시글을 불러오는 중 오류가 발생했습니다.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [page, pageSize]);
+
+  const handleEdit = (id: number) => {
+    router.push(`/admin/posts/edit/${id}`);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    try {
+      await api.posts.delete(id);
+      fetchPosts();
+    } catch (err) {
+      console.error('게시글 삭제 중 오류 발생:', err);
+      alert('게시글을 삭제하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleNewPost = () => {
+    router.push('/admin/posts/new');
+  };
+
+  const columns = [
+    {
+      key: 'id',
+      label: 'ID',
+    },
+    {
+      key: 'title',
+      label: '제목',
+      render: (post: PostSummary) => (
+        <div className="truncate max-w-xs" title={post.title}>
+          {post.title}
+        </div>
+      ),
+    },
+    {
+      key: 'createdAt',
+      label: '작성일',
+      render: (post: PostSummary) => formatDate(post.createdAt),
+    },
+    {
+      key: 'actions',
+      label: '관리',
+      render: (post: PostSummary) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleEdit(post.id)}
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            수정
+          </button>
+          <button
+            onClick={() => handleDelete(post.id)}
+            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            삭제
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">게시글 관리</h1>
+        <button
+          onClick={handleNewPost}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          새 게시글
+        </button>
+      </div>
+
+      <DataTable 
+        columns={columns} 
+        data={posts} 
+        isLoading={isLoading} 
+        error={error} 
+      />
+
+      {!isLoading && !error && (
+        <div className="mt-4 flex justify-between items-center">
+          <div>
+            총 {totalPosts}개의 게시글
+          </div>
+          <div className="flex space-x-1">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+              className={`px-3 py-1 rounded ${
+                page === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+            >
+              이전
+            </button>
+            <span className="px-3 py-1">
+              {page + 1} / {Math.ceil(totalPosts / pageSize)}
+            </span>
+            <button
+              disabled={(page + 1) * pageSize >= totalPosts}
+              onClick={() => setPage(page + 1)}
+              className={`px-3 py-1 rounded ${
+                (page + 1) * pageSize >= totalPosts
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+            >
+              다음
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+} 
