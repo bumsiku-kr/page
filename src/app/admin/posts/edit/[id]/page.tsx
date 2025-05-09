@@ -57,7 +57,7 @@ export default function EditPostPage() {
         title: formData.title,
         content: formData.content,
         summary: formData.summary,
-        categoryId: formData.category,
+        category: formData.category,
       };
 
       await api.posts.update(parseInt(postId, 10), postData);
