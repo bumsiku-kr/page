@@ -1,6 +1,7 @@
+// src/app/posts/[postId]/page.tsx
+
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { api } from '../../../lib/api/index';
 import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
@@ -8,34 +9,31 @@ import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
 import Comments from '../../../components/blog/Comments';
 import { getCategoryName } from '../../../lib/utils/category';
 import Divider from '../../../components/ui/Divider';
-
-// 마크다운 콘텐츠를 HTML로 렌더링하기 위한 컴포넌트
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
-import { Post, Category } from '../../../types';
 
 interface PostDetailPageProps {
-  params: {
-    postId: string;
-  };
+  // Next.js 15 now wraps route params in a Promise
+  params: Promise<{ postId: string }>;
 }
 
-export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const postId = params.postId;
-  
-  // 서버에서 직접 데이터 가져오기
+export default async function PostDetailPage({
+  params
+}: PostDetailPageProps) {
+  // await the incoming params object
+  const { postId } = await params;
+
   try {
-    // API에서 게시물 상세 정보와 카테고리 목록 가져오기
+    // fetch post + categories in parallel
     const [post, categories] = await Promise.all([
       api.posts.getOne(parseInt(postId, 10)),
       api.categories.getList(),
     ]);
 
-    // API 응답에 대한 안전성 검사
     if (!post || !post.id) {
       notFound();
     }
 
-    // 게시물 날짜 포매팅
+    // format createdAt date
     const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
@@ -45,7 +43,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     return (
       <Container size="md" className="py-4">
         <div className="mb-8">
-          
           <div className="mb-2">
             <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
               {getCategoryName(post.categoryId, categories)}
@@ -53,7 +50,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
 
           <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-          
           <div className="flex items-center text-sm text-gray-500">
             <span className="mr-2">Siku</span>
             <span>{formattedDate}</span>
@@ -74,7 +70,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           <h2 className="text-xl font-bold mb-6 mx-2">댓글</h2>
         </div>
 
-        <section className="">
+        <section>
           <Suspense fallback={<Loading />}>
             <Comments postId={postId} />
           </Suspense>
@@ -87,14 +83,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   }
 }
 
-// 정적 파라미터 생성을 위한 함수 (선택적)
+// for SSG: generate all valid [postId] params at build time
 export async function generateStaticParams() {
   try {
     const postsData = await api.posts.getList();
-    if (!postsData || !postsData.content || !Array.isArray(postsData.content)) {
+    if (!postsData?.content || !Array.isArray(postsData.content)) {
       return [];
     }
-    
+
     return postsData.content.map((post) => ({
       postId: post.id.toString(),
     }));
