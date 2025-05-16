@@ -3,7 +3,7 @@
 import React from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -31,6 +31,7 @@ export default function Button({
     sm: 'text-xs h-8 px-3',
     md: 'text-sm h-10 px-4',
     lg: 'text-base h-12 px-6',
+    icon: 'h-8 w-8 p-0',
   };
   
   // 버튼 종류별 스타일
