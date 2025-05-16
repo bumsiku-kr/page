@@ -121,12 +121,6 @@ export default async function PostDetailPage({
                 <li className="mx-2">
                   <span>&gt;</span>
                 </li>
-                <li className="mr-2">
-                  <Link href="/posts">블로그</Link>
-                </li>
-                <li className="mx-2">
-                  <span>&gt;</span>
-                </li>
                 <li>
                   <span>{post.title}</span>
                 </li>
