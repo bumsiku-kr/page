@@ -12,6 +12,7 @@ import Divider from '../../../components/ui/Divider';
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import ShareButton from '../../../components/blog/ShareButton';
 
 interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
@@ -140,6 +141,9 @@ export default async function PostDetailPage({
               <time itemProp="datePublished" dateTime={post.createdAt}>
                 {formattedDate}
               </time>
+              <div className="ml-auto">
+                <ShareButton className="hover:bg-gray-100" />
+              </div>
             </div>
           </header>
 
