@@ -13,6 +13,7 @@ import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRender
 import { Metadata } from 'next';
 import Link from 'next/link';
 import ShareButton from '../../../components/blog/ShareButton';
+import { getPostMetadata } from '../../../lib/metadata';
 
 interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
@@ -34,56 +35,8 @@ export async function generateMetadata({
   }
   
   const description = post.summary || post.content.slice(0, 150).replace(/[#*`]/g, '');
-  const url = `https://bumsiku.kr/posts/${post.id}`;
   
-  return {
-    title: `${post.title} | Siku 기술블로그`,
-    description: description,
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title: post.title,
-      description: description,
-      url: url,
-      type: 'article',
-      publishedTime: post.createdAt,
-      modifiedTime: post.updatedAt,
-      authors: ['Siku'],
-      siteName: 'Siku 기술블로그',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: description,
-      creator: '@siku',
-    },
-    authors: [{ name: 'Siku' }],
-    robots: {
-      index: true,
-      follow: true,
-    },
-    other: {
-      'ld+json': JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: post.title,
-        datePublished: post.createdAt,
-        dateModified: post.updatedAt,
-        author: {
-          '@type': 'Person',
-          name: 'Siku'
-        },
-        description: description,
-        mainEntityOfPage: url,
-        publisher: {
-          '@type': 'Organization',
-          name: 'Siku 기술블로그',
-          url: 'https://bumsiku.kr'
-        }
-      })
-    }
-  };
+  return getPostMetadata(post.title, description, post.id, post.createdAt, post.updatedAt);
 }
 
 export default async function PostDetailPage({

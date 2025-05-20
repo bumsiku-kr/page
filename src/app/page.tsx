@@ -5,11 +5,42 @@ import HeroSection from '../components/sections/HeroSection';
 import BlogSection from '../components/sections/BlogSection';
 import Divider from '../components/ui/Divider';
 import { PostListResponse, Category } from '../types';
+import { Metadata } from 'next';
+import { homeMetadata, getCategoryMetadata } from '../lib/metadata';
 
 type SearchParams = {
   page?: string;
   category?: string;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const { category: cat } = await searchParams;
+  const categoryId = typeof cat === 'string' ? parseInt(cat, 10) : undefined;
+  
+  // 카테고리가 없는 경우 기본 홈페이지 메타데이터 반환
+  if (!categoryId) {
+    return homeMetadata;
+  }
+  
+  // 카테고리가 있는 경우 해당 카테고리의 메타데이터 생성
+  try {
+    const categories = await api.categories.getList();
+    const selectedCategory = categories.find(c => c.id === categoryId);
+    
+    if (selectedCategory) {
+      return getCategoryMetadata(selectedCategory.name);
+    }
+  } catch (error) {
+    console.error('카테고리 데이터 로딩 중 오류 발생:', error);
+  }
+  
+  // 카테고리를 찾지 못한 경우 기본 홈페이지 메타데이터 반환
+  return homeMetadata;
+}
 
 export default async function Home({
   // searchParams는 Promise로 들어올 수 있음을 명시

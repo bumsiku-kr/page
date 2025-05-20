@@ -1,3 +1,8 @@
+import { Metadata } from 'next';
+import { portfolioMetadata } from '../../lib/metadata';
+
+export const metadata: Metadata = portfolioMetadata;
+
 export default function PortfolioPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
