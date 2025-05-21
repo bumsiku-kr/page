@@ -1,12 +1,10 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import ClientLayout from './client-layout';
-import Script from 'next/script';
+import type { Metadata } from "next";
+import "./globals.css";
+import ClientLayout from "./client-layout";
+import Script from "next/script";
+import { defaultMetadata } from "../lib/metadata";
 
-export const metadata: Metadata = {
-  title: 'Siku 기술블로그',
-  description: 'Siku의 기술 블로그입니다.',
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
