@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 const siteName = 'Siku 기술블로그';
 const siteUrl = 'https://bumsiku.kr';
 const defaultDescription = 'Siku의 기술 블로그입니다.';
-const defaultImagePath = 'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default.png';
+const defaultImagePath = 'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default-image.png';
 const defaultAuthor = 'Siku';
 
 // 기본 메타데이터 설정
@@ -13,6 +13,28 @@ export const defaultMetadata: Metadata = {
   title: siteName,
   description: defaultDescription,
   metadataBase: new URL(siteUrl),
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-icon-57x57.png', sizes: '57x57', type: 'image/png' },
+      { url: '/apple-icon-60x60.png', sizes: '60x60', type: 'image/png' },
+      { url: '/apple-icon-72x72.png', sizes: '72x72', type: 'image/png' },
+      { url: '/apple-icon-76x76.png', sizes: '76x76', type: 'image/png' },
+      { url: '/apple-icon-114x114.png', sizes: '114x114', type: 'image/png' },
+      { url: '/apple-icon-120x120.png', sizes: '120x120', type: 'image/png' },
+      { url: '/apple-icon-144x144.png', sizes: '144x144', type: 'image/png' },
+      { url: '/apple-icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/apple-icon-180x180.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'icon', type: 'image/png', sizes: '192x192', url: '/android-icon-192x192.png' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/favicon-32x32.png' },
+      { rel: 'icon', type: 'image/png', sizes: '96x96', url: '/favicon-96x96.png' },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', url: '/favicon-16x16.png' },
+      { rel: 'manifest', url: '/manifest.json' },
+    ],
+  },
   openGraph: {
     title: siteName,
     description: defaultDescription,
@@ -39,6 +61,11 @@ export const defaultMetadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  themeColor: '#ffffff',
+  other: {
+    'msapplication-TileColor': '#ffffff',
+    'msapplication-TileImage': '/ms-icon-144x144.png',
   },
 };
 
@@ -98,12 +125,21 @@ export function getPostMetadata(
       modifiedTime: updatedAt,
       authors: [defaultAuthor],
       siteName,
+      images: [
+        {
+          url: defaultImagePath,
+          width: 800,
+          height: 600,
+          alt: `${title} - ${siteName}`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
       creator: '@siku',
+      images: [defaultImagePath],
     },
     authors: [{ name: defaultAuthor }],
     robots: {
