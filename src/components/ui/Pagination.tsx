@@ -120,11 +120,6 @@ export default function Pagination({
           </svg>
         </Link>
       </div>
-
-      {/* 페이지 정보 */}
-      <div className="absolute left-0 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 hidden lg:block">
-        {currentPage} / {totalPages}
-      </div>
     </nav>
   );
 } 
