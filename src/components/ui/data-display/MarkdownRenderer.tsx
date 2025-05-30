@@ -18,14 +18,14 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
   // 한글 가독성 최적화 스타일 - 줄 간격, 문단 간격, 글자 간격 개선
   const customStyles = `
     prose-headings:my-6 prose-headings:leading-relaxed prose-headings:tracking-tight prose-headings:text-gray-900
-    prose-h1:text-2xl prose-h1:font-bold prose-h1:mb-8 prose-h1:mt-8 prose-h1:leading-tight prose-h1:tracking-tight
-    prose-h2:text-xl prose-h2:font-semibold prose-h2:mb-6 prose-h2:mt-8 prose-h2:leading-relaxed prose-h2:tracking-tight
-    prose-h3:text-lg prose-h3:font-semibold prose-h3:mb-4 prose-h3:mt-6 prose-h3:leading-relaxed prose-h3:tracking-tight
-    prose-h4:text-base prose-h4:font-medium prose-h4:mb-3 prose-h4:mt-5 prose-h4:leading-relaxed prose-h4:tracking-tight
-    prose-p:text-base prose-p:my-4 prose-p:leading-7 prose-p:tracking-wide prose-p:text-gray-800
-    prose-ul:my-4 prose-ul:leading-7 prose-ol:my-4 prose-ol:leading-7
-    prose-li:my-2 prose-li:text-base prose-li:leading-7 prose-li:tracking-wide prose-li:text-gray-800 prose-li:pl-1
-    prose-blockquote:my-6 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:leading-7
+    prose-h1:text-2xl prose-h1:font-bold prose-h1:mb-2 prose-h1:mt-2 prose-h1:leading-tight prose-h1:tracking-tight
+    prose-h2:text-xl prose-h2:font-bold prose-h2:mb-2 prose-h2:mt-4 prose-h2:leading-relaxed prose-h2:tracking-tight
+    prose-h3:text-lg prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 prose-h3:leading-relaxed prose-h3:tracking-tight
+    prose-h4:text-base prose-h4:font-medium prose-h4:mb-2 prose-h4:mt-4 prose-h4:leading-relaxed prose-h4:tracking-tight
+    prose-p:text-base prose-p:my-2 prose-p:leading-7 prose-p:tracking-tight prose-p:text-black-800
+    prose-ul:my-2 prose-ul:leading-7 prose-ol:my-2 prose-ol:leading-7
+    prose-li:my-2 prose-li:text-base prose-li:leading-7 prose-li:tracking-tight prose-li:text-gray-800 prose-li:pl-1
+    prose-blockquote:my-2 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:leading-7
     prose-strong:text-gray-900 prose-strong:font-semibold
     prose-em:text-gray-700
     prose-a:text-blue-600 prose-a:underline prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-blue-800
