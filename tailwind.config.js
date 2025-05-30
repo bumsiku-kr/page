@@ -9,6 +9,7 @@ module.exports = {
       fontFamily: {
         sans: ['Pretendard', 'sans-serif'],
         mono: ['Pretendard', 'monospace'],
+        'nanum-gothic': ['Nanum Gothic', 'sans-serif'],
       },
       typography: {
         DEFAULT: {

@@ -12,15 +12,15 @@ interface MarkdownRendererProps {
 }
 
 export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  // 기본 마크다운 스타일 클래스
-  const defaultClassName = 'prose max-w-none bg-white';
+  // 기본 마크다운 스타일 클래스 - 나눔고딕 폰트 적용
+  const defaultClassName = 'prose max-w-none bg-white font-nanum-gothic';
   
   // 추가 스타일 조정 - 균형 잡힌 텍스트 사이즈로 통일
   const customStyles = `
     prose-headings:my-4
     prose-h1:text-2xl prose-h1:font-bold 
     prose-h2:text-xl prose-h2:font-semibold 
-    prose-h3:text-lg prose-h3:font-medium
+    prose-h3:text-lg prose-h3:font-semibold
     prose-h4:text-base prose-h4:font-medium
     prose-p:text-base prose-p:my-2
     prose-ul:my-2 prose-ol:my-2
