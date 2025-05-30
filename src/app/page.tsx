@@ -58,12 +58,12 @@ export default async function Home({
     typeof cat === 'string' ? parseInt(cat, 10) : undefined;
 
   // API 데이터 가져오기
-  let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 10 };
+  let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 5 };
   let categoriesData: Category[] = [];
 
   try {
     [postsData, categoriesData] = await Promise.all([
-      api.posts.getList(currentPage, 10, category),
+      api.posts.getList(currentPage, 5, category),
       api.categories.getList(),
     ]);
   } catch (error) {

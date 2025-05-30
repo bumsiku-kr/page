@@ -14,6 +14,10 @@ export default function RootLayout({
   return (
     <html lang="ko" data-color-mode="light">
       <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body>
         <ClientLayout>{children}</ClientLayout>

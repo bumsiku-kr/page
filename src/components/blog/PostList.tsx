@@ -18,7 +18,7 @@ export default function PostList({
   currentPage,
   totalPages,
   categories,
-  baseUrl = '/blog',
+  baseUrl = '/',
 }: PostListProps) {
   return (
     <div className="max-w-3xl">

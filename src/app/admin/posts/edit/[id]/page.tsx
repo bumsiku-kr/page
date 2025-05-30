@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { api } from '@/lib/api';
-import { UpdatePostRequest } from '@/types';
-import { Category, Post } from '@/types/blog';
+import { UpdatePostRequest, Post } from '@/types';
+import { Category } from '@/types/blog';
 import PostForm from '@/components/admin/PostForm';
 
 export default function EditPostPage() {
@@ -83,13 +83,24 @@ export default function EditPostPage() {
     return <div className="flex justify-center items-center min-h-screen">게시글을 찾을 수 없습니다.</div>;
   }
 
+  // 카테고리 ID 결정 로직
+  const getCategoryId = () => {
+    // 실제 API는 categoryId를 반환함
+    if (post.categoryId && typeof post.categoryId === 'number') {
+      return post.categoryId;
+    }
+    
+    // 카테고리 정보가 없는 경우 첫 번째 카테고리 사용
+    return categories.length > 0 ? categories[0].id : 1;
+  };
+
   return (
     <PostForm 
       initialValues={{
         title: post.title,
         content: post.content,
         summary: post.summary,
-        category: post.category?.id || 1,
+        category: getCategoryId(),
       }}
       categories={categories}
       isSubmitting={isSaving}

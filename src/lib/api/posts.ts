@@ -10,7 +10,7 @@ export class PostsService {
 
   async getList(
     page: number = 0,
-    size: number = 10,
+    size: number = 5,
     category?: number,
     sort: string = 'createdAt,desc'
   ): Promise<GetPostsResponse['data']> {
