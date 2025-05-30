@@ -55,6 +55,7 @@ export default function BlogSection({
           <CategorySidebar
             selectedCategory={selectedCategory}
             categories={categories}
+            totalPostCount={posts.totalElements}
           />
         </aside>
       </div>
