@@ -28,24 +28,23 @@ export default function Pagination({
     return `${baseUrl}${connector}page=${page}`;
   };
 
-  // 보여줄 페이지 버튼 계산 (최대 5개)
+  // 보여줄 페이지 버튼 계산 (최대 7개)
   const generatePageNumbers = () => {
     const pageNumbers = [];
     
-    if (totalPages <= 5) {
-      // 총 페이지가 5개 이하면 모두 표시
+    if (totalPages <= 7) {
+      // 총 페이지가 7개 이하면 모두 표시
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // 중앙에 현재 페이지 표시, 양쪽에 2개씩 (최대 5개)
-      // 시작 페이지 계산
-      let startPage = Math.max(1, currentPage - 2);
-      const endPage = Math.min(startPage + 4, totalPages);
+      // 중앙에 현재 페이지 표시, 양쪽에 3개씩 (최대 7개)
+      let startPage = Math.max(1, currentPage - 3);
+      const endPage = Math.min(startPage + 6, totalPages);
       
       // 끝 페이지가 총 페이지보다 작으면 시작 페이지 조정
       if (endPage < totalPages) {
-        startPage = Math.max(1, endPage - 4);
+        startPage = Math.max(1, endPage - 6);
       }
       
       for (let i = startPage; i <= endPage; i++) {
@@ -59,67 +58,73 @@ export default function Pagination({
   const pageNumbers = generatePageNumbers();
 
   return (
-    <nav className={`flex justify-center mt-8 ${className}`}>
-      <ul className="inline-flex rounded-md shadow">
+    <nav className={`flex justify-center mt-12 ${className}`} aria-label="페이지 네비게이션">
+      <div className="flex items-center space-x-2">
         {/* 이전 페이지 버튼 */}
-        <li>
-          <Link
-            href={getPageUrl(currentPage - 1)}
-            className={`relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-              currentPage === 1
-                ? 'text-gray-300 cursor-not-allowed'
-                : 'text-gray-500 hover:bg-gray-50'
-            }`}
-            aria-disabled={currentPage === 1}
-            tabIndex={currentPage === 1 ? -1 : 0}
-            onClick={(e) => {
-              if (currentPage === 1) {
-                e.preventDefault();
-              }
-            }}
-          >
-            이전
-          </Link>
-        </li>
+        <Link
+          href={getPageUrl(currentPage - 1)}
+          className={`inline-flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-200 ${
+            currentPage === 1
+              ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+              : 'border-gray-200 text-gray-600 hover:text-black hover:border-black hover:bg-gray-50'
+          }`}
+          aria-disabled={currentPage === 1}
+          tabIndex={currentPage === 1 ? -1 : 0}
+          onClick={(e) => {
+            if (currentPage === 1) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </Link>
 
         {/* 페이지 번호 버튼들 */}
-        {pageNumbers.map((page) => (
-          <li key={page}>
+        <div className="flex items-center space-x-1">
+          {pageNumbers.map((page) => (
             <Link
+              key={page}
               href={getPageUrl(page)}
-              className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
+              className={`inline-flex items-center justify-center w-10 h-10 rounded-lg border text-sm font-medium transition-all duration-200 ${
                 page === currentPage
-                  ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                  : 'bg-white text-gray-500 hover:bg-gray-50'
+                  ? 'bg-black text-white border-black'
+                  : 'border-gray-200 text-gray-700 hover:text-black hover:border-black hover:bg-gray-50'
               }`}
               aria-current={page === currentPage ? 'page' : undefined}
             >
               {page}
             </Link>
-          </li>
-        ))}
+          ))}
+        </div>
 
         {/* 다음 페이지 버튼 */}
-        <li>
-          <Link
-            href={getPageUrl(currentPage + 1)}
-            className={`relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-              currentPage === totalPages
-                ? 'text-gray-300 cursor-not-allowed'
-                : 'text-gray-500 hover:bg-gray-50'
-            }`}
-            aria-disabled={currentPage === totalPages}
-            tabIndex={currentPage === totalPages ? -1 : 0}
-            onClick={(e) => {
-              if (currentPage === totalPages) {
-                e.preventDefault();
-              }
-            }}
-          >
-            다음
-          </Link>
-        </li>
-      </ul>
+        <Link
+          href={getPageUrl(currentPage + 1)}
+          className={`inline-flex items-center justify-center w-10 h-10 rounded-lg border transition-all duration-200 ${
+            currentPage === totalPages
+              ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+              : 'border-gray-200 text-gray-600 hover:text-black hover:border-black hover:bg-gray-50'
+          }`}
+          aria-disabled={currentPage === totalPages}
+          tabIndex={currentPage === totalPages ? -1 : 0}
+          onClick={(e) => {
+            if (currentPage === totalPages) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
+      {/* 페이지 정보 */}
+      <div className="absolute left-0 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 hidden lg:block">
+        {currentPage} / {totalPages}
+      </div>
     </nav>
   );
 } 
