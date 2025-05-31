@@ -35,7 +35,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-table:my-6 prose-table:border-collapse
     prose-th:bg-gray-50 prose-th:py-3 prose-th:px-4 prose-th:text-left prose-th:font-semibold prose-th:text-gray-900 prose-th:border prose-th:border-gray-300
     prose-td:py-3 prose-td:px-4 prose-td:border prose-td:border-gray-300 prose-td:text-gray-800
-    prose-hr:my-8 prose-hr:border-gray-300
+    prose-hr:my-6 prose-hr:border-gray-200 prose-hr:opacity-80 prose-hr:w-1/2 prose-hr:mx-auto
   `;
   
   return (
