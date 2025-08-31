@@ -1,4 +1,4 @@
-# 개인 기술 블로그
+# 개인 기술 블로그 (https://bumsiku.kr)
 
 Next.js 15, TypeScript, TailwindCSS로 구축된 모던 블로그 웹사이트 프로젝트입니다.
 
