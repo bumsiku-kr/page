@@ -69,4 +69,4 @@ export class CategoriesService {
       throw error;
     }
   }
-} 
+}

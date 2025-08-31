@@ -6,12 +6,12 @@ export const maxDuration = 60; // 최대 실행 시간 60초로 설정
 
 export async function POST(request: NextRequest) {
   console.log('API 라우트 호출됨');
-  
+
   try {
     // 폼 데이터 추출
     const formData = await request.formData();
     const imageFile = formData.get('image');
-    
+
     if (!imageFile) {
       console.error('이미지 파일 없음');
       return NextResponse.json(
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     console.log('이미지 정보:', {
       타입: typeof imageFile,
       인스턴스: imageFile instanceof File,
@@ -30,35 +30,35 @@ export async function POST(request: NextRequest) {
     // 백엔드 서버로 전송 시도
     const API_URL = 'https://api.bumsiku.kr';
     const cookieHeader = request.headers.get('cookie') || '';
-    
+
     // 쿠키 정보 로깅
     console.log('쿠키 헤더:', cookieHeader);
     console.log('JSESSIONID 포함 여부:', cookieHeader.includes('JSESSIONID'));
     console.log('isLoggedIn 포함 여부:', cookieHeader.includes('isLoggedIn'));
-    
+
     try {
       // 새로운 FormData 객체 생성
       const serverFormData = new FormData();
       serverFormData.append('image', imageFile);
-      
+
       // 요청 헤더 설정
       const headers: HeadersInit = {
-        'Cookie': cookieHeader,
+        Cookie: cookieHeader,
       };
-      
+
       // Origin과 Referer 헤더 추가 (CORS 관련)
       headers['Origin'] = request.headers.get('origin') || 'https://localhost:3000';
       headers['Referer'] = request.headers.get('referer') || 'https://localhost:3000';
-      
+
       // Accept 헤더 추가
       headers['Accept'] = 'application/json';
-      
+
       // X-Requested-With 헤더 추가 (CSRF 보호 관련)
       headers['X-Requested-With'] = 'XMLHttpRequest';
-      
+
       // 백엔드 서버로 요청 보내기
       console.log('백엔드 서버 요청 헤더:', headers);
-      
+
       const response = await fetch(`${API_URL}/admin/images`, {
         method: 'POST',
         body: serverFormData,
@@ -66,10 +66,10 @@ export async function POST(request: NextRequest) {
         credentials: 'include',
         mode: 'cors', // CORS 모드 명시적 설정
       });
-      
+
       console.log('백엔드 응답 상태:', response.status);
       console.log('백엔드 응답 헤더:', Object.fromEntries(response.headers));
-      
+
       // 응답 체크
       if (!response.ok) {
         let errorBody = '';
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           // 우선 텍스트로 읽기 시도
           errorBody = await response.text();
           console.error('백엔드 오류 응답 (텍스트):', errorBody);
-          
+
           // JSON 파싱 시도
           if (errorBody && errorBody.trim().startsWith('{')) {
             const errorJson = JSON.parse(errorBody);
@@ -86,10 +86,12 @@ export async function POST(request: NextRequest) {
         } catch (readError) {
           console.error('응답 읽기 오류:', readError);
         }
-        
-        throw new Error(`백엔드 서버 오류: ${response.status} ${errorBody ? ` - ${errorBody.substring(0, 100)}` : ''}`);
+
+        throw new Error(
+          `백엔드 서버 오류: ${response.status} ${errorBody ? ` - ${errorBody.substring(0, 100)}` : ''}`
+        );
       }
-      
+
       let data;
       try {
         data = await response.json();
@@ -99,12 +101,12 @@ export async function POST(request: NextRequest) {
         console.log('텍스트 응답:', textResponse);
         throw new Error('응답 형식 오류: JSON이 아닙니다');
       }
-      
+
       console.log('백엔드 응답 데이터:', data);
       return NextResponse.json(data);
     } catch (uploadError) {
       console.error('백엔드 요청 오류:', uploadError);
-      
+
       // 백엔드 요청 실패 시 테스트 응답으로 대체 (개발 중에만)
       if (process.env.NODE_ENV === 'development') {
         console.log('개발 환경에서 테스트 응답 반환');
@@ -112,24 +114,29 @@ export async function POST(request: NextRequest) {
           success: true,
           data: {
             url: `https://example.com/images/${imageFile instanceof File ? imageFile.name : 'image.jpg'}`,
-            size: imageFile instanceof File ? imageFile.size : 0
-          }
+            size: imageFile instanceof File ? imageFile.size : 0,
+          },
         });
       }
-      
+
       throw uploadError; // 프로덕션에서는 오류 전파
     }
   } catch (error) {
     console.error('업로드 프록시 오류:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
+      {
+        success: false,
+        error: {
           message: error instanceof Error ? error.message : '서버 오류',
-          stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : '') : undefined
-        } 
+          stack:
+            process.env.NODE_ENV === 'development'
+              ? error instanceof Error
+                ? error.stack
+                : ''
+              : undefined,
+        },
       },
       { status: 500 }
     );
   }
-} 
+}

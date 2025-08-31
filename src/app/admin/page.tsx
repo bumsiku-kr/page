@@ -25,9 +25,7 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">관리자 페이지</h1>
-      <p className="text-gray-600">
-        관리자 전용 페이지입니다.
-      </p>
+      <p className="text-gray-600">관리자 전용 페이지입니다.</p>
     </div>
   );
 }

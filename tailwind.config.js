@@ -7,9 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Pretendard', 'sans-serif'],
-        mono: ['Pretendard', 'monospace'],
-        'nanum-gothic': ['Nanum Gothic', 'sans-serif'],
+        sans: ['Noto Sans KR', 'sans-serif'],
+        mono: ['Noto Sans KR', 'monospace'],
       },
       typography: {
         DEFAULT: {

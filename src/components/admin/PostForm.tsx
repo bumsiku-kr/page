@@ -14,10 +14,9 @@ import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 
 // next-remove-imports를 사용하여 SSR 문제 해결
-const MDEditor = dynamic(
-  () => import('@uiw/react-md-editor').then((mod) => mod.default),
-  { ssr: false }
-);
+const MDEditor = dynamic(() => import('@uiw/react-md-editor').then(mod => mod.default), {
+  ssr: false,
+});
 
 interface PostFormProps {
   initialValues: {
@@ -55,13 +54,13 @@ export default function PostForm({
   const [summary, setSummary] = useState(initialValues.summary);
   const [category, setCategory] = useState<number>(initialValues.category);
   const [formError, setFormError] = useState<string | null>(error);
-  const [uploadedImages, setUploadedImages] = useState<{url: string, size: number}[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{ url: string; size: number }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
   // 폼 제출 처리
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) {
       setFormError('제목을 입력해주세요.');
       return;
@@ -96,7 +95,7 @@ export default function PostForm({
     try {
       const response = await api.images.upload(file);
       setUploadedImages(prev => [...prev, { url: response.url, size: response.size }]);
-      
+
       // 업로드된 이미지 URL을 마크다운 형식으로 에디터에 추가
       const imageMarkdown = `![이미지](${response.url})`;
       setContent(prev => prev + '\n' + imageMarkdown);
@@ -130,7 +129,7 @@ export default function PostForm({
         <Input
           label="제목"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={e => setTitle(e.target.value)}
           placeholder="게시글 제목을 입력하세요"
           className="w-full"
           required
@@ -170,9 +169,10 @@ export default function PostForm({
                       {children}
                     </code>
                   );
-                }
+                },
               },
-              className: 'prose max-w-none bg-white prose-headings:my-4 prose-h1:text-2xl prose-h1:font-bold prose-h2:text-xl prose-h2:font-semibold prose-h3:text-lg prose-h3:font-medium prose-h4:text-base prose-h4:font-medium prose-p:text-base prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-li:text-base prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-code:text-sm prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-img:my-4'
+              className:
+                'prose max-w-none bg-white prose-headings:my-4 prose-h1:text-2xl prose-h1:font-bold prose-h2:text-xl prose-h2:font-semibold prose-h3:text-lg prose-h3:font-medium prose-h4:text-base prose-h4:font-medium prose-p:text-base prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-li:text-base prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-code:text-sm prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-img:my-4',
             }}
           />
         </div>
@@ -189,14 +189,19 @@ export default function PostForm({
             />
             {isUploading && <span className="text-sm text-blue-500">업로드 중...</span>}
           </div>
-          
+
           {uploadedImages.length > 0 && (
             <div className="mt-2">
               <p className="text-sm font-medium text-gray-700 mb-1">업로드된 이미지</p>
               <ul className="space-y-1 max-h-32 overflow-y-auto border rounded-md p-2">
                 {uploadedImages.map((img, idx) => (
                   <li key={idx} className="text-sm flex justify-between">
-                    <a href={img.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline truncate">
+                    <a
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline truncate"
+                    >
                       {img.url}
                     </a>
                     <span className="text-gray-500 ml-2">{Math.round(img.size / 1024)} KB</span>
@@ -210,7 +215,7 @@ export default function PostForm({
         <Input
           label="요약 (선택사항)"
           value={summary}
-          onChange={(e) => setSummary(e.target.value)}
+          onChange={e => setSummary(e.target.value)}
           placeholder="게시글 요약을 입력하세요 (미입력시 제목으로 자동생성)"
           className="w-full"
         />
@@ -222,10 +227,10 @@ export default function PostForm({
           <select
             id="category"
             value={category}
-            onChange={(e) => setCategory(Number(e.target.value))}
+            onChange={e => setCategory(Number(e.target.value))}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
           >
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -253,4 +258,4 @@ export default function PostForm({
       </form>
     </div>
   );
-} 
+}

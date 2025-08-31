@@ -15,19 +15,19 @@ export default function Divider({
 }: DividerProps) {
   if (variant === 'line') {
     return (
-      <hr 
+      <hr
         className={`w-full my-6 border-gray-200 ${
           type === 'vertical' ? 'h-full border-r' : 'border-t'
         } ${className}`}
       />
     );
   }
-  
+
   return (
-    <div 
+    <div
       className={`w-full my-6 border-gray-300 ${
         type === 'vertical' ? 'h-full border-r' : 'border-t'
       } ${className}`}
     />
   );
-} 
+}

@@ -10,7 +10,11 @@ export default function Header() {
       <Container size="md" className="relative">
         <div className="flex justify-between items-center">
           {/* 로고 */}
-          <Link href="/" className="text-2xl font-medium text-gray-800 font-mono" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+          <Link
+            href="/"
+            className="text-2xl font-medium text-gray-800 font-mono"
+            style={{ fontFamily: '"JetBrains Mono", monospace' }}
+          >
             <span className="font-extrabold">Siku</span>.class
           </Link>
 
@@ -18,7 +22,11 @@ export default function Header() {
           <div className="flex space-x-4">
             <SocialLink type="github" href="https://github.com/SIKU-KR" label="GitHub" />
             <SocialLink type="linkedin" href="https://linkedin.com/in/siku-kr" label="LinkedIn" />
-            <SocialLink type="instagram" href="https://www.instagram.com/bam_siku_/" label="Instagram" />
+            <SocialLink
+              type="instagram"
+              href="https://www.instagram.com/bam_siku_/"
+              label="Instagram"
+            />
           </div>
         </div>
       </Container>

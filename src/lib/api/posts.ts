@@ -100,4 +100,4 @@ export class PostsService {
       throw error;
     }
   }
-} 
+}

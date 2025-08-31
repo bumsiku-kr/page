@@ -18,7 +18,11 @@ interface LoginForm {
 axios.defaults.withCredentials = true; // 모든 요청에 쿠키 포함
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -34,30 +38,30 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await axios.post(
         `https://api.bumsiku.kr/login`,
-        { 
+        {
           username: data.username,
-          password: data.password 
+          password: data.password,
         },
         {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
-            'Origin': window.location.origin
-          }
+            Origin: window.location.origin,
+          },
         }
       );
-      
+
       if (response.status === 200) {
         if (!document.cookie.includes('JSESSIONID')) {
           document.cookie = `isLoggedIn=true; path=/; max-age=86400; SameSite=None; ${window.location.protocol === 'https:' ? 'Secure;' : ''}`;
         }
-        
+
         loginWithSession(data.username, data.password);
-        
+
         if (data.remember) {
           localStorage.setItem('rememberMe', 'true');
         }
@@ -69,8 +73,8 @@ export default function LoginPage() {
         setError('인증에 실패했습니다.');
       }
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string }, status?: number } };
-      
+      const errorObj = err as { response?: { data?: { message?: string }; status?: number } };
+
       if (errorObj.response?.status === 401) {
         setError('로그인에 실패했습니다. 사용자명과 비밀번호를 확인하세요.');
       } else {
@@ -90,11 +94,7 @@ export default function LoginPage() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+          {error && <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
           <div className="space-y-4">
             <Input
@@ -124,10 +124,7 @@ export default function LoginPage() {
                 className="h-4 w-4 rounded border-gray-300"
                 {...register('remember')}
               />
-              <label 
-                htmlFor="remember" 
-                className="ml-2 block text-sm text-gray-700"
-              >
+              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
                 로그인 상태 유지
               </label>
             </div>

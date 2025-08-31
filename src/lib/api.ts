@@ -45,7 +45,11 @@ export async function fetchData<T>(url: string, config?: AxiosRequestConfig): Pr
  * @param config axios 요청 설정
  * @returns 응답 데이터
  */
-export async function postData<T, D = any>(url: string, data: D, config?: AxiosRequestConfig): Promise<T> {
+export async function postData<T, D = any>(
+  url: string,
+  data: D,
+  config?: AxiosRequestConfig
+): Promise<T> {
   try {
     const response = await api.post<ApiResponse<T>>(url, data, config);
     return response.data.data;
@@ -65,7 +69,11 @@ export async function postData<T, D = any>(url: string, data: D, config?: AxiosR
  * @param config axios 요청 설정
  * @returns 응답 데이터
  */
-export async function putData<T, D = any>(url: string, data: D, config?: AxiosRequestConfig): Promise<T> {
+export async function putData<T, D = any>(
+  url: string,
+  data: D,
+  config?: AxiosRequestConfig
+): Promise<T> {
   try {
     const response = await api.put<ApiResponse<T>>(url, data, config);
     return response.data.data;
@@ -98,4 +106,4 @@ export async function deleteData<T = any>(url: string, config?: AxiosRequestConf
 }
 
 // src/lib/api/index.ts에서 내보낸 api 객체를 재내보냄
-export { api } from './api/index'; 
+export { api } from './api/index';

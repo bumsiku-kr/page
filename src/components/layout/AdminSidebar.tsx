@@ -16,7 +16,7 @@ export default function AdminSidebar() {
     <aside className="w-full md:w-64 bg-gray-800 text-white md:fixed md:h-full md:top-16 md:left-0 md:overflow-y-auto">
       <nav className="py-6">
         <ul>
-          {menuItems.map((item) => (
+          {menuItems.map(item => (
             <li key={item.path} className="mb-1">
               <Link
                 href={item.path}
@@ -32,4 +32,4 @@ export default function AdminSidebar() {
       </nav>
     </aside>
   );
-} 
+}

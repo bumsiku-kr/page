@@ -8,11 +8,7 @@ interface ContainerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
-export default function Container({
-  children,
-  className = '',
-  size = 'lg',
-}: ContainerProps) {
+export default function Container({ children, className = '', size = 'lg' }: ContainerProps) {
   const sizeClasses = {
     sm: 'max-w-3xl',
     md: 'max-w-5xl',
@@ -21,9 +17,5 @@ export default function Container({
     full: 'max-w-full',
   };
 
-  return (
-    <div className={`mx-auto px-4 sm:px-6 ${sizeClasses[size]} ${className}`}>
-      {children}
-    </div>
-  );
-} 
+  return <div className={`mx-auto px-4 sm:px-6 ${sizeClasses[size]} ${className}`}>{children}</div>;
+}

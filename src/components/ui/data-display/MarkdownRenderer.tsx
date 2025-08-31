@@ -12,9 +12,9 @@ interface MarkdownRendererProps {
 }
 
 export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  // 기본 마크다운 스타일 클래스 - 나눔고딕 폰트 적용
-  const defaultClassName = 'prose max-w-none bg-white font-nanum-gothic';
-  
+  // 기본 마크다운 스타일 클래스
+  const defaultClassName = 'prose max-w-none bg-white';
+
   // 한글 가독성 최적화 스타일 - 줄 간격, 문단 간격, 글자 간격 개선
   const customStyles = `
     prose-headings:my-6 prose-headings:leading-relaxed prose-headings:tracking-tight prose-headings:text-gray-900
@@ -26,7 +26,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-ul:my-2 prose-ul:leading-7 prose-ol:my-2 prose-ol:leading-7
     prose-li:my-2 prose-li:text-base prose-li:leading-7 prose-li:tracking-tight prose-li:text-gray-800 prose-li:pl-1
     prose-blockquote:my-2 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:leading-7
-    prose-strong:text-gray-900 prose-strong:font-semibold
+    prose-strong:text-gray-900 prose-strong:font-medium
     prose-em:text-gray-700
     prose-a:text-blue-600 prose-a:underline prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-blue-800
     prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-pre:my-4
@@ -37,7 +37,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-td:py-3 prose-td:px-4 prose-td:border prose-td:border-gray-300 prose-td:text-gray-800
     prose-hr:my-6 prose-hr:border-gray-200 prose-hr:opacity-80 prose-hr:w-1/2 prose-hr:mx-auto
   `;
-  
+
   return (
     <div className={`${defaultClassName} ${customStyles} ${className}`.trim()}>
       <ReactMarkdown
@@ -69,7 +69,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
                 {children}
               </code>
             );
-          }
+          },
         }}
       >
         {content}

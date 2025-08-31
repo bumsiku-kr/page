@@ -16,4 +16,4 @@ export const getCategoryName = (categoryId: number | undefined, categories: Cate
     return '삭제된 카테고리';
   }
   return category.name;
-}; 
+};

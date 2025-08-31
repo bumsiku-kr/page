@@ -7,10 +7,10 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('SESSION')?.value;
   const springSessionId = request.cookies.get('SPRING_SESSION')?.value;
   const basicCookies = request.cookies.get('SPRING.SESSION')?.value;
-  
+
   // isLoggedIn 별도 상태 쿠키 확인
   const isLoggedInCookie = request.cookies.get('isLoggedIn')?.value;
-  
+
   const { pathname } = request.nextUrl;
 
   // POST /login 요청일 경우 요청과 응답 정보 출력
@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
     console.log('요청 URL:', request.url);
     console.log('요청 메서드:', request.method);
     console.log('요청 헤더:', Object.fromEntries(request.headers));
-    
+
     // 응답을 가로채서 정보 출력
     const response = NextResponse.next();
     console.log('\n=== 로그인 응답 정보 ===');
@@ -31,18 +31,22 @@ export function middleware(request: NextRequest) {
   }
 
   // 모든 쿠키 출력
-  console.log('모든 쿠키:', [...request.cookies.getAll()].map(c => `${c.name}=${c.value}`).join('; '));
+  console.log(
+    '모든 쿠키:',
+    [...request.cookies.getAll()].map(c => `${c.name}=${c.value}`).join('; ')
+  );
   console.log('미들웨어 경로:', pathname);
-  console.log('세션 상태:', { 
+  console.log('세션 상태:', {
     JSESSIONID: !!jsessionidCookie,
     SESSION: !!sessionCookie,
     SPRING_SESSION: !!springSessionId,
     'SPRING.SESSION': !!basicCookies,
-    isLoggedIn: !!isLoggedInCookie
+    isLoggedIn: !!isLoggedInCookie,
   });
 
   // 세션이 있는지 다양한 방식으로 확인
-  const hasSession = jsessionidCookie || sessionCookie || springSessionId || basicCookies || isLoggedInCookie;
+  const hasSession =
+    jsessionidCookie || sessionCookie || springSessionId || basicCookies || isLoggedInCookie;
 
   // 관리자 경로 보호
   if (pathname.startsWith('/admin') && !hasSession) {
@@ -61,8 +65,5 @@ export function middleware(request: NextRequest) {
 
 // 미들웨어를 적용할 경로 설정
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/login',
-  ],
+  matcher: ['/admin/:path*', '/login'],
 };

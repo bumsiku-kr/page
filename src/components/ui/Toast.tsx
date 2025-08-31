@@ -20,18 +20,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
-  const addToast = useCallback((message: string, type: ToastType) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const addToast = useCallback(
+    (message: string, type: ToastType) => {
+      const id = Math.random().toString(36).substring(2, 9);
+      setToasts(prev => [...prev, { id, message, type }]);
 
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      removeToast(id);
-    }, 5000);
-  }, [removeToast]);
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        removeToast(id);
+      }, 5000);
+    },
+    [removeToast]
+  );
 
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
@@ -56,7 +59,7 @@ function ToastContainer() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      {toasts.map((toast) => (
+      {toasts.map(toast => (
         <div
           key={toast.id}
           className={`
@@ -66,8 +69,8 @@ function ToastContainer() {
               toast.type === 'success'
                 ? 'bg-green-50 text-green-800 border-l-4 border-green-600'
                 : toast.type === 'error'
-                ? 'bg-red-50 text-red-800 border-l-4 border-red-600'
-                : 'bg-blue-50 text-blue-800 border-l-4 border-blue-600'
+                  ? 'bg-red-50 text-red-800 border-l-4 border-red-600'
+                  : 'bg-blue-50 text-blue-800 border-l-4 border-blue-600'
             }
           `}
         >

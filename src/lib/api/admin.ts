@@ -12,22 +12,22 @@ export class ImagesService {
   async upload(file: File): Promise<UploadImageResponse> {
     try {
       console.log('이미지 업로드 요청:', { fileName: file.name, fileSize: file.size });
-      
+
       const formData = new FormData();
       formData.append('image', file);
-      
+
       // 직접 백엔드 서버로 요청
-      const response = await axios.post<{success: boolean, data: UploadImageResponse}>(
+      const response = await axios.post<{ success: boolean; data: UploadImageResponse }>(
         'https://api.bumsiku.kr/admin/images',
         formData,
         {
           withCredentials: true, // 쿠키 전송을 위해 필요
           headers: {
             // 헤더를 설정하지 않아 axios가 자동으로 multipart/form-data와 boundary 설정
-          }
+          },
         }
       );
-      
+
       console.log('이미지 업로드 응답:', response.data);
       return response.data.data;
     } catch (error) {
@@ -59,4 +59,4 @@ export class AuthService {
       throw error;
     }
   }
-} 
+}

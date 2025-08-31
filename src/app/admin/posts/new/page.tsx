@@ -63,9 +63,9 @@ export default function NewPostPage() {
 
   // 초기 카테고리 값 설정
   const defaultCategory = categories.length > 0 ? categories[0].id : 1;
-  
+
   return (
-    <PostForm 
+    <PostForm
       initialValues={{
         title: '',
         content: '',
@@ -81,4 +81,4 @@ export default function NewPostPage() {
       onCancel={handleCancel}
     />
   );
-} 
+}

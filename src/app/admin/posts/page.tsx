@@ -110,18 +110,11 @@ export default function PostsManagementPage() {
         </button>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={posts} 
-        isLoading={isLoading} 
-        error={error} 
-      />
+      <DataTable columns={columns} data={posts} isLoading={isLoading} error={error} />
 
       {!isLoading && !error && (
         <div className="mt-4 flex justify-between items-center">
-          <div>
-            총 {totalPosts}개의 게시글
-          </div>
+          <div>총 {totalPosts}개의 게시글</div>
           <div className="flex space-x-1">
             <button
               disabled={page === 0}
@@ -151,4 +144,4 @@ export default function PostsManagementPage() {
       )}
     </div>
   );
-} 
+}

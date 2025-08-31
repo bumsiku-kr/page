@@ -4,13 +4,9 @@ import React from 'react';
 import Header from '../components/layout/Header';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/ui/Toast';
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from '@vercel/analytics/next';
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="antialiased min-h-screen flex flex-col">
       <AuthProvider>
@@ -22,4 +18,4 @@ export default function ClientLayout({
       </AuthProvider>
     </div>
   );
-} 
+}

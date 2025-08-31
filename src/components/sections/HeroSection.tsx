@@ -22,25 +22,22 @@ export default function HeroSection({
     <section className={`py-8 md:py-12 ${className}`}>
       <div className="flex flex-col md:flex-row items-center gap-8">
         {/* 프로필 이미지 */}
-        <ProfileImage
-          src={imageSrc}
-          alt="프로필 이미지"
-          size="xxl"
-          priority
-        />
+        <ProfileImage src={imageSrc} alt="프로필 이미지" size="xxl" priority />
 
         {/* 자기소개 */}
         <div className="flex flex-col space-y-6 text-center md:text-left">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              {title}
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
             <p className="text-xl text-gray-600 whitespace-pre-line">{subtitle}</p>
-            
+
             <div className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start">
-              <Link href="/portfolio">
+              <Link
+                href="https://bam-siku.notion.site/Bumshik-Park-25e9bea4526b80709b86c27ac52437dc?source=copy_link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button variant="primary" size="md">
-                  Portfolio
+                  Resume
                 </Button>
               </Link>
               <Link href="mailto:peter012677@naver.com">
@@ -54,4 +51,4 @@ export default function HeroSection({
       </div>
     </section>
   );
-} 
+}
