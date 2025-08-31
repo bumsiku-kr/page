@@ -31,7 +31,7 @@ export default function HeroSection({
             <p className="text-xl text-gray-600 whitespace-pre-line">{subtitle}</p>
 
             <div className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start">
-              <Link 
+              <Link
                 href="https://bam-siku.notion.site/Bumshik-Park-25e9bea4526b80709b86c27ac52437dc?source=copy_link"
                 target="_blank"
                 rel="noopener noreferrer"
