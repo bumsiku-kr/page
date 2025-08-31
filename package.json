@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --config ./config/.prettierrc --ignore-path ./config/.prettierignore \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "format:check": "prettier --config ./config/.prettierrc --ignore-path ./config/.prettierignore --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "format": "prettier --config .prettierrc --ignore-path .prettierignore \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --config .prettierrc --ignore-path .prettierignore --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "dependencies": {
     "@uiw/react-md-editor": "^3.6.0",
