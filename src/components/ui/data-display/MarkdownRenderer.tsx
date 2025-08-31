@@ -26,7 +26,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-ul:my-2 prose-ul:leading-7 prose-ol:my-2 prose-ol:leading-7
     prose-li:my-2 prose-li:text-base prose-li:leading-7 prose-li:tracking-tight prose-li:text-gray-800 prose-li:pl-1
     prose-blockquote:my-2 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:leading-7
-    prose-strong:text-gray-900 prose-strong:font-semibold
+    prose-strong:text-gray-900 prose-strong:font-medium
     prose-em:text-gray-700
     prose-a:text-blue-600 prose-a:underline prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-blue-800
     prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-pre:my-4
