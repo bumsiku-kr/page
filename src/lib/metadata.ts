@@ -90,13 +90,13 @@ export function getCategoryMetadata(categoryName: string): Metadata {
   };
 }
 
-// 포트폴리오 페이지 메타데이터
-export const portfolioMetadata: Metadata = {
-  title: `${defaultAuthor}의 포트폴리오 | ${siteName}`,
-  description: `${defaultAuthor}의 웹 개발 및 서버 개발 프로젝트 포트폴리오입니다.`,
+// 레주메 페이지 메타데이터 (포트폴리오에서 변경)
+export const resumeMetadata: Metadata = {
+  title: `${defaultAuthor}의 Resume | ${siteName}`,
+  description: `${defaultAuthor}의 이력서와 경력 정보입니다.`,
   openGraph: {
-    title: `${defaultAuthor}의 포트폴리오 | ${siteName}`,
-    description: `${defaultAuthor}의 웹 개발 및 서버 개발 프로젝트 포트폴리오입니다.`,
+    title: `${defaultAuthor}의 Resume | ${siteName}`,
+    description: `${defaultAuthor}의 이력서와 경력 정보입니다.`,
     url: `${siteUrl}/portfolio`,
     type: 'profile',
   },

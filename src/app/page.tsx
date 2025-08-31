@@ -73,7 +73,7 @@ export default async function Home({
       {/* 히어로 섹션 */}
       <HeroSection
         title="안녕하세요, SIKU(시쿠)입니다."
-        subtitle={`건국대학교 컴퓨터공학부 3학년 재학중이며,\n서버 개발을 공부하며 다양한 경험과 배움을 포스팅에 기록하고 있습니다.`}
+        subtitle={`건국대학교 컴퓨터공학부 4학년 재학중이며,\n서버 개발을 공부하며 다양한 경험과 배움을 포스팅에 기록하고 있습니다.`}
         imageSrc="/profile.jpg"
       />
 
