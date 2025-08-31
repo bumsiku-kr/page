@@ -28,11 +28,7 @@ export default function PostList({
             <PostItem key={post.id} post={post} categories={categories} />
           ))}
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            baseUrl={baseUrl}
-          />
+          <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={baseUrl} />
         </>
       ) : (
         <div className="text-center py-20">

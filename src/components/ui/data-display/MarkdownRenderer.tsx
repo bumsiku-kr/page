@@ -14,7 +14,7 @@ interface MarkdownRendererProps {
 export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
   // 기본 마크다운 스타일 클래스 - 나눔고딕 폰트 적용
   const defaultClassName = 'prose max-w-none bg-white font-nanum-gothic';
-  
+
   // 한글 가독성 최적화 스타일 - 줄 간격, 문단 간격, 글자 간격 개선
   const customStyles = `
     prose-headings:my-6 prose-headings:leading-relaxed prose-headings:tracking-tight prose-headings:text-gray-900
@@ -37,7 +37,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     prose-td:py-3 prose-td:px-4 prose-td:border prose-td:border-gray-300 prose-td:text-gray-800
     prose-hr:my-6 prose-hr:border-gray-200 prose-hr:opacity-80 prose-hr:w-1/2 prose-hr:mx-auto
   `;
-  
+
   return (
     <div className={`${defaultClassName} ${customStyles} ${className}`.trim()}>
       <ReactMarkdown
@@ -69,7 +69,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
                 {children}
               </code>
             );
-          }
+          },
         }}
       >
         {content}

@@ -5,7 +5,8 @@ import { Metadata } from 'next';
 const siteName = 'Siku 기술블로그';
 const siteUrl = 'https://bumsiku.kr';
 const defaultDescription = 'Siku의 기술 블로그입니다.';
-const defaultImagePath = 'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default-image.png';
+const defaultImagePath =
+  'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default-image.png';
 const defaultAuthor = 'Siku';
 
 // 기본 메타데이터 설정
@@ -72,7 +73,8 @@ export const defaultMetadata: Metadata = {
 // 홈페이지 메타데이터
 export const homeMetadata: Metadata = {
   title: `${siteName} - 웹 개발과 서버 개발에 관한 이야기`,
-  description: '건국대학교 컴퓨터공학부 학생의 서버 개발, 웹 개발 경험과 학습 내용을 공유하는 기술 블로그입니다.',
+  description:
+    '건국대학교 컴퓨터공학부 학생의 서버 개발, 웹 개발 경험과 학습 내용을 공유하는 기술 블로그입니다.',
 };
 
 // 카테고리별 메타데이터 생성 함수
@@ -102,14 +104,14 @@ export const portfolioMetadata: Metadata = {
 
 // 블로그 포스트 메타데이터 생성 함수
 export function getPostMetadata(
-  title: string, 
-  description: string, 
-  postId: number, 
-  createdAt: string, 
+  title: string,
+  description: string,
+  postId: number,
+  createdAt: string,
   updatedAt: string
 ): Metadata {
   const url = `${siteUrl}/posts/${postId}`;
-  
+
   return {
     title: `${title} | ${siteName}`,
     description,
@@ -155,16 +157,16 @@ export function getPostMetadata(
         dateModified: updatedAt,
         author: {
           '@type': 'Person',
-          name: defaultAuthor
+          name: defaultAuthor,
         },
         description,
         mainEntityOfPage: url,
         publisher: {
           '@type': 'Organization',
           name: siteName,
-          url: siteUrl
-        }
-      })
-    }
+          url: siteUrl,
+        },
+      }),
+    },
   };
 }

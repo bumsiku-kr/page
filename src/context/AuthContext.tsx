@@ -11,20 +11,20 @@ const api = axios.create({
 
 // 요청 인터셉터
 api.interceptors.request.use(
-  (config) => {
+  config => {
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // 응답 인터셉터
 api.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
@@ -57,12 +57,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     try {
       // 서버에 로그아웃 요청 (필요한 경우)
-      api.post('/logout').catch(() => {
-        // 에러가 발생해도 클라이언트 측 로그아웃은 진행
-      }).finally(() => {
-        clearSessionData();
-        router.push('/login');
-      });
+      api
+        .post('/logout')
+        .catch(() => {
+          // 에러가 발생해도 클라이언트 측 로그아웃은 진행
+        })
+        .finally(() => {
+          clearSessionData();
+          router.push('/login');
+        });
     } catch (error) {
       console.error('로그아웃 오류:', error);
       clearSessionData();
@@ -75,17 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.get('/session', {
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
       });
-      
+
       if (response.data.authenticated) {
         setUser(response.data.user);
         return true;
       }
       return false;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       clearSessionData();
       return false;
@@ -110,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string) => {
     setToken(token);
     const userData = parseJwt(token);
-    
+
     if (userData) {
       setUser(userData);
     }
@@ -120,28 +123,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.post('/login', {
         username,
-        password
+        password,
       });
-      
+
       if (response.status === 200) {
         await checkAuthStatus();
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       throw _error;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoggedIn: !!user, 
-      login, 
-      logout,
-      loginWithSession,
-      isLoading,
-      checkAuthStatus
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoggedIn: !!user,
+        login,
+        logout,
+        loginWithSession,
+        isLoading,
+        checkAuthStatus,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

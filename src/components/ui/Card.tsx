@@ -43,11 +43,7 @@ Card.Header = function CardHeader({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div className={`mb-4 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`mb-4 ${className}`}>{children}</div>;
 };
 
 Card.Body = function CardBody({
@@ -57,11 +53,7 @@ Card.Body = function CardBody({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  );
+  return <div className={className}>{children}</div>;
 };
 
 Card.Footer = function CardFooter({
@@ -71,9 +63,5 @@ Card.Footer = function CardFooter({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div className={`mt-4 pt-4 border-t border-gray-100 ${className}`}>
-      {children}
-    </div>
-  );
-}; 
+  return <div className={`mt-4 pt-4 border-t border-gray-100 ${className}`}>{children}</div>;
+};

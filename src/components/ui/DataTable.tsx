@@ -45,7 +45,7 @@ export default function DataTable({ columns, data, isLoading, error }: DataTable
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            {columns.map((column) => (
+            {columns.map(column => (
               <th
                 key={column.key}
                 scope="col"
@@ -69,7 +69,7 @@ export default function DataTable({ columns, data, isLoading, error }: DataTable
           ) : (
             data.map((item, index) => (
               <tr key={item.id || index}>
-                {columns.map((column) => (
+                {columns.map(column => (
                   <td
                     key={`${item.id || index}-${column.key}`}
                     className="px-6 py-4 whitespace-nowrap"
@@ -84,4 +84,4 @@ export default function DataTable({ columns, data, isLoading, error }: DataTable
       </table>
     </div>
   );
-} 
+}

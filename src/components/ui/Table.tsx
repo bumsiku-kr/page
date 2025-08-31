@@ -7,10 +7,7 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 export function Table({ className, ...props }: TableProps) {
   return (
     <div className="w-full overflow-auto">
-      <table
-        className={`w-full caption-bottom text-sm ${className || ''}`}
-        {...props}
-      />
+      <table className={`w-full caption-bottom text-sm ${className || ''}`} {...props} />
     </div>
   );
 }
@@ -46,13 +43,13 @@ interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   onSort?: () => void;
 }
 
-export function TableHead({ 
-  className, 
-  children, 
+export function TableHead({
+  className,
+  children,
   sortable,
   sorted,
   onSort,
-  ...props 
+  ...props
 }: TableHeadProps) {
   return (
     <th
@@ -66,8 +63,14 @@ export function TableHead({
         {children}
         {sortable && (
           <div className="flex flex-col ml-1">
-            <span className={`h-2 w-2 -mb-0.5 ${sorted === 'asc' ? 'text-blue-600' : 'text-gray-300'}`}>▲</span>
-            <span className={`h-2 w-2 ${sorted === 'desc' ? 'text-blue-600' : 'text-gray-300'}`}>▼</span>
+            <span
+              className={`h-2 w-2 -mb-0.5 ${sorted === 'asc' ? 'text-blue-600' : 'text-gray-300'}`}
+            >
+              ▲
+            </span>
+            <span className={`h-2 w-2 ${sorted === 'desc' ? 'text-blue-600' : 'text-gray-300'}`}>
+              ▼
+            </span>
           </div>
         )}
       </div>

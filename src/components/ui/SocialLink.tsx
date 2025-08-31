@@ -12,12 +12,7 @@ interface SocialLinkProps {
   className?: string;
 }
 
-export default function SocialLink({
-  type,
-  href,
-  label,
-  className = '',
-}: SocialLinkProps) {
+export default function SocialLink({ type, href, label, className = '' }: SocialLinkProps) {
   return (
     <a
       href={href}
@@ -29,4 +24,4 @@ export default function SocialLink({
       <SocialIcon type={type} />
     </a>
   );
-} 
+}

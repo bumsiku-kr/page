@@ -19,29 +19,27 @@ interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
 }
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ postId: string }> 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ postId: string }>;
 }): Promise<Metadata> {
   const { postId } = await params;
   const post = await api.posts.getOne(parseInt(postId, 10));
-  
+
   if (!post) {
     return {
       title: '게시물을 찾을 수 없음 | Siku 기술블로그',
-      description: '요청하신 게시물을 찾을 수 없습니다.'
+      description: '요청하신 게시물을 찾을 수 없습니다.',
     };
   }
-  
+
   const description = post.summary || post.content.slice(0, 150).replace(/[#*`]/g, '');
-  
+
   return getPostMetadata(post.title, description, post.id, post.createdAt, post.updatedAt);
 }
 
-export default async function PostDetailPage({
-  params
-}: PostDetailPageProps) {
+export default async function PostDetailPage({ params }: PostDetailPageProps) {
   // await the incoming params object
   const { postId } = await params;
 
@@ -86,9 +84,16 @@ export default async function PostDetailPage({
               </span>
             </div>
 
-            <h1 className="text-3xl font-bold mb-2" itemProp="headline">{post.title}</h1>
+            <h1 className="text-3xl font-bold mb-2" itemProp="headline">
+              {post.title}
+            </h1>
             <div className="flex items-center text-sm text-gray-500">
-              <span className="mr-2" itemProp="author" itemScope itemType="https://schema.org/Person">
+              <span
+                className="mr-2"
+                itemProp="author"
+                itemScope
+                itemType="https://schema.org/Person"
+              >
                 <span itemProp="name">Siku</span>
               </span>
               <time itemProp="datePublished" dateTime={post.createdAt}>
@@ -136,7 +141,7 @@ export async function generateStaticParams() {
       return [];
     }
 
-    return postsData.content.map((post) => ({
+    return postsData.content.map(post => ({
       postId: post.id.toString(),
     }));
   } catch (error) {
@@ -145,4 +150,4 @@ export async function generateStaticParams() {
   }
 }
 
-export const revalidate = 600; 
+export const revalidate = 600;

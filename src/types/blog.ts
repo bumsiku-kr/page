@@ -70,4 +70,4 @@ export interface CommentRequest {
 export interface CategoryRequest {
   name: string;
   orderNum: number;
-} 
+}

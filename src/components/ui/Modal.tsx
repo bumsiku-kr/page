@@ -32,9 +32,9 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
       role="dialog"
       aria-labelledby="modal-title"
     >
-      <div 
+      <div
         className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <h2 id="modal-title" className="text-lg font-semibold text-gray-900">
@@ -96,18 +96,10 @@ export function ConfirmModal({
       title={title}
       footer={
         <div className="flex justify-end space-x-2">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={isLoading}>
             {cancelText}
           </Button>
-          <Button 
-            variant="primary"
-            onClick={onConfirm}
-            disabled={isLoading}
-          >
+          <Button variant="primary" onClick={onConfirm} disabled={isLoading}>
             {confirmText}
           </Button>
         </div>

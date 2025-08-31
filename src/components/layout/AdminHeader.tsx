@@ -12,7 +12,7 @@ export default function AdminHeader() {
     // JSESSIONID 쿠키 제거
     document.cookie = 'JSESSIONID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    
+
     // 로그인 페이지로 리다이렉트
     router.push('/login');
   };
@@ -30,14 +30,11 @@ export default function AdminHeader() {
           <Link href="/" className="hover:underline" target="_blank">
             사이트 방문
           </Link>
-          <button 
-            onClick={handleLogout} 
-            className="hover:underline"
-          >
+          <button onClick={handleLogout} className="hover:underline">
             로그아웃
           </button>
         </div>
       </div>
     </header>
   );
-} 
+}

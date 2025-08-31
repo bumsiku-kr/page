@@ -31,7 +31,7 @@ export default function Pagination({
   // 보여줄 페이지 버튼 계산 (최대 7개)
   const generatePageNumbers = () => {
     const pageNumbers = [];
-    
+
     if (totalPages <= 7) {
       // 총 페이지가 7개 이하면 모두 표시
       for (let i = 1; i <= totalPages; i++) {
@@ -41,17 +41,17 @@ export default function Pagination({
       // 중앙에 현재 페이지 표시, 양쪽에 3개씩 (최대 7개)
       let startPage = Math.max(1, currentPage - 3);
       const endPage = Math.min(startPage + 6, totalPages);
-      
+
       // 끝 페이지가 총 페이지보다 작으면 시작 페이지 조정
       if (endPage < totalPages) {
         startPage = Math.max(1, endPage - 6);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
     }
-    
+
     return pageNumbers;
   };
 
@@ -70,20 +70,25 @@ export default function Pagination({
           }`}
           aria-disabled={currentPage === 1}
           tabIndex={currentPage === 1 ? -1 : 0}
-          onClick={(e) => {
+          onClick={e => {
             if (currentPage === 1) {
               e.preventDefault();
             }
           }}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </Link>
 
         {/* 페이지 번호 버튼들 */}
         <div className="flex items-center space-x-1">
-          {pageNumbers.map((page) => (
+          {pageNumbers.map(page => (
             <Link
               key={page}
               href={getPageUrl(page)}
@@ -109,7 +114,7 @@ export default function Pagination({
           }`}
           aria-disabled={currentPage === totalPages}
           tabIndex={currentPage === totalPages ? -1 : 0}
-          onClick={(e) => {
+          onClick={e => {
             if (currentPage === totalPages) {
               e.preventDefault();
             }
@@ -122,4 +127,4 @@ export default function Pagination({
       </div>
     </nav>
   );
-} 
+}

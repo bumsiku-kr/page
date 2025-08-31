@@ -8,7 +8,7 @@ export function formatDate(dateString: string): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   return `${year}.${month}.${day}`;
 }
 
@@ -30,12 +30,12 @@ export function truncateText(text: string, maxLength: number): string {
  */
 export function removeEmptyFields<T>(obj: T): Partial<T> {
   const result: Partial<T> = {};
-  
+
   Object.entries(obj as Record<string, any>).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       result[key as keyof T] = value;
     }
   });
-  
+
   return result;
-} 
+}

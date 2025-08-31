@@ -21,4 +21,4 @@ export const api = {
   comments: commentsService,
   images: imagesService,
   auth: authService,
-}; 
+};

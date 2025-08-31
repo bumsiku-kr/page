@@ -11,7 +11,7 @@ export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
-  
+
   const [post, setPost] = useState<Post | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,9 +25,9 @@ export default function EditPostPage() {
         // 게시글 데이터와 카테고리 목록을 병렬로 불러옴
         const [postData, categoriesData] = await Promise.all([
           api.posts.getOne(parseInt(postId, 10)),
-          api.categories.getList()
+          api.categories.getList(),
         ]);
-        
+
         setPost(postData);
         setCategories(categoriesData);
         setError(null);
@@ -76,11 +76,19 @@ export default function EditPostPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">게시글 정보를 불러오는 중...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        게시글 정보를 불러오는 중...
+      </div>
+    );
   }
 
   if (!post) {
-    return <div className="flex justify-center items-center min-h-screen">게시글을 찾을 수 없습니다.</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        게시글을 찾을 수 없습니다.
+      </div>
+    );
   }
 
   // 카테고리 ID 결정 로직
@@ -89,13 +97,13 @@ export default function EditPostPage() {
     if (post.categoryId && typeof post.categoryId === 'number') {
       return post.categoryId;
     }
-    
+
     // 카테고리 정보가 없는 경우 첫 번째 카테고리 사용
     return categories.length > 0 ? categories[0].id : 1;
   };
 
   return (
-    <PostForm 
+    <PostForm
       initialValues={{
         title: post.title,
         content: post.content,
@@ -111,4 +119,4 @@ export default function EditPostPage() {
       onCancel={handleCancel}
     />
   );
-} 
+}

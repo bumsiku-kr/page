@@ -45,4 +45,4 @@ export default function PostItem({ post, categories }: PostItemProps) {
       </article>
     </Card>
   );
-} 
+}

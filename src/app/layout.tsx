@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import ClientLayout from "./client-layout";
-import { Analytics } from "@vercel/analytics/next";
-import { defaultMetadata } from "../lib/metadata";
+import type { Metadata } from 'next';
+import './globals.css';
+import ClientLayout from './client-layout';
+import { Analytics } from '@vercel/analytics/next';
+import { defaultMetadata } from '../lib/metadata';
 
 export const metadata: Metadata = defaultMetadata;
 

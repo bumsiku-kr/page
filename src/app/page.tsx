@@ -20,24 +20,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category: cat } = await searchParams;
   const categoryId = typeof cat === 'string' ? parseInt(cat, 10) : undefined;
-  
+
   // 카테고리가 없는 경우 기본 홈페이지 메타데이터 반환
   if (!categoryId) {
     return homeMetadata;
   }
-  
+
   // 카테고리가 있는 경우 해당 카테고리의 메타데이터 생성
   try {
     const categories = await api.categories.getList();
     const selectedCategory = categories.find(c => c.id === categoryId);
-    
+
     if (selectedCategory) {
       return getCategoryMetadata(selectedCategory.name);
     }
   } catch (error) {
     console.error('카테고리 데이터 로딩 중 오류 발생:', error);
   }
-  
+
   // 카테고리를 찾지 못한 경우 기본 홈페이지 메타데이터 반환
   return homeMetadata;
 }
@@ -52,10 +52,8 @@ export default async function Home({
   const { page, category: cat } = await searchParams;
 
   // 페이지 번호와 카테고리 파싱
-  const currentPage =
-    typeof page === 'string' ? parseInt(page, 10) - 1 : 0;
-  const category =
-    typeof cat === 'string' ? parseInt(cat, 10) : undefined;
+  const currentPage = typeof page === 'string' ? parseInt(page, 10) - 1 : 0;
+  const category = typeof cat === 'string' ? parseInt(cat, 10) : undefined;
 
   // API 데이터 가져오기
   let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 5 };
@@ -82,11 +80,7 @@ export default async function Home({
       <Divider variant="border" />
 
       {/* 블로그 섹션 */}
-      <BlogSection
-        posts={postsData}
-        categories={categoriesData}
-        selectedCategory={category}
-      />
+      <BlogSection posts={postsData} categories={categoriesData} selectedCategory={category} />
     </Container>
   );
 }

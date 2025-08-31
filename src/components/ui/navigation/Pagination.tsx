@@ -6,15 +6,15 @@ import { usePathname, useSearchParams } from 'next/navigation';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  pageParamName?: string;  // 페이지 파라미터 이름 (기본값: page)
-  baseUrl?: string;        // 기본 URL (지정된 경우 pathname 대신 사용)
+  pageParamName?: string; // 페이지 파라미터 이름 (기본값: page)
+  baseUrl?: string; // 기본 URL (지정된 경우 pathname 대신 사용)
 }
 
-export default function Pagination({ 
-  currentPage, 
-  totalPages, 
+export default function Pagination({
+  currentPage,
+  totalPages,
   pageParamName = 'page',
-  baseUrl
+  baseUrl,
 }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();

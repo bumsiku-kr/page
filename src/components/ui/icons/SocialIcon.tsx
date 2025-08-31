@@ -38,4 +38,4 @@ export default function SocialIcon({ type, className = 'w-5 h-5' }: SocialIconPr
       {icons[type]}
     </svg>
   );
-} 
+}

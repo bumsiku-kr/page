@@ -5,22 +5,13 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   error?: string;
 }
 
-export function Textarea({ 
-  className = '',
-  label,
-  error,
-  id,
-  ...props 
-}: TextareaProps) {
+export function Textarea({ className = '', label, error, id, ...props }: TextareaProps) {
   const textareaId = id || `textarea-${Math.random().toString(36).substring(2, 9)}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label 
-          htmlFor={textareaId} 
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor={textareaId} className="block text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
@@ -35,9 +26,7 @@ export function Textarea({
         `}
         {...props}
       />
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }
