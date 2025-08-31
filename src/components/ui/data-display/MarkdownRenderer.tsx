@@ -12,8 +12,8 @@ interface MarkdownRendererProps {
 }
 
 export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  // 기본 마크다운 스타일 클래스 - 나눔고딕 폰트 적용
-  const defaultClassName = 'prose max-w-none bg-white font-nanum-gothic';
+  // 기본 마크다운 스타일 클래스
+  const defaultClassName = 'prose max-w-none bg-white';
 
   // 한글 가독성 최적화 스타일 - 줄 간격, 문단 간격, 글자 간격 개선
   const customStyles = `

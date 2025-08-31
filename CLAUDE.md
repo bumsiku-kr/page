@@ -39,7 +39,7 @@ This is a Next.js 15 blog/portfolio frontend application with TypeScript and Tai
 
 ### UI Component System
 - Component structure: `src/components/ui/` for reusable components
-- TailwindCSS for styling with Korean font support (Nanum Gothic)
+- TailwindCSS for styling with Noto Sans KR as the default font (supports both Korean and English)
 - Custom UI components: Button, Card, Modal, DataTable, Pagination, etc.
 - Markdown rendering with `@uiw/react-md-editor` and `react-markdown`
 

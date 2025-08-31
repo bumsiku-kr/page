@@ -107,7 +107,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
           <Divider variant="border" />
 
-          <div itemProp="articleBody" className="font-nanum-gothic">
+          <div itemProp="articleBody">
             <Suspense fallback={<Loading />}>
               <MarkdownRenderer content={post.content} />
             </Suspense>
