@@ -90,17 +90,6 @@ export function getCategoryMetadata(categoryName: string): Metadata {
   };
 }
 
-// 레주메 페이지 메타데이터 (포트폴리오에서 변경)
-export const resumeMetadata: Metadata = {
-  title: `${defaultAuthor}의 Resume | ${siteName}`,
-  description: `${defaultAuthor}의 이력서와 경력 정보입니다.`,
-  openGraph: {
-    title: `${defaultAuthor}의 Resume | ${siteName}`,
-    description: `${defaultAuthor}의 이력서와 경력 정보입니다.`,
-    url: `${siteUrl}/portfolio`,
-    type: 'profile',
-  },
-};
 
 // 블로그 포스트 메타데이터 생성 함수
 export function getPostMetadata(
