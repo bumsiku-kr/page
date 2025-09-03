@@ -90,7 +90,6 @@ export function getCategoryMetadata(categoryName: string): Metadata {
   };
 }
 
-
 // 블로그 포스트 메타데이터 생성 함수
 export function getPostMetadata(
   title: string,

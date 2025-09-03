@@ -36,12 +36,15 @@ export default function PostItem({ post, categories }: PostItemProps) {
 
         <p className="text-gray-600 mb-4">{post.summary}</p>
 
-        <Link
-          href={`/posts/${post.id}`}
-          className="text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          더 읽기
-        </Link>
+        <div className="flex justify-between items-center">
+          <Link
+            href={`/posts/${post.id}`}
+            className="text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            더 읽기
+          </Link>
+          <span className="text-sm text-gray-500">{post.views?.toLocaleString() || 0} 읽음</span>
+        </div>
       </article>
     </Card>
   );

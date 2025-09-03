@@ -11,6 +11,7 @@ interface PostListProps {
   totalPages: number;
   categories: Category[];
   baseUrl?: string;
+  onPageChange?: (page: number) => void;
 }
 
 export default function PostList({
@@ -19,6 +20,7 @@ export default function PostList({
   totalPages,
   categories,
   baseUrl = '/',
+  onPageChange,
 }: PostListProps) {
   return (
     <div className="max-w-3xl">
@@ -28,7 +30,12 @@ export default function PostList({
             <PostItem key={post.id} post={post} categories={categories} />
           ))}
 
-          <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={baseUrl} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            baseUrl={baseUrl}
+            onPageChange={onPageChange}
+          />
         </>
       ) : (
         <div className="text-center py-20">
