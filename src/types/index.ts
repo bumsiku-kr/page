@@ -7,6 +7,7 @@ export interface Post {
   categoryId: number;
   createdAt: string;
   updatedAt: string;
+  views: number;
 }
 
 export interface PostSummary {
@@ -16,6 +17,7 @@ export interface PostSummary {
   categoryId: number;
   createdAt: string;
   updatedAt: string;
+  views: number;
 }
 
 // 카테고리 관련 타입
@@ -110,4 +112,13 @@ export type GetCategoriesResponse = APIResponse<Category[]>;
 export interface UploadImageResponse {
   url: string;
   size: number; // API Spec 에서는 int64지만, JavaScript 에서는 number 로 충분
+}
+
+// 정렬 관련 타입
+export type SortOption = 'createdAt,desc' | 'createdAt,asc' | 'views,desc' | 'views,asc';
+
+export interface SortOptionInfo {
+  value: SortOption;
+  label: string;
+  description: string;
 }

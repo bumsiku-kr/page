@@ -86,6 +86,19 @@ export class PostsService {
     }
   }
 
+  async incrementViews(postId: number): Promise<void> {
+    try {
+      console.log('게시물 조회수 증가 요청:', { postId });
+      await this.client.request<void>({
+        url: `${API_ENDPOINTS.POSTS}/${postId}/views`,
+        method: 'PATCH',
+      });
+      console.log('게시물 조회수 증가 완료:', { postId });
+    } catch (error) {
+      console.error('게시물 조회수 증가 오류:', error);
+    }
+  }
+
   async delete(postId: number): Promise<string> {
     try {
       console.log('게시물 삭제 요청:', { postId });

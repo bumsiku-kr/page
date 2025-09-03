@@ -87,6 +87,30 @@ export async function putData<T, D = any>(
 }
 
 /**
+ * PATCH 요청 래퍼 함수
+ * @param url 엔드포인트
+ * @param data 요청 데이터
+ * @param config axios 요청 설정
+ * @returns 응답 데이터
+ */
+export async function patchData<T, D = any>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig
+): Promise<T> {
+  try {
+    const response = await api.patch<ApiResponse<T>>(url, data, config);
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      const apiError = error.response.data as ApiResponse<null>;
+      throw new Error(apiError.error?.message || '요청 처리 중 오류가 발생했습니다.');
+    }
+    throw error;
+  }
+}
+
+/**
  * DELETE 요청 래퍼 함수
  * @param url 엔드포인트
  * @param config axios 요청 설정

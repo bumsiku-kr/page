@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Category } from '../../types';
 
 interface CategorySidebarProps {
@@ -14,12 +15,23 @@ export default function CategorySidebar({
   categories = [],
   totalPostCount = 0,
 }: CategorySidebarProps) {
-  // URL 생성 함수
+  const searchParams = useSearchParams();
+
+  // URL 생성 함수 - 현재 정렬 상태 유지
   const getCategoryUrl = (categoryId?: number) => {
+    const params = new URLSearchParams(searchParams);
+
     if (!categoryId) {
-      return '/';
+      params.delete('category');
+    } else {
+      params.set('category', categoryId.toString());
     }
-    return `/?category=${categoryId}`;
+
+    // 페이지는 1로 리셋
+    params.set('page', '1');
+
+    const queryString = params.toString();
+    return queryString ? `/?${queryString}` : '/';
   };
 
   // 실제 전체 글 개수 계산 (모든 카테고리의 postCount 합산)

@@ -16,6 +16,7 @@ interface BlogSectionProps {
   categories?: Category[];
   selectedCategory?: number;
   className?: string;
+  onPageChange?: (page: number) => void;
 }
 
 export default function BlogSection({
@@ -23,6 +24,7 @@ export default function BlogSection({
   categories,
   selectedCategory,
   className = '',
+  onPageChange,
 }: BlogSectionProps) {
   // 데이터가 없는 경우 오류 메시지 표시
   if (!posts || !categories) {
@@ -47,6 +49,7 @@ export default function BlogSection({
             currentPage={currentPage}
             totalPages={totalPages}
             categories={categories}
+            onPageChange={onPageChange}
           />
         </main>
 

@@ -14,6 +14,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import ShareButton from '../../../components/blog/ShareButton';
 import { getPostMetadata } from '../../../lib/metadata';
+import ViewCounter from '../../../components/blog/ViewCounter';
 
 interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
@@ -63,6 +64,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
     return (
       <Container size="md" className="py-4">
+        <ViewCounter postId={postId} />
         <article itemScope itemType="https://schema.org/BlogPosting">
           <header className="mb-8">
             <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">

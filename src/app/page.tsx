@@ -1,16 +1,14 @@
 // src/app/page.tsx
 import { api } from '../lib/api/index';
-import Container from '../components/ui/Container';
-import HeroSection from '../components/sections/HeroSection';
-import BlogSection from '../components/sections/BlogSection';
-import Divider from '../components/ui/Divider';
-import { PostListResponse, Category } from '../types';
+import { PostListResponse, Category, SortOption } from '../types';
 import { Metadata } from 'next';
 import { homeMetadata, getCategoryMetadata } from '../lib/metadata';
+import HomePage from '../components/pages/HomePage';
 
 type SearchParams = {
   page?: string;
   category?: string;
+  sort?: string;
 };
 
 export async function generateMetadata({
@@ -42,26 +40,19 @@ export async function generateMetadata({
   return homeMetadata;
 }
 
-export default async function Home({
-  // searchParams는 Promise로 들어올 수 있음을 명시
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  // await로 풀어서 실제 파라미터 객체를 꺼냄
-  const { page, category: cat } = await searchParams;
+export default async function Home({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const { page, category: cat, sort } = await searchParams;
 
-  // 페이지 번호와 카테고리 파싱
-  const currentPage = typeof page === 'string' ? parseInt(page, 10) - 1 : 0;
+  const currentPage = typeof page === 'string' ? parseInt(page, 10) : 1;
   const category = typeof cat === 'string' ? parseInt(cat, 10) : undefined;
+  const sortOption = (sort as SortOption) || 'createdAt,desc';
 
-  // API 데이터 가져오기
   let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 5 };
   let categoriesData: Category[] = [];
 
   try {
     [postsData, categoriesData] = await Promise.all([
-      api.posts.getList(currentPage, 5, category),
+      api.posts.getList(currentPage - 1, 5, category, sortOption),
       api.categories.getList(),
     ]);
   } catch (error) {
@@ -69,18 +60,11 @@ export default async function Home({
   }
 
   return (
-    <Container size="md">
-      {/* 히어로 섹션 */}
-      <HeroSection
-        title="안녕하세요, SIKU(시쿠)입니다."
-        subtitle={`건국대학교 컴퓨터공학부 4학년 재학중이며,\n서버 개발을 공부하며 다양한 경험과 배움을 포스팅에 기록하고 있습니다.`}
-        imageSrc="/profile.jpg"
-      />
-
-      <Divider variant="border" />
-
-      {/* 블로그 섹션 */}
-      <BlogSection posts={postsData} categories={categoriesData} selectedCategory={category} />
-    </Container>
+    <HomePage
+      initialPosts={postsData}
+      initialCategories={categoriesData}
+      initialPage={currentPage}
+      initialCategory={category}
+    />
   );
 }
