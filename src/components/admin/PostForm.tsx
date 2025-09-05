@@ -292,7 +292,9 @@ export default function PostForm({
                 ))}
             </div>
           )}
-          <p className="text-xs text-gray-500">자유롭게 태그를 입력하거나 기존 태그를 선택하세요.</p>
+          <p className="text-xs text-gray-500">
+            자유롭게 태그를 입력하거나 기존 태그를 선택하세요.
+          </p>
         </div>
 
         <div className="flex justify-end space-x-4">

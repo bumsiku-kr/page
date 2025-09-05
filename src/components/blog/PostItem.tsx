@@ -26,7 +26,12 @@ export default function PostItem({ post }: PostItemProps) {
               .slice()
               .sort((a, b) => a.localeCompare(b))
               .map(tag => (
-              <span key={tag} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">#{tag}</span>
+                <span
+                  key={tag}
+                  className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700"
+                >
+                  #{tag}
+                </span>
               ))}
           </div>
         </div>

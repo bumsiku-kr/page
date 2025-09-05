@@ -50,11 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // 최신 업데이트 시각 계산 (UTC)
-    const latestUpdatedAt = allPosts.reduce<string | undefined>((acc, post) => {
-      const ts = new Date(post.updatedAt).toISOString();
-      if (!acc) return ts;
-      return ts > acc ? ts : acc;
-    }, undefined) || new Date().toISOString();
+    const latestUpdatedAt =
+      allPosts.reduce<string | undefined>((acc, post) => {
+        const ts = new Date(post.updatedAt).toISOString();
+        if (!acc) return ts;
+        return ts > acc ? ts : acc;
+      }, undefined) || new Date().toISOString();
 
     // 기본 페이지 경로 (정확한 lastModified 사용)
     const routes = ['', '/posts'].map(route => ({

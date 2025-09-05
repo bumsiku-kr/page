@@ -33,7 +33,12 @@ const SORT_OPTIONS = [
   },
 ];
 
-const SortButton = ({ currentSort, onSortChange, className = '', size = 'md' }: SortButtonProps) => {
+const SortButton = ({
+  currentSort,
+  onSortChange,
+  className = '',
+  size = 'md',
+}: SortButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +89,9 @@ const SortButton = ({ currentSort, onSortChange, className = '', size = 'md' }: 
       </button>
 
       {isOpen && (
-        <div className={`absolute top-full right-0 ${menuMargin} ${menuWidth} bg-white border border-gray-200 rounded-lg shadow-lg z-10`}>
+        <div
+          className={`absolute top-full right-0 ${menuMargin} ${menuWidth} bg-white border border-gray-200 rounded-lg shadow-lg z-10`}
+        >
           {SORT_OPTIONS.map(option => (
             <button
               key={option.value}

@@ -75,13 +75,18 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </li>
               </ol>
             </nav>
-            {(post.tags && post.tags.length > 0) && (
+            {post.tags && post.tags.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
-                {post.tags.slice().sort((a, b) => a.localeCompare(b)).map(tag => (
-                  <Link key={tag} href={`/?tag=${encodeURIComponent(tag)}`}>
-                    <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">#{tag}</span>
-                  </Link>
-                ))}
+                {post.tags
+                  .slice()
+                  .sort((a, b) => a.localeCompare(b))
+                  .map(tag => (
+                    <Link key={tag} href={`/?tag=${encodeURIComponent(tag)}`}>
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                        #{tag}
+                      </span>
+                    </Link>
+                  ))}
               </div>
             )}
 
