@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { PostSummary, Category } from '../../types';
+import { PostSummary, Tag, SortOption } from '../../types';
 import PostList from '../blog/PostList';
-import CategorySidebar from '../blog/CategorySidebar';
+import TagSidebar from '../blog/TagSidebar';
 import ErrorMessage from '../ui/feedback/ErrorMessage';
+import SortButton from '../blog/SortButton';
 
 interface BlogSectionProps {
   posts?: {
@@ -13,23 +14,27 @@ interface BlogSectionProps {
     pageNumber: number;
     pageSize: number;
   };
-  categories?: Category[];
-  selectedCategory?: number;
+  tags?: Tag[];
+  selectedTag?: string;
   className?: string;
   onPageChange?: (page: number) => void;
+  currentSort?: SortOption;
+  onSortChange?: (sort: SortOption) => void;
 }
 
 export default function BlogSection({
   posts,
-  categories,
-  selectedCategory,
+  tags,
+  selectedTag,
   className = '',
   onPageChange,
+  currentSort,
+  onSortChange,
 }: BlogSectionProps) {
   // 데이터가 없는 경우 오류 메시지 표시
-  if (!posts || !categories) {
+  if (!posts || !tags) {
     return (
-      <section className={`py-8 ${className}`}>
+      <section className={`py-2 ${className}`}>
         <ErrorMessage message="블로그 게시물을 불러오는 중 오류가 발생했습니다." />
       </section>
     );
@@ -40,26 +45,26 @@ export default function BlogSection({
   const currentPage = posts.pageNumber + 1;
 
   return (
-    <section className={`py-8 ${className}`}>
+    <section className={`py-2 ${className}`}>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* 게시글 목록 */}
         <main className="lg:w-3/4">
+          <div className="flex justify-end items-center mb-4">
+            {currentSort && onSortChange && (
+              <SortButton currentSort={currentSort} onSortChange={onSortChange} />
+            )}
+          </div>
           <PostList
             posts={posts.content}
             currentPage={currentPage}
             totalPages={totalPages}
-            categories={categories}
             onPageChange={onPageChange}
           />
         </main>
 
-        {/* 사이드바 (카테고리) */}
-        <aside className="lg:w-1/4">
-          <CategorySidebar
-            selectedCategory={selectedCategory}
-            categories={categories}
-            totalPostCount={posts.totalElements}
-          />
+        {/* 사이드바 (태그) */}
+        <aside className="lg:w-1/4 lg:mt-2">
+          <TagSidebar selectedTag={selectedTag} tags={tags} totalPostCount={posts.totalElements} />
         </aside>
       </div>
     </section>

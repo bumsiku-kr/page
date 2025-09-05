@@ -4,7 +4,7 @@ export interface Post {
   title: string;
   content: string;
   summary: string;
-  categoryId: number;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
   views: number;
@@ -14,17 +14,16 @@ export interface PostSummary {
   id: number;
   title: string;
   summary: string;
-  categoryId: number;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
   views: number;
 }
 
-// 카테고리 관련 타입
-export interface Category {
+// 태그 관련 타입
+export interface Tag {
   id: number;
   name: string;
-  order: number;
   createdAt: string;
   postCount: number;
 }
@@ -56,7 +55,7 @@ export interface CreatePostRequest {
   content: string;
   /** @maxLength 200 @minLength 1 */
   summary: string;
-  category: number;
+  tags: string[];
 }
 
 export interface UpdatePostRequest {
@@ -66,7 +65,7 @@ export interface UpdatePostRequest {
   content?: string;
   /** @maxLength 200 @minLength 1 */
   summary?: string;
-  category?: number;
+  tags?: string[];
 }
 
 export interface CreateCommentRequest {
@@ -74,17 +73,7 @@ export interface CreateCommentRequest {
   content: string;
 }
 
-export interface UpdateCategoryRequest {
-  /** @minLength 1 */
-  name: string;
-  orderNum: number;
-}
-
-export interface CreateCategoryRequest {
-  /** @minLength 1 */
-  name: string;
-  orderNum: number;
-}
+// 카테고리 관련 요청 타입은 제거되었습니다. 태그는 게시물 편집으로 관리합니다.
 
 export interface LoginRequest {
   username: string;
@@ -106,7 +95,7 @@ export interface APIResponse<T> {
 }
 
 export type GetPostsResponse = APIResponse<PostListResponse>;
-export type GetCategoriesResponse = APIResponse<Category[]>;
+export type GetTagsResponse = APIResponse<Tag[]>;
 
 // 이미지 업로드 관련 타입
 export interface UploadImageResponse {

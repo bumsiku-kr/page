@@ -7,7 +7,6 @@ import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
 import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
 import Comments from '../../../components/blog/Comments';
-import { getCategoryName } from '../../../lib/utils/category';
 import Divider from '../../../components/ui/Divider';
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
@@ -45,11 +44,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
 
   try {
-    // fetch post + categories in parallel
-    const [post, categories] = await Promise.all([
-      api.posts.getOne(parseInt(postId, 10)),
-      api.categories.getList(),
-    ]);
+    const post = await api.posts.getOne(parseInt(postId, 10));
 
     if (!post || !post.id) {
       notFound();
@@ -80,11 +75,20 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </li>
               </ol>
             </nav>
-            <div className="mb-2">
-              <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                {getCategoryName(post.categoryId, categories)}
-              </span>
-            </div>
+            {post.tags && post.tags.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {post.tags
+                  .slice()
+                  .sort((a, b) => a.localeCompare(b))
+                  .map(tag => (
+                    <Link key={tag} href={`/?tag=${encodeURIComponent(tag)}`}>
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                        #{tag}
+                      </span>
+                    </Link>
+                  ))}
+              </div>
+            )}
 
             <h1 className="text-3xl font-bold mb-2" itemProp="headline">
               {post.title}

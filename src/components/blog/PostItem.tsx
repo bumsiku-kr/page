@@ -2,16 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PostSummary, Category } from '../../types';
-import { getCategoryName } from '../../lib/utils/category';
+import { PostSummary } from '../../types';
 import Card from '../ui/Card';
 
 interface PostItemProps {
   post: PostSummary;
-  categories: Category[];
 }
 
-export default function PostItem({ post, categories }: PostItemProps) {
+export default function PostItem({ post }: PostItemProps) {
   return (
     <Card className="mb-8 last:mb-0" hasShadow={false} hasBorder={false} isPadded={false}>
       <article className="pb-8 border-b border-gray-200 last:border-0">
@@ -23,9 +21,19 @@ export default function PostItem({ post, categories }: PostItemProps) {
               day: 'numeric',
             })}
           </p>
-          <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-            {getCategoryName(post.categoryId, categories)}
-          </span>
+          <div className="flex flex-wrap gap-1">
+            {(post.tags || [])
+              .slice()
+              .sort((a, b) => a.localeCompare(b))
+              .map(tag => (
+                <span
+                  key={tag}
+                  className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700"
+                >
+                  #{tag}
+                </span>
+              ))}
+          </div>
         </div>
 
         <Link href={`/posts/${post.id}`}>

@@ -67,7 +67,7 @@ export default function Pagination({
   };
 
   return (
-    <nav className={`flex justify-center mt-12 ${className}`} aria-label="페이지 네비게이션">
+    <nav className={`flex justify-center ${className}`} aria-label="페이지 네비게이션">
       <div className="flex items-center space-x-2">
         {/* 이전 페이지 버튼 */}
         {currentPage === 1 ? (

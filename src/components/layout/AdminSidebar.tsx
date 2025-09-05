@@ -9,7 +9,7 @@ export default function AdminSidebar() {
   const menuItems = [
     { label: '게시글 관리', path: '/admin/posts' },
     { label: '댓글 관리', path: '/admin/comments' },
-    { label: '카테고리 관리', path: '/admin/categories' },
+    // 태그는 게시물 수정에서 관리합니다. 별도 메뉴 제거
   ];
 
   return (

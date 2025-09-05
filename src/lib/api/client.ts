@@ -6,8 +6,7 @@ import { getToken, clearToken } from '@/lib/auth';
 export const API_ENDPOINTS = {
   POSTS: '/posts',
   ADMIN_POSTS: '/admin/posts',
-  CATEGORIES: '/categories',
-  ADMIN_CATEGORIES: '/admin/categories',
+  TAGS: '/tags',
   COMMENTS: '/comments',
   ADMIN_COMMENTS: '/admin/comments',
   ADMIN_IMAGES: '/admin/images',

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui/Input';
 import { api } from '@/lib/api';
-import { Category } from '@/types/blog';
+import { Tag } from '@/types/blog';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
@@ -23,9 +23,9 @@ interface PostFormProps {
     title: string;
     content: string;
     summary: string;
-    category: number;
+    tags: string[];
   };
-  categories: Category[];
+  existingTags: string[];
   isSubmitting: boolean;
   error: string | null;
   pageTitle: string;
@@ -34,14 +34,14 @@ interface PostFormProps {
     title: string;
     content: string;
     summary: string;
-    category: number;
+    tags: string[];
   }) => Promise<void>;
   onCancel: () => void;
 }
 
 export default function PostForm({
   initialValues,
-  categories,
+  existingTags,
   isSubmitting,
   error,
   pageTitle,
@@ -52,7 +52,8 @@ export default function PostForm({
   const [title, setTitle] = useState(initialValues.title);
   const [content, setContent] = useState(initialValues.content);
   const [summary, setSummary] = useState(initialValues.summary);
-  const [category, setCategory] = useState<number>(initialValues.category);
+  const [tags, setTags] = useState<string[]>(initialValues.tags || []);
+  const [tagInput, setTagInput] = useState('');
   const [formError, setFormError] = useState<string | null>(error);
   const [uploadedImages, setUploadedImages] = useState<{ url: string; size: number }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -76,11 +77,37 @@ export default function PostForm({
         title,
         content,
         summary: summary || title.substring(0, 100),
-        category,
+        tags,
       });
     } catch (err) {
       console.error('폼 제출 오류:', err);
       setFormError('저장 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 태그 추가/삭제 핸들러
+  const addTag = (value: string) => {
+    const newTag = value.trim();
+    if (!newTag) return;
+    if (tags.includes(newTag)) {
+      setTagInput('');
+      return;
+    }
+    setTags(prev => [...prev, newTag]);
+    setTagInput('');
+  };
+
+  const removeTag = (value: string) => {
+    setTags(prev => prev.filter(t => t !== value));
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInput);
+    } else if (e.key === 'Backspace' && !tagInput && tags.length) {
+      e.preventDefault();
+      setTags(prev => prev.slice(0, -1));
     }
   };
 
@@ -220,22 +247,54 @@ export default function PostForm({
           className="w-full"
         />
 
-        <div className="space-y-1">
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            카테고리
-          </label>
-          <select
-            id="category"
-            value={category}
-            onChange={e => setCategory(Number(e.target.value))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-          >
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">태그</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map(tag => (
+              <span
+                key={tag}
+                className="inline-flex items-center px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded"
+              >
+                #{tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="ml-1 text-blue-600 hover:text-blue-800"
+                  aria-label={`${tag} 태그 제거`}
+                >
+                  ×
+                </button>
+              </span>
             ))}
-          </select>
+          </div>
+          <input
+            type="text"
+            value={tagInput}
+            onChange={e => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            placeholder="태그를 입력하고 Enter 또는 , 를 누르세요"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+          />
+          {tagInput && (
+            <div className="mt-2 border rounded-md divide-y bg-white">
+              {existingTags
+                .filter(t => t.toLowerCase().includes(tagInput.toLowerCase()))
+                .slice(0, 8)
+                .map(s => (
+                  <button
+                    type="button"
+                    key={s}
+                    onClick={() => addTag(s)}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                  >
+                    #{s}
+                  </button>
+                ))}
+            </div>
+          )}
+          <p className="text-xs text-gray-500">
+            자유롭게 태그를 입력하거나 기존 태그를 선택하세요.
+          </p>
         </div>
 
         <div className="flex justify-end space-x-4">
