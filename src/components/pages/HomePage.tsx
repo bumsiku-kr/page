@@ -7,42 +7,32 @@ import Container from '../ui/Container';
 import HeroSection from '../sections/HeroSection';
 import BlogSection from '../sections/BlogSection';
 import Divider from '../ui/Divider';
-import SortButton from '../blog/SortButton';
-import { PostListResponse, Category, SortOption } from '../../types';
+import { PostListResponse, Tag, SortOption } from '../../types';
 import ErrorMessage from '../ui/feedback/ErrorMessage';
 import Loading from '../ui/feedback/Loading';
 
 interface HomePageProps {
   initialPosts: PostListResponse;
-  initialCategories: Category[];
+  initialTags: Tag[];
   initialPage: number;
-  initialCategory?: number;
+  initialTag?: string;
 }
 
-const HomePage = ({
-  initialPosts,
-  initialCategories,
-  initialPage,
-  initialCategory,
-}: HomePageProps) => {
+const HomePage = ({ initialPosts, initialTags, initialPage, initialTag }: HomePageProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [posts, setPosts] = useState<PostListResponse>(initialPosts);
-  const [categories] = useState<Category[]>(initialCategories);
+  const [tags] = useState<Tag[]>(initialTags);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(initialCategory);
+  const [selectedTag, setSelectedTag] = useState<string | undefined>(initialTag);
   const [currentSort, setCurrentSort] = useState<SortOption>('createdAt,desc');
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPosts = async (
-    page: number,
-    category?: number,
-    sort: SortOption = 'createdAt,desc'
-  ) => {
+  const fetchPosts = async (page: number, tag?: string, sort: SortOption = 'createdAt,desc') => {
     setIsLoading(true);
     try {
-      const postsData = await api.posts.getList(page - 1, 5, category, sort);
+      const postsData = await api.posts.getList(page - 1, 5, tag, sort);
       setPosts(postsData);
     } catch (error) {
       console.error('게시글 로딩 오류:', error);
@@ -55,37 +45,37 @@ const HomePage = ({
     setCurrentSort(sort);
 
     const params = new URLSearchParams(searchParams);
-    if (selectedCategory) {
-      params.set('category', selectedCategory.toString());
+    if (selectedTag) {
+      params.set('tag', selectedTag);
     } else {
-      params.delete('category');
+      params.delete('tag');
     }
     params.set('page', '1');
     params.set('sort', sort);
 
     router.push(`/?${params.toString()}`);
-    fetchPosts(1, selectedCategory, sort);
+    fetchPosts(1, selectedTag, sort);
     setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
-    if (selectedCategory) {
-      params.set('category', selectedCategory.toString());
+    if (selectedTag) {
+      params.set('tag', selectedTag);
     } else {
-      params.delete('category');
+      params.delete('tag');
     }
     params.set('page', page.toString());
     params.set('sort', currentSort);
 
     router.push(`/?${params.toString()}`);
-    fetchPosts(page, selectedCategory, currentSort);
+    fetchPosts(page, selectedTag, currentSort);
     setCurrentPage(page);
   };
 
   useEffect(() => {
     const sortParam = searchParams.get('sort') as SortOption;
-    const categoryParam = searchParams.get('category');
+    const tagParam = searchParams.get('tag') || undefined;
     const pageParam = searchParams.get('page');
 
     if (
@@ -95,13 +85,12 @@ const HomePage = ({
       setCurrentSort(sortParam);
     }
 
-    const newCategory = categoryParam ? parseInt(categoryParam, 10) : undefined;
     const newPage = pageParam ? parseInt(pageParam, 10) : 1;
 
-    if (newCategory !== selectedCategory || newPage !== currentPage) {
-      setSelectedCategory(newCategory);
+    if (tagParam !== selectedTag || newPage !== currentPage) {
+      setSelectedTag(tagParam);
       setCurrentPage(newPage);
-      fetchPosts(newPage, newCategory, currentSort);
+      fetchPosts(newPage, tagParam, currentSort);
     }
   }, [searchParams]);
 
@@ -123,20 +112,17 @@ const HomePage = ({
 
       <Divider variant="border" />
 
-      <div className="py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">최근 게시글</h2>
-          <SortButton
-            currentSort={currentSort}
-            onSortChange={handleSortChange}
-            className="ml-auto"
-          />
-        </div>
-
+      <div className="py-2">
         <BlogSection
           posts={posts}
-          categories={categories}
-          selectedCategory={selectedCategory}
+          tags={[...tags].sort((a, b) => {
+            const byCount = (b.postCount || 0) - (a.postCount || 0);
+            if (byCount !== 0) return byCount;
+            return a.name.localeCompare(b.name);
+          })}
+          selectedTag={selectedTag}
+          currentSort={currentSort}
+          onSortChange={handleSortChange}
           onPageChange={handlePageChange}
         />
       </div>

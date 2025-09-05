@@ -78,14 +78,14 @@ export const homeMetadata: Metadata = {
 };
 
 // 카테고리별 메타데이터 생성 함수
-export function getCategoryMetadata(categoryName: string): Metadata {
+export function getTagMetadata(tagName: string): Metadata {
   return {
-    title: `${categoryName} | ${siteName}`,
-    description: `${siteName}의 ${categoryName} 카테고리 글 모음입니다.`,
+    title: `#${tagName} | ${siteName}`,
+    description: `${siteName}의 #${tagName} 태그 글 모음입니다.`,
     openGraph: {
-      title: `${categoryName} | ${siteName}`,
-      description: `${siteName}의 ${categoryName} 카테고리 글 모음입니다.`,
-      url: `${siteUrl}?category=${categoryName}`,
+      title: `#${tagName} | ${siteName}`,
+      description: `${siteName}의 #${tagName} 태그 글 모음입니다.`,
+      url: `${siteUrl}?tag=${encodeURIComponent(tagName)}`,
     },
   };
 }

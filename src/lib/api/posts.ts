@@ -11,11 +11,11 @@ export class PostsService {
   async getList(
     page: number = 0,
     size: number = 5,
-    category?: number,
+    tag?: string,
     sort: string = 'createdAt,desc'
   ): Promise<GetPostsResponse['data']> {
     try {
-      console.log('게시물 목록 요청:', { page, size, category, sort });
+      console.log('게시물 목록 요청:', { page, size, tag, sort });
       const response = await this.client.request<GetPostsResponse['data']>({
         url: API_ENDPOINTS.POSTS,
         method: 'GET',
@@ -23,7 +23,7 @@ export class PostsService {
           page,
           size,
           sort,
-          ...(category && { category }),
+          ...(tag && { tag }),
         },
       });
       console.log('게시물 목록 응답:', response);

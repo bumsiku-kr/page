@@ -7,6 +7,7 @@ interface SortButtonProps {
   currentSort: SortOption;
   onSortChange: (sort: SortOption) => void;
   className?: string;
+  size?: 'sm' | 'md';
 }
 
 const SORT_OPTIONS = [
@@ -32,7 +33,7 @@ const SORT_OPTIONS = [
   },
 ];
 
-const SortButton = ({ currentSort, onSortChange, className = '' }: SortButtonProps) => {
+const SortButton = ({ currentSort, onSortChange, className = '', size = 'md' }: SortButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -55,18 +56,25 @@ const SortButton = ({ currentSort, onSortChange, className = '' }: SortButtonPro
     setIsOpen(false);
   };
 
+  const buttonPadding = size === 'sm' ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-sm';
+  const buttonGap = size === 'sm' ? 'gap-1' : 'gap-1.5';
+  const caretSize = size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5';
+  const menuWidth = size === 'sm' ? 'w-24' : 'w-28';
+  const menuMargin = size === 'sm' ? 'mt-1' : 'mt-2';
+  const itemPadding = size === 'sm' ? 'px-2 py-1' : 'px-3 py-1.5';
+
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+        className={`flex items-center ${buttonGap} ${buttonPadding} font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
       >
-        <div className="flex items-center gap-1">
+        <div className={`flex items-center ${buttonGap}`}>
           <span>{currentOption.label}</span>
           <span className="text-gray-500">{currentOption.isDesc ? '↓' : '↑'}</span>
         </div>
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`${caretSize} transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -76,12 +84,12 @@ const SortButton = ({ currentSort, onSortChange, className = '' }: SortButtonPro
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-28 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+        <div className={`absolute top-full right-0 ${menuMargin} ${menuWidth} bg-white border border-gray-200 rounded-lg shadow-lg z-10`}>
           {SORT_OPTIONS.map(option => (
             <button
               key={option.value}
               onClick={() => handleSortSelect(option.value)}
-              className={`w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors flex items-center gap-1 ${
+              className={`w-full ${itemPadding} text-left text-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors flex items-center gap-1 ${
                 option.value === currentSort ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
               } ${SORT_OPTIONS.indexOf(option) === 0 ? 'rounded-t-lg' : ''} ${SORT_OPTIONS.indexOf(option) === SORT_OPTIONS.length - 1 ? 'rounded-b-lg' : ''}`}
             >

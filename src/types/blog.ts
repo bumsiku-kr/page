@@ -11,6 +11,7 @@ export interface PostSummary {
   id: number;
   title: string;
   summary: string;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -21,9 +22,9 @@ export interface Post {
   title: string;
   content: string;
   summary: string;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
-  category?: Category;
 }
 
 // 댓글 타입
@@ -35,11 +36,10 @@ export interface Comment {
   postId?: number;
 }
 
-// 카테고리 타입
-export interface Category {
+// 태그 타입
+export interface Tag {
   id: number;
   name: string;
-  order: number;
   createdAt: string;
   postCount: number;
 }
@@ -49,7 +49,7 @@ export interface CreatePostRequest {
   title: string;
   content: string;
   summary: string;
-  category: number;
+  tags: string[];
 }
 
 // 게시글 수정 요청 타입
@@ -57,7 +57,7 @@ export interface UpdatePostRequest {
   title?: string;
   content?: string;
   summary?: string;
-  category?: string;
+  tags?: string[];
 }
 
 // 댓글 작성 요청 타입
@@ -66,8 +66,4 @@ export interface CommentRequest {
   author: string;
 }
 
-// 카테고리 생성 및 수정 요청 타입
-export interface CategoryRequest {
-  name: string;
-  orderNum: number;
-}
+// 태그는 별도 생성/수정 요청 타입이 없습니다. 게시물 수정에서 관리합니다.

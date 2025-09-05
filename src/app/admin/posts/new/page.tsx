@@ -4,28 +4,27 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { CreatePostRequest } from '@/types';
-import { Category } from '@/types/blog';
 import PostForm from '@/components/admin/PostForm';
 
 export default function NewPostPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [existingTags, setExistingTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 카테고리 목록 불러오기
+  // 태그 목록 불러오기 (추천용)
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchTags = async () => {
       try {
-        const response = await api.categories.getList();
-        setCategories(response);
+        const response = await api.tags.getList();
+        setExistingTags(response.map(t => t.name));
       } catch (err) {
-        console.error('카테고리 로딩 오류:', err);
-        setError('카테고리를 불러오는 중 오류가 발생했습니다.');
+        console.error('태그 로딩 오류:', err);
+        setError('태그를 불러오는 중 오류가 발생했습니다.');
       }
     };
 
-    fetchCategories();
+    fetchTags();
   }, []);
 
   // 게시글 저장
@@ -33,7 +32,7 @@ export default function NewPostPage() {
     title: string;
     content: string;
     summary: string;
-    category: number;
+    tags: string[];
   }) => {
     setIsLoading(true);
     setError(null);
@@ -43,7 +42,7 @@ export default function NewPostPage() {
         title: formData.title,
         content: formData.content,
         summary: formData.summary,
-        category: formData.category,
+        tags: formData.tags,
       };
 
       await api.posts.create(postData);
@@ -61,18 +60,15 @@ export default function NewPostPage() {
     router.back();
   };
 
-  // 초기 카테고리 값 설정
-  const defaultCategory = categories.length > 0 ? categories[0].id : 1;
-
   return (
     <PostForm
       initialValues={{
         title: '',
         content: '',
         summary: '',
-        category: defaultCategory,
+        tags: [],
       }}
-      categories={categories}
+      existingTags={existingTags}
       isSubmitting={isLoading}
       error={error}
       pageTitle="새 게시글 작성"
