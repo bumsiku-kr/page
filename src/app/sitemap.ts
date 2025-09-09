@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
 import { api } from '@/lib/api';
 import { defaultMetadata } from '@/lib/metadata';
-import { Tag, PostSummary, PostListResponse } from '@/types';
+import { PostSummary, PostListResponse } from '@/types';
 
 // 주기적 갱신(Incremental Static Regeneration)
-// 초 단위. 필요 시 값 조정(예: 300=5분, 3600=1시간)
-export const revalidate = 300;
+// SEO 최적화: 블로그 특성상 하루 1-2회 갱신이면 충분
+// 3600초 = 1시간 (이전 5분은 너무 빈번했음)
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 기본 페이지 URL 설정 (config에서 읽기)
@@ -14,9 +15,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'https://bumsiku.kr';
 
   try {
-    // 태그 정보 가져오기
-    const tags = await api.tags.getList();
-
     // 모든 게시물을 페이지네이션으로 수집 (서버 측 페이지 크기 제한 대응)
     const allPosts: PostSummary[] = [];
     let page = 0;
@@ -57,50 +55,66 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return ts > acc ? ts : acc;
       }, undefined) || new Date().toISOString();
 
-    // 기본 페이지 경로 (정확한 lastModified 사용)
-    const routes = ['', '/posts'].map(route => ({
-      url: `${baseUrl}${route}`,
-      lastModified: latestUpdatedAt,
-      changeFrequency: 'daily',
-      priority: 1,
-    })) as MetadataRoute.Sitemap;
+    // 기본 페이지 경로 (SEO 최적화된 priority와 changeFrequency)
+    const routes: MetadataRoute.Sitemap = [
+      {
+        url: `${baseUrl}`,
+        lastModified: latestUpdatedAt,
+        changeFrequency: 'daily',
+        priority: 1.0, // 홈페이지는 최고 우선순위
+      },
+      {
+        url: `${baseUrl}/posts`,
+        lastModified: latestUpdatedAt,
+        changeFrequency: 'daily',
+        priority: 0.9, // 포스트 목록은 높은 우선순위
+      },
+    ];
 
-    // 태그별 최신 업데이트 시각 계산
-    const tagLastUpdated = new Map<string, string>();
-    for (const post of allPosts) {
-      for (const tagName of post.tags || []) {
-        const ts = new Date(post.updatedAt).toISOString();
-        const prev = tagLastUpdated.get(tagName);
-        if (!prev || ts > prev) tagLastUpdated.set(tagName, ts);
-      }
-    }
-
-    // 태그 URL 추가 (가능하면 태그별 최신 업데이트 시각 사용)
-    const tagUrls = tags.map((tag: Tag) => ({
-      url: `${baseUrl}/posts?tag=${encodeURIComponent(tag.name)}`,
-      lastModified: tagLastUpdated.get(tag.name) || latestUpdatedAt,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    })) as MetadataRoute.Sitemap;
-
-    // 가져온 포스트 데이터를 사이트맵에 추가
+    // 포스트 데이터를 사이트맵에 추가 (동적 우선순위 적용)
     const postUrls = allPosts.map(post => {
+      // 최신성 기반 우선순위 계산 (최근 1개월 이내는 높은 우선순위)
+      const postDate = new Date(post.updatedAt);
+      const now = new Date();
+      const daysDiff = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      let priority = 0.7; // 기본 우선순위
+      if (daysDiff <= 30) priority = 0.8; // 최근 1개월
+      if (daysDiff <= 7) priority = 0.85; // 최근 1주일
+
+      // 업데이트 빈도 계산
+      const createdAt = new Date(post.createdAt);
+      const isRecent = daysDiff <= 30;
+      const changeFrequency = isRecent ? 'weekly' : 'monthly';
+
       return {
         url: `${baseUrl}/posts/${post.id}`,
         lastModified: new Date(post.updatedAt).toISOString(),
-        changeFrequency: 'weekly',
-        priority: 0.8,
+        changeFrequency,
+        priority,
       };
     }) as MetadataRoute.Sitemap;
 
-    return [...routes, ...tagUrls, ...postUrls];
+    return [...routes, ...postUrls];
   } catch (error) {
-    // API 호출 실패 시 기본 경로만 반환
+    // API 호출 실패 시 더 강화된 fallback 제공
     console.error('Failed to fetch data for sitemap:', error);
     const fallbackNow = new Date().toISOString();
+
+    // 기본 페이지들은 항상 포함 (SEO 최적화된 설정)
     return [
-      { url: `${baseUrl}/`, lastModified: fallbackNow, changeFrequency: 'daily', priority: 1 },
-      { url: `${baseUrl}/posts`, lastModified: fallbackNow, changeFrequency: 'daily', priority: 1 },
+      {
+        url: `${baseUrl}/`,
+        lastModified: fallbackNow,
+        changeFrequency: 'daily',
+        priority: 1.0,
+      },
+      {
+        url: `${baseUrl}/posts`,
+        lastModified: fallbackNow,
+        changeFrequency: 'daily',
+        priority: 0.9,
+      },
     ] as MetadataRoute.Sitemap;
   }
 }

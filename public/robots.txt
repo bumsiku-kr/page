@@ -1,8 +1,23 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /posts/
+
+# Admin과 API는 검색엔진 접근 차단
 Disallow: /admin/
 Disallow: /api/
+Disallow: /login
+
+# 크롤러별 최적화
+User-agent: Googlebot
+Allow: /
+Allow: /posts/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+
+# 크롤 속도 제한 (서버 부하 방지)
+Crawl-delay: 1
 
 # Host
 Host: https://bumsiku.kr
