@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import { api } from '@/lib/api';
 import { Tag } from '@/types/blog';
 import ReactMarkdown from 'react-markdown';
@@ -57,6 +59,7 @@ export default function PostForm({
   const [formError, setFormError] = useState<string | null>(error);
   const [uploadedImages, setUploadedImages] = useState<{ url: string; size: number }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
 
   // 폼 제출 처리
   const handleSubmit = async (e: React.FormEvent) => {
@@ -239,13 +242,47 @@ export default function PostForm({
           )}
         </div>
 
-        <Input
-          label="요약 (선택사항)"
-          value={summary}
-          onChange={e => setSummary(e.target.value)}
-          placeholder="게시글 요약을 입력하세요 (미입력시 제목으로 자동생성)"
-          className="w-full"
-        />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">요약 (선택사항)</label>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={async () => {
+                if (!content.trim() && !title.trim()) {
+                  setFormError('요약할 내용 또는 제목이 필요합니다.');
+                  return;
+                }
+                setIsSummarizing(true);
+                try {
+                  const text = content?.trim() ? content : title;
+                  const { summary: generated } = await api.ai.generateSummary({ text });
+                  if (!generated) {
+                    setFormError('요약 결과가 비어 있습니다.');
+                  }
+                  setSummary(generated ?? '');
+                } catch (err) {
+                  console.error('요약 생성 오류:', err);
+                  setFormError('요약 생성 중 오류가 발생했습니다.');
+                } finally {
+                  setIsSummarizing(false);
+                }
+              }}
+              isLoading={isSummarizing}
+              aria-label="요약 자동 생성"
+            >
+              Summary 생성
+            </Button>
+          </div>
+          <Textarea
+            value={summary}
+            onChange={e => setSummary(e.target.value)}
+            placeholder="게시글 요약을 입력하세요 (미입력시 제목으로 자동생성)"
+            className="w-full"
+            rows={5}
+          />
+        </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">태그</label>

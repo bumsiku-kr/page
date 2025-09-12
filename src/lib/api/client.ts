@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   COMMENTS: '/comments',
   ADMIN_COMMENTS: '/admin/comments',
   ADMIN_IMAGES: '/admin/images',
+  AI_SUMMARY: '/ai/summary',
   LOGIN: '/login',
 } as const;
 
@@ -27,7 +28,7 @@ export class APIClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      timeout: 10000,
+      timeout: 60000,
     });
 
     this.setupInterceptors();
@@ -96,8 +97,14 @@ export class APIClient {
   // 공통 API 호출 함수
   public async request<T>(config: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await this.retryRequest<APIResponse<T>>(config);
-      return response.data.data;
+      const response = await this.retryRequest<any>(config);
+      const payload = response?.data;
+      // 표준 래핑 응답(APIResponse<T>) 우선 처리
+      if (payload && typeof payload === 'object' && 'data' in payload) {
+        return (payload.data as T);
+      }
+      // 비래핑(plain) 응답도 허용 (예: string 또는 { summary: string })
+      return (payload as T);
     } catch (error) {
       return this.handleError(error as AxiosError<ErrorResponse>);
     }
