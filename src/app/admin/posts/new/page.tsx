@@ -30,6 +30,7 @@ export default function NewPostPage() {
   // 게시글 저장
   const handleSubmit = async (formData: {
     title: string;
+    slug: string;
     content: string;
     summary: string;
     tags: string[];
@@ -40,6 +41,7 @@ export default function NewPostPage() {
     try {
       const postData: CreatePostRequest = {
         title: formData.title,
+        slug: formData.slug,
         content: formData.content,
         summary: formData.summary,
         tags: formData.tags,
@@ -64,6 +66,7 @@ export default function NewPostPage() {
     <PostForm
       initialValues={{
         title: '',
+        slug: '',
         content: '',
         summary: '',
         tags: [],

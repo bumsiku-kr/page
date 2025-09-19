@@ -101,10 +101,10 @@ export class APIClient {
       const payload = response?.data;
       // 표준 래핑 응답(APIResponse<T>) 우선 처리
       if (payload && typeof payload === 'object' && 'data' in payload) {
-        return (payload.data as T);
+        return payload.data as T;
       }
       // 비래핑(plain) 응답도 허용 (예: string 또는 { summary: string })
-      return (payload as T);
+      return payload as T;
     } catch (error) {
       return this.handleError(error as AxiosError<ErrorResponse>);
     }

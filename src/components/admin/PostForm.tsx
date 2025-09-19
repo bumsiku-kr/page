@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { api } from '@/lib/api';
-import { Tag } from '@/types/blog';
+import { Tag } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
@@ -23,6 +23,7 @@ const MDEditor = dynamic(() => import('@uiw/react-md-editor').then(mod => mod.de
 interface PostFormProps {
   initialValues: {
     title: string;
+    slug: string;
     content: string;
     summary: string;
     tags: string[];
@@ -34,6 +35,7 @@ interface PostFormProps {
   submitButtonText: string;
   onSubmit: (formData: {
     title: string;
+    slug: string;
     content: string;
     summary: string;
     tags: string[];
@@ -52,6 +54,7 @@ export default function PostForm({
   onCancel,
 }: PostFormProps) {
   const [title, setTitle] = useState(initialValues.title);
+  const [slug, setSlug] = useState(initialValues.slug);
   const [content, setContent] = useState(initialValues.content);
   const [summary, setSummary] = useState(initialValues.summary);
   const [tags, setTags] = useState<string[]>(initialValues.tags || []);
@@ -61,12 +64,66 @@ export default function PostForm({
   const [isUploading, setIsUploading] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
 
+  // slug 자동 생성 함수
+  const generateSlug = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9가-힣\s-]/g, '') // 특수문자 제거 (한글, 영문, 숫자, 공백, 하이픈만 허용)
+      .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
+      .replace(/-+/g, '-') // 연속된 하이픈 제거
+      .trim()
+      .replace(/^-|-$/g, ''); // 시작과 끝의 하이픈 제거
+  };
+
+  // 제목 변경 시 slug 자동 생성 (slug가 비어있거나 제목에서 생성된 것과 같을 때만)
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    
+    // slug가 비어있거나 이전 제목에서 생성된 slug와 같다면 자동 업데이트
+    const currentSlugFromTitle = generateSlug(title);
+    if (!slug || slug === currentSlugFromTitle) {
+      setSlug(generateSlug(newTitle));
+    }
+  };
+
+  // slug 유효성 검증
+  const validateSlug = (slug: string): string | null => {
+    if (!slug.trim()) {
+      return 'Slug는 필수입니다.';
+    }
+    
+    if (slug.length < 1 || slug.length > 100) {
+      return 'Slug는 1-100자 사이여야 합니다.';
+    }
+    
+    if (!/^[a-z0-9가-힣-]+$/.test(slug)) {
+      return 'Slug는 영문 소문자, 숫자, 한글, 하이픈만 포함할 수 있습니다.';
+    }
+    
+    if (slug.startsWith('-') || slug.endsWith('-')) {
+      return 'Slug는 하이픈으로 시작하거나 끝날 수 없습니다.';
+    }
+    
+    if (slug.includes('--')) {
+      return 'Slug에는 연속된 하이픈을 사용할 수 없습니다.';
+    }
+    
+    return null;
+  };
+
   // 폼 제출 처리
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title.trim()) {
       setFormError('제목을 입력해주세요.');
+      return;
+    }
+
+    // slug 유효성 검증
+    const slugError = validateSlug(slug);
+    if (slugError) {
+      setFormError(slugError);
       return;
     }
 
@@ -78,6 +135,7 @@ export default function PostForm({
     try {
       await onSubmit({
         title,
+        slug,
         content,
         summary: summary || title.substring(0, 100),
         tags,
@@ -159,11 +217,41 @@ export default function PostForm({
         <Input
           label="제목"
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={e => handleTitleChange(e.target.value)}
           placeholder="게시글 제목을 입력하세요"
           className="w-full"
           required
         />
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">
+              Slug <span className="text-red-500">*</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => setSlug(generateSlug(title))}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              제목에서 자동 생성
+            </button>
+          </div>
+          <Input
+            value={slug}
+            onChange={e => setSlug(e.target.value.toLowerCase())}
+            placeholder="url-friendly-slug"
+            className="w-full font-mono text-sm"
+            required
+          />
+          <p className="text-xs text-gray-500">
+            URL에서 사용될 고유 식별자입니다. 영문 소문자, 숫자, 한글, 하이픈만 사용 가능합니다.
+          </p>
+          {slug && (
+            <p className="text-xs text-blue-600">
+              미리보기: <code className="bg-gray-100 px-1 rounded">/posts/{slug}</code>
+            </p>
+          )}
+        </div>
 
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700">내용</label>

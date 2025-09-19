@@ -1,23 +1,26 @@
 // 게시물 관련 타입
 export interface Post {
   id: number;
+  slug: string;
   title: string;
   content: string;
   summary: string;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
-  views: number;
+  views?: number;
+  canonicalPath: string;
 }
 
 export interface PostSummary {
   id: number;
+  slug?: string;
   title: string;
   summary: string;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
-  views: number;
+  views?: number;
 }
 
 // 태그 관련 타입
@@ -51,6 +54,8 @@ export interface ErrorResponse {
 export interface CreatePostRequest {
   /** @maxLength 100 @minLength 1 */
   title: string;
+  /** @maxLength 100 @minLength 1 */
+  slug?: string;
   /** @maxLength 10000 @minLength 1 */
   content: string;
   /** @maxLength 200 @minLength 1 */
@@ -61,6 +66,8 @@ export interface CreatePostRequest {
 export interface UpdatePostRequest {
   /** @maxLength 100 @minLength 1 */
   title?: string;
+  /** @maxLength 100 @minLength 1 */
+  slug?: string;
   /** @maxLength 10000 @minLength 1 */
   content?: string;
   /** @maxLength 200 @minLength 1 */

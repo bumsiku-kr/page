@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import DataTable from '@/components/ui/DataTable';
 import { api } from '@/lib/api';
-import { Comment } from '@/types/blog';
+import { Comment } from '@/types';
 import { formatDate, truncateText } from '@/lib/utils';
 
 export default function CommentsManagementPage() {
