@@ -50,25 +50,27 @@ export default function LoginPage() {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
-            Origin: window.location.origin,
+            ...(typeof window !== 'undefined' && { Origin: window.location.origin }),
           },
         }
       );
 
       if (response.status === 200) {
-        if (!document.cookie.includes('JSESSIONID')) {
-          document.cookie = `isLoggedIn=true; path=/; max-age=86400; SameSite=None; ${window.location.protocol === 'https:' ? 'Secure;' : ''}`;
+        if (typeof window !== 'undefined') {
+          if (!document.cookie.includes('JSESSIONID')) {
+            document.cookie = `isLoggedIn=true; path=/; max-age=86400; SameSite=None; ${window.location.protocol === 'https:' ? 'Secure;' : ''}`;
+          }
+
+          if (data.remember) {
+            localStorage.setItem('rememberMe', 'true');
+          }
+
+          setTimeout(() => {
+            window.location.href = '/admin';
+          }, 1000);
         }
 
         loginWithSession(data.username, data.password);
-
-        if (data.remember) {
-          localStorage.setItem('rememberMe', 'true');
-        }
-
-        setTimeout(() => {
-          window.location.href = '/admin';
-        }, 1000);
       } else {
         setError('인증에 실패했습니다.');
       }

@@ -23,7 +23,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className, canonicalUrl }) =>
       setCurrentUrl(fullUrl);
     } else {
       // 클라이언트 사이드에서만 window.location.href에 접근 가능
-      setCurrentUrl(window.location.href);
+      if (typeof window !== 'undefined') {
+        setCurrentUrl(window.location.href);
+      }
     }
   }, [canonicalUrl]);
 

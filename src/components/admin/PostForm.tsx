@@ -78,7 +78,7 @@ export default function PostForm({
   // 제목 변경 시 slug 자동 생성 (slug가 비어있거나 제목에서 생성된 것과 같을 때만)
   const handleTitleChange = (newTitle: string) => {
     setTitle(newTitle);
-    
+
     // slug가 비어있거나 이전 제목에서 생성된 slug와 같다면 자동 업데이트
     const currentSlugFromTitle = generateSlug(title);
     if (!slug || slug === currentSlugFromTitle) {
@@ -91,23 +91,23 @@ export default function PostForm({
     if (!slug.trim()) {
       return 'Slug는 필수입니다.';
     }
-    
+
     if (slug.length < 1 || slug.length > 100) {
       return 'Slug는 1-100자 사이여야 합니다.';
     }
-    
+
     if (!/^[a-z0-9가-힣-]+$/.test(slug)) {
       return 'Slug는 영문 소문자, 숫자, 한글, 하이픈만 포함할 수 있습니다.';
     }
-    
+
     if (slug.startsWith('-') || slug.endsWith('-')) {
       return 'Slug는 하이픈으로 시작하거나 끝날 수 없습니다.';
     }
-    
+
     if (slug.includes('--')) {
       return 'Slug에는 연속된 하이픈을 사용할 수 없습니다.';
     }
-    
+
     return null;
   };
 

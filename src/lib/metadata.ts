@@ -1,10 +1,10 @@
 // src/lib/metadata.ts
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 
 // 기본 사이트 정보
-const siteName = 'Siku 기술블로그';
+const siteName = 'SIKU Tech Blog';
 const siteUrl = 'https://bumsiku.kr';
-const defaultDescription = 'Siku의 기술 블로그입니다.';
+const defaultDescription = 'SIKU의 기술 블로그입니다.';
 const defaultImagePath =
   'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default-image.png';
 const defaultAuthor = 'Siku';
@@ -63,18 +63,24 @@ export const defaultMetadata: Metadata = {
     index: true,
     follow: true,
   },
-  themeColor: '#ffffff',
   other: {
     'msapplication-TileColor': '#ffffff',
     'msapplication-TileImage': '/ms-icon-144x144.png',
   },
 };
 
+// 기본 뷰포트 설정
+export const defaultViewport: Viewport = {
+  themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 // 홈페이지 메타데이터
 export const homeMetadata: Metadata = {
-  title: `${siteName} - 웹 개발과 서버 개발에 관한 이야기`,
-  description:
-    '건국대학교 컴퓨터공학부 학생의 서버 개발, 웹 개발 경험과 학습 내용을 공유하는 기술 블로그입니다.',
+  title: siteName,
+  description: defaultDescription,
 };
 
 // 카테고리별 메타데이터 생성 함수

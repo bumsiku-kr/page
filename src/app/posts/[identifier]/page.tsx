@@ -85,14 +85,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         id: post?.id,
         slug: post?.slug,
         canonicalPath: post?.canonicalPath,
-        hasCanonicalPath: !!post?.canonicalPath
+        hasCanonicalPath: !!post?.canonicalPath,
       });
 
       // ID로 접근했지만 slug URL로 리다이렉트해야 함
       // canonicalPath가 있으면 우선 사용, 없으면 slug로 경로 생성
       const redirectPath = post.canonicalPath || `/posts/${post.slug}`;
       const currentPath = `/posts/${identifier}`;
-      
+
       // 현재 경로와 리다이렉트할 경로가 다른 경우에만 리다이렉트
       if (currentPath !== redirectPath) {
         console.log('ID -> slug 리다이렉트:', { currentPath, redirectPath });
@@ -121,19 +121,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         <ViewCounter postId={post.id.toString()} />
         <article itemScope itemType="https://schema.org/BlogPosting">
           <header className="mb-8">
-            <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
-              <ol className="flex">
-                <li className="mr-2">
-                  <Link href="/">홈</Link>
-                </li>
-                <li className="mx-2">
-                  <span>&gt;</span>
-                </li>
-                <li>
-                  <span>{post.title}</span>
-                </li>
-              </ol>
-            </nav>
             {post.tags && post.tags.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {post.tags

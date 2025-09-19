@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import ClientLayout from './client-layout';
 import { Analytics } from '@vercel/analytics/next';
-import { defaultMetadata } from '../lib/metadata';
+import { defaultMetadata, defaultViewport } from '../lib/metadata';
 
 export const metadata: Metadata = defaultMetadata;
+export const viewport: Viewport = defaultViewport;
 
 export default function RootLayout({
   children,

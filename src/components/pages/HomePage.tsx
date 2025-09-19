@@ -106,7 +106,7 @@ const HomePage = ({ initialPosts, initialTags, initialPage, initialTag }: HomePa
     <Container size="md">
       <HeroSection
         title="안녕하세요, SIKU(시쿠)입니다."
-        subtitle={`건국대학교 컴퓨터공학부 4학년 재학중이며,\n서버 개발을 공부하며 다양한 경험과 배움을 포스팅에 기록하고 있습니다.`}
+        subtitle={`건국대학교 컴퓨터공학부 4학년 재학중이며,\n다양한 경험과 배움을 제것으로 만들고자 포스팅에 기록하고 있습니다.`}
         imageSrc="/profile.jpg"
       />
 
@@ -118,7 +118,8 @@ const HomePage = ({ initialPosts, initialTags, initialPage, initialTag }: HomePa
           tags={[...tags].sort((a, b) => {
             const byCount = (b.postCount || 0) - (a.postCount || 0);
             if (byCount !== 0) return byCount;
-            return a.name.localeCompare(b.name);
+            // 안전한 문자열 정렬 (localeCompare 대신)
+            return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
           })}
           selectedTag={selectedTag}
           currentSort={currentSort}

@@ -51,11 +51,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
       api.posts.getList(currentPage - 1, 5, tag, sortOption),
       api.tags.getList(),
     ]);
-    // 정렬: 태그를 postCount 내림차순, 이름 오름차순으로 정렬
+    // 정렬: 태그를 postCount 내림차순, 이름 오름차순으로 정렬 (SSR 안전)
     tagsData = tagsData.slice().sort((a, b) => {
       const byCount = (b.postCount || 0) - (a.postCount || 0);
       if (byCount !== 0) return byCount;
-      return a.name.localeCompare(b.name);
+      // 안전한 문자열 정렬 (localeCompare 대신)
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
     });
   } catch (error) {
     console.error('데이터 로딩 중 오류 발생:', error);
