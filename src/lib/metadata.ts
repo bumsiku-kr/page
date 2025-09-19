@@ -90,8 +90,78 @@ export function getTagMetadata(tagName: string): Metadata {
   };
 }
 
-// 블로그 포스트 메타데이터 생성 함수
+// 블로그 포스트 메타데이터 생성 함수 (slug 기반)
 export function getPostMetadata(
+  title: string,
+  description: string,
+  slug: string,
+  canonicalPath: string,
+  createdAt: string,
+  updatedAt: string
+): Metadata {
+  const url = `${siteUrl}${canonicalPath}`;
+
+  return {
+    title: `${title} | ${siteName}`,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+      publishedTime: createdAt,
+      modifiedTime: updatedAt,
+      authors: [defaultAuthor],
+      siteName,
+      images: [
+        {
+          url: defaultImagePath,
+          width: 800,
+          height: 600,
+          alt: `${title} - ${siteName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      creator: '@siku',
+      images: [defaultImagePath],
+    },
+    authors: [{ name: defaultAuthor }],
+    robots: {
+      index: true,
+      follow: true,
+    },
+    other: {
+      'ld+json': JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        datePublished: createdAt,
+        dateModified: updatedAt,
+        author: {
+          '@type': 'Person',
+          name: defaultAuthor,
+        },
+        description,
+        mainEntityOfPage: url,
+        publisher: {
+          '@type': 'Organization',
+          name: siteName,
+          url: siteUrl,
+        },
+      }),
+    },
+  };
+}
+
+// 레거시 지원을 위한 ID 기반 메타데이터 생성 함수 (deprecated)
+export function getPostMetadataById(
   title: string,
   description: string,
   postId: number,

@@ -44,6 +44,7 @@ export default function EditPostPage() {
   // 게시글 수정
   const handleSubmit = async (formData: {
     title: string;
+    slug: string;
     content: string;
     summary: string;
     tags: string[];
@@ -54,6 +55,7 @@ export default function EditPostPage() {
     try {
       const postData: UpdatePostRequest = {
         title: formData.title,
+        slug: formData.slug,
         content: formData.content,
         summary: formData.summary,
         tags: formData.tags,
@@ -94,6 +96,7 @@ export default function EditPostPage() {
     <PostForm
       initialValues={{
         title: post.title,
+        slug: post.slug,
         content: post.content,
         summary: post.summary,
         tags: post.tags || [],

@@ -54,6 +54,21 @@ export class PostsService {
     }
   }
 
+  async getBySlug(slug: string): Promise<Post> {
+    try {
+      console.log('게시물 슬러그 요청:', { slug });
+      const response = await this.client.request<Post>({
+        url: `${API_ENDPOINTS.POSTS}/${slug}`,
+        method: 'GET',
+      });
+      console.log('게시물 슬러그 응답:', response);
+      return response;
+    } catch (error) {
+      console.error('게시물 슬러그 조회 오류:', error);
+      throw error;
+    }
+  }
+
   async create(data: CreatePostRequest): Promise<Post> {
     try {
       console.log('게시물 생성 요청:', data);
@@ -110,6 +125,21 @@ export class PostsService {
       return response;
     } catch (error) {
       console.error('게시물 삭제 오류:', error);
+      throw error;
+    }
+  }
+
+  async getSitemap(): Promise<string[]> {
+    try {
+      console.log('사이트맵 요청');
+      const response = await this.client.request<string[]>({
+        url: '/sitemap',
+        method: 'GET',
+      });
+      console.log('사이트맵 응답:', response);
+      return response;
+    } catch (error) {
+      console.error('사이트맵 조회 오류:', error);
       throw error;
     }
   }

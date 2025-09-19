@@ -29,5 +29,3 @@ export class AIService {
     return { summary: '' };
   }
 }
-
-
