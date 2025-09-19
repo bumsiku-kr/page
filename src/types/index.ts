@@ -9,12 +9,12 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   views?: number;
-  canonicalPath: string;
+  canonicalPath?: string;
 }
 
 export interface PostSummary {
   id: number;
-  slug?: string;
+  slug: string;
   title: string;
   summary: string;
   tags?: string[];
@@ -55,7 +55,7 @@ export interface CreatePostRequest {
   /** @maxLength 100 @minLength 1 */
   title: string;
   /** @maxLength 100 @minLength 1 */
-  slug?: string;
+  slug: string;
   /** @maxLength 10000 @minLength 1 */
   content: string;
   /** @maxLength 200 @minLength 1 */
@@ -67,7 +67,7 @@ export interface UpdatePostRequest {
   /** @maxLength 100 @minLength 1 */
   title?: string;
   /** @maxLength 100 @minLength 1 */
-  slug?: string;
+  slug: string;
   /** @maxLength 10000 @minLength 1 */
   content?: string;
   /** @maxLength 200 @minLength 1 */
