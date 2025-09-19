@@ -1,7 +1,7 @@
 // src/app/posts/[identifier]/page.tsx
 
 import { Suspense } from 'react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { api } from '../../../lib/api/index';
 import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
@@ -14,6 +14,7 @@ import Link from 'next/link';
 import ShareButton from '../../../components/blog/ShareButton';
 import { getPostMetadata, getPostMetadataById } from '../../../lib/metadata';
 import ViewCounter from '../../../components/blog/ViewCounter';
+import RedirectHandler from '../../../components/RedirectHandler';
 
 interface PostDetailPageProps {
   params: Promise<{ identifier: string }>;
@@ -47,7 +48,7 @@ export async function generateMetadata({
     const description = post.summary || post.content.slice(0, 150).replace(/[#*`]/g, '');
 
     // slug 기반 메타데이터 우선 사용
-    if (post.slug && post.canonicalPath) {
+    if (post.canonicalPath) {
       return getPostMetadata(
         post.title,
         description,
@@ -79,9 +80,25 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     if (/^\d+$/.test(identifier)) {
       post = await api.posts.getOne(parseInt(identifier, 10));
 
-      // ID로 접근했지만 slug가 있다면 slug URL로 리다이렉트
-      if (post?.slug && post?.canonicalPath) {
-        redirect(post.canonicalPath);
+      // 디버깅을 위한 로그 추가
+      console.log('ID로 조회한 게시물:', {
+        id: post?.id,
+        slug: post?.slug,
+        canonicalPath: post?.canonicalPath,
+        hasCanonicalPath: !!post?.canonicalPath
+      });
+
+      // ID로 접근했지만 slug URL로 리다이렉트해야 함
+      // canonicalPath가 있으면 우선 사용, 없으면 slug로 경로 생성
+      const redirectPath = post.canonicalPath || `/posts/${post.slug}`;
+      const currentPath = `/posts/${identifier}`;
+      
+      // 현재 경로와 리다이렉트할 경로가 다른 경우에만 리다이렉트
+      if (currentPath !== redirectPath) {
+        console.log('ID -> slug 리다이렉트:', { currentPath, redirectPath });
+        return <RedirectHandler redirectPath={redirectPath} />;
+      } else {
+        console.log('리다이렉트 불필요: 경로가 동일함');
       }
     } else {
       // slug인 경우
@@ -215,7 +232,7 @@ export async function generateStaticParams() {
     }
 
     return postsData.content.map(post => ({
-      identifier: post.slug || post.id.toString(),
+      identifier: post.slug,
     }));
   } catch (error) {
     console.error('정적 경로 생성 중 오류:', error);
