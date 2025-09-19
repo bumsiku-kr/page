@@ -48,8 +48,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 세션 데이터 정리
   const clearSessionData = () => {
-    document.cookie = 'JSESSIONID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    if (typeof window !== 'undefined') {
+      document.cookie = 'JSESSIONID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
     setUser(null);
   };
 

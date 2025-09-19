@@ -18,11 +18,19 @@ export default function TagSidebar({
   const searchParams = useSearchParams();
 
   const getTagUrl = (tagName?: string) => {
-    const params = new URLSearchParams(searchParams);
+    // SSR 안전한 URL 생성
+    const params = new URLSearchParams();
 
-    if (!tagName) {
-      params.delete('tag');
-    } else {
+    // searchParams가 있으면 복사 (클라이언트에서만)
+    if (typeof window !== 'undefined' && searchParams) {
+      for (const [key, value] of searchParams.entries()) {
+        if (key !== 'tag' && key !== 'page') {
+          params.set(key, value);
+        }
+      }
+    }
+
+    if (tagName) {
       params.set('tag', tagName);
     }
 
@@ -32,11 +40,12 @@ export default function TagSidebar({
     return queryString ? `/?${queryString}` : '/';
   };
 
-  // 정렬: postCount 내림차순, 이름 오름차순
+  // 정렬: postCount 내림차순, 이름 오름차순 (SSR 안전)
   const sortedTags = [...tags].sort((a, b) => {
     const byCount = (b.postCount || 0) - (a.postCount || 0);
     if (byCount !== 0) return byCount;
-    return a.name.localeCompare(b.name);
+    // 안전한 문자열 정렬 (localeCompare 대신)
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
   });
 
   return (

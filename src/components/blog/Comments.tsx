@@ -85,22 +85,28 @@ export default function Comments({ postId }: CommentsProps) {
     }
   };
 
-  // 날짜 포맷팅 함수
+  // 날짜 포맷팅 함수 (SSR 안전)
   const formatDate = (dateString: string) => {
     try {
       // UTC 시간을 Date 객체로 변환
       const utcDate = new Date(dateString + 'Z'); // 'Z'를 추가하여 명시적으로 UTC임을 표시
 
-      // 로컬 시간대로 포맷팅
-      return new Intl.DateTimeFormat('ko-KR', {
+      // 서버사이드에서는 기본 포맷 사용, 클라이언트에서는 로컬 시간대 사용
+      const formatOptions: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false, // 24시간 형식 사용
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // 사용자의 로컬 시간대 사용
-      }).format(utcDate);
+      };
+
+      // 클라이언트에서만 시간대 설정
+      if (typeof window !== 'undefined') {
+        formatOptions.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      }
+
+      return new Intl.DateTimeFormat('ko-KR', formatOptions).format(utcDate);
     } catch (error) {
       console.error('날짜 포맷팅 오류:', error, '입력값:', dateString);
       return '날짜 정보 없음';

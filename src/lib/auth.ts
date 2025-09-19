@@ -18,7 +18,9 @@ export function getToken(): string | null {
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(TOKEN_KEY);
+  }
 }
 
 export function parseJwt(token: string): User | null {

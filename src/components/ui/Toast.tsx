@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -25,7 +27,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const addToast = useCallback(
     (message: string, type: ToastType) => {
-      const id = Math.random().toString(36).substring(2, 9);
+      // 서버사이드 렌더링 안전한 ID 생성
+      const id = `toast-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       setToasts(prev => [...prev, { id, message, type }]);
 
       // Auto-remove after 5 seconds

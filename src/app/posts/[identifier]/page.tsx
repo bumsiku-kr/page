@@ -121,19 +121,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         <ViewCounter postId={post.id.toString()} />
         <article itemScope itemType="https://schema.org/BlogPosting">
           <header className="mb-8">
-            <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
-              <ol className="flex">
-                <li className="mr-2">
-                  <Link href="/">홈</Link>
-                </li>
-                <li className="mx-2">
-                  <span>&gt;</span>
-                </li>
-                <li>
-                  <span>{post.title}</span>
-                </li>
-              </ol>
-            </nav>
             {post.tags && post.tags.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {post.tags
