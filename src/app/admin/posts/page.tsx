@@ -54,27 +54,34 @@ export default function PostsManagementPage() {
   };
 
   const handleNewPost = () => {
-    router.push('/admin/posts/new');
+    router.push('/admin/posts/write');
   };
 
   const columns = [
     {
       key: 'id',
       label: 'ID',
+      render: (post: PostSummary) => (
+        <div className="font-mono text-sm text-gray-600">{post.id}</div>
+      ),
     },
     {
-      key: 'title',
-      label: '제목',
+      key: 'slug',
+      label: 'SLUG',
       render: (post: PostSummary) => (
-        <div className="truncate max-w-xs" title={post.title}>
-          {post.title}
+        <div className="font-mono text-sm max-w-xs truncate" title={post.slug}>
+          {post.slug || '-'}
         </div>
       ),
     },
     {
-      key: 'createdAt',
-      label: '작성일',
-      render: (post: PostSummary) => formatDate(post.createdAt),
+      key: 'title',
+      label: 'TITLE',
+      render: (post: PostSummary) => (
+        <div className="truncate font-medium max-w-md" title={post.title}>
+          {post.title}
+        </div>
+      ),
     },
     {
       key: 'actions',
