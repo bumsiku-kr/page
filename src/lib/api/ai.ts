@@ -4,7 +4,13 @@ export interface GenerateSummaryRequest {
   text: string;
 }
 
+export interface GenerateSlugRequest {
+  title: string;
+  text: string;
+}
+
 export type GenerateSummaryResponse = { summary: string } | string;
+export type GenerateSlugResponse = { slug: string } | string;
 
 export class AIService {
   private client: APIClient;
@@ -27,5 +33,21 @@ export class AIService {
       return { summary: String((response as any).summary) };
     }
     return { summary: '' };
+  }
+
+  async generateSlug(payload: GenerateSlugRequest): Promise<{ slug: string }> {
+    const response = await this.client.request<GenerateSlugResponse>({
+      url: API_ENDPOINTS.AI_SLUG,
+      method: 'POST',
+      data: payload,
+    });
+    // 응답이 문자열이면 { slug }로 매핑, 객체면 그대로 사용
+    if (typeof response === 'string') {
+      return { slug: response };
+    }
+    if (response && typeof response === 'object' && 'slug' in response) {
+      return { slug: String((response as any).slug) };
+    }
+    return { slug: '' };
   }
 }

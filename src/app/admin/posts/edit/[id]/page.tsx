@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { UpdatePostRequest, Post } from '@/types';
-import PostForm from '@/components/admin/PostForm';
+import VelogWriteEditor from '@/components/admin/VelogWriteEditor';
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -42,12 +42,12 @@ export default function EditPostPage() {
   }, [postId]);
 
   // 게시글 수정
-  const handleSubmit = async (formData: {
+  const handleSave = async (formData: {
     title: string;
-    slug: string;
     content: string;
-    summary: string;
     tags: string[];
+    summary: string;
+    slug: string;
   }) => {
     setIsSaving(true);
     setError(null);
@@ -93,20 +93,17 @@ export default function EditPostPage() {
   }
 
   return (
-    <PostForm
+    <VelogWriteEditor
       initialValues={{
         title: post.title,
-        slug: post.slug,
         content: post.content,
-        summary: post.summary,
         tags: post.tags || [],
+        summary: post.summary,
+        slug: post.slug,
       }}
       existingTags={existingTags}
       isSubmitting={isSaving}
-      error={error}
-      pageTitle="게시글 수정"
-      submitButtonText="저장"
-      onSubmit={handleSubmit}
+      onSave={handleSave}
       onCancel={handleCancel}
     />
   );

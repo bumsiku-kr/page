@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import AdminHeader from '@/components/layout/AdminHeader';
-import AdminSidebar from '@/components/layout/AdminSidebar';
 import { Analytics } from '@vercel/analytics/next';
 
 interface AdminLayoutProps {
@@ -11,12 +10,11 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <AdminHeader />
-      <div className="flex flex-col md:flex-row">
-        <AdminSidebar />
-        <main className="flex-1 p-6 md:ml-64 mt-2">{children}</main>
-      </div>
+      <main>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">{children}</div>
+      </main>
       <Analytics />
     </div>
   );
