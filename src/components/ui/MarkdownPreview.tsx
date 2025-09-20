@@ -58,7 +58,7 @@ export default function MarkdownPreview({ content, className = '' }: MarkdownPre
       const lines = string.substring(0, offset).split('\n');
       const currentLineIndex = lines.length - 1;
       const number = lines.filter(
-        (line, index) => index <= currentLineIndex && /^\d+\./.test(line)
+        (line: string, index: number) => index <= currentLineIndex && /^\d+\./.test(line)
       ).length;
       return `<li class="ml-4 mb-1">${number}. ${text}</li>`;
     });

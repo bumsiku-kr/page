@@ -8,7 +8,6 @@ const nextConfig = {
     }
   },
   reactStrictMode: true,
-  swcMinify: true,
   // Remove all console.* calls from production builds (client & server)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
