@@ -406,9 +406,48 @@ export default function VelogWriteEditor({
     }
   };
 
+  // 텍스트 감싸기 함수
+  const wrapSelectedText = useCallback((prefix: string, suffix?: string) => {
+    if (!contentRef.current) return;
+    
+    const textarea = contentRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.slice(start, end);
+    const actualSuffix = suffix || prefix;
+    
+    let newText;
+    let newCursorPos;
+    
+    if (selectedText) {
+      // 텍스트가 선택된 경우: 선택된 텍스트를 감싸기
+      newText = content.slice(0, start) + prefix + selectedText + actualSuffix + content.slice(end);
+      newCursorPos = end + prefix.length + actualSuffix.length;
+    } else {
+      // 텍스트가 선택되지 않은 경우: 커서 위치에 prefix+suffix 삽입하고 커서를 중간에 위치
+      newText = content.slice(0, start) + prefix + actualSuffix + content.slice(start);
+      newCursorPos = start + prefix.length;
+    }
+    
+    setContent(newText);
+    
+    // 다음 렌더링 후 커서 위치 설정
+    setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        contentRef.current.focus();
+      }
+    }, 0);
+  }, [content]);
+
   // 키보드 단축키
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 입력 필드에서 이벤트가 발생한 경우 마크다운 단축키 무시
+      const isInInput = e.target instanceof HTMLElement && 
+        (e.target.tagName === 'INPUT' || 
+         (e.target.tagName === 'TEXTAREA' && e.target !== contentRef.current));
+      
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -427,11 +466,23 @@ export default function VelogWriteEditor({
         e.preventDefault();
         setShowDraftModal(true);
       }
+      
+      // 마크다운 포맷팅 단축키 (콘텐츠 에디터에서만)
+      if (!isInInput && contentRef.current && e.target === contentRef.current) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+          e.preventDefault();
+          wrapSelectedText('`');
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+          e.preventDefault();
+          wrapSelectedText('**');
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isPreviewMode, handleManualSave, handlePublish]);
+  }, [isPreviewMode, handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
     <div className="min-h-screen bg-white">
