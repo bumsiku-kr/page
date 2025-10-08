@@ -1,4 +1,4 @@
-const SITE_ORIGIN = 'https://bumsiku.kr';
+const SITE_ORIGIN = 'https://www.bumsiku.kr';
 const ORIGIN_URL = new URL(SITE_ORIGIN);
 
 export const SITE_URL = SITE_ORIGIN;
@@ -6,7 +6,7 @@ export const SITE_HOSTNAME = ORIGIN_URL.hostname;
 
 /**
  * Normalize an incoming path or absolute URL so that it always uses the
- * canonical site origin (`https://bumsiku.kr`).
+ * canonical site origin (`https://www.bumsiku.kr`).
  */
 export function normalizeSiteUrl(pathOrUrl: string): string {
   try {
