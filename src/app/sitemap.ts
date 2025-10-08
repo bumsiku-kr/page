@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { api } from '@/lib/api';
 import { defaultMetadata } from '@/lib/metadata';
+import { SITE_URL, normalizeSiteUrl } from '@/lib/site';
 
 // 주기적 갱신(Incremental Static Regeneration)
 // SEO 최적화: 블로그 특성상 하루 1-2회 갱신이면 충분
@@ -9,9 +10,10 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 기본 페이지 URL 설정 (config에서 읽기)
-  const baseUrl =
+  const baseCandidate =
     ((defaultMetadata.metadataBase as URL | undefined)?.origin as string | undefined) ||
-    'https://bumsiku.kr';
+    SITE_URL;
+  const baseUrl = normalizeSiteUrl(baseCandidate);
 
   try {
     // 백엔드 /sitemap API를 사용하여 최신 업데이트 순 slug 경로 리스트 조회
@@ -27,16 +29,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 기본 페이지 경로 (SEO 최적화된 priority와 changeFrequency)
     const routes: MetadataRoute.Sitemap = [
       {
-        url: `${baseUrl}`,
+        url: baseUrl,
         lastModified: currentTime,
         changeFrequency: 'daily',
         priority: 1.0, // 홈페이지는 최고 우선순위
-      },
-      {
-        url: `${baseUrl}/posts`,
-        lastModified: currentTime,
-        changeFrequency: 'daily',
-        priority: 0.9, // 포스트 목록은 높은 우선순위
       },
     ];
 
@@ -45,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 순서에 따라 우선순위를 차등 적용
     const postUrls = sitemapPaths.map((path, index) => {
       // 백엔드에서 '/posts/{slug}' 형태로 제공되므로 baseUrl과 결합
-      const fullUrl = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+      const fullUrl = normalizeSiteUrl(path);
 
       // 최신 순서에 따른 우선순위 계산
       // 상위 10개는 높은 우선순위, 그 외는 기본 우선순위 적용
@@ -70,16 +66,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 기본 페이지들은 항상 포함 (SEO 최적화된 설정)
     return [
       {
-        url: `${baseUrl}/`,
+        url: baseUrl,
         lastModified: fallbackNow,
         changeFrequency: 'daily',
         priority: 1.0,
-      },
-      {
-        url: `${baseUrl}/posts`,
-        lastModified: fallbackNow,
-        changeFrequency: 'daily',
-        priority: 0.9,
       },
     ] as MetadataRoute.Sitemap;
   }

@@ -4,6 +4,17 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { api } from '@/lib/api';
 import MarkdownRenderer from '@/components/ui/data-display/MarkdownRenderer';
 
+const DRAFTS_KEY = 'velog-drafts';
+const AUTO_SAVE_INTERVAL = 30000;
+
+type DraftSnapshot = {
+  title: string;
+  content: string;
+  tags: string[];
+  summary: string;
+  slug: string;
+};
+
 interface VelogWriteEditorProps {
   initialValues: {
     title: string;
@@ -47,14 +58,25 @@ export default function VelogWriteEditor({
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 임시저장 키
-  const DRAFTS_KEY = 'velog-drafts';
+  const latestDraftRef = useRef<DraftSnapshot>({
+    title,
+    content,
+    tags,
+    summary,
+    slug,
+  });
+  const previousDraftJSONRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    latestDraftRef.current = { title, content, tags, summary, slug };
+  }, [title, content, tags, summary, slug]);
 
   // slug 생성 함수
   const generateSlug = useCallback((title: string): string => {
@@ -83,7 +105,73 @@ export default function VelogWriteEditor({
       console.error('임시저장 목록 로드 오류:', error);
       return [];
     }
-  }, [DRAFTS_KEY]);
+  }, []);
+
+  useEffect(() => {
+    const drafts = getDraftsList();
+    if (!Array.isArray(drafts)) {
+      return;
+    }
+    const autoDraft = drafts.find((draft: any) => draft?.isAutoSave && draft?.timestamp);
+    if (autoDraft) {
+      setLastAutoSavedAt(new Date(autoDraft.timestamp));
+    }
+  }, [getDraftsList]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      const snapshot = latestDraftRef.current;
+      const normalizedTitle = snapshot.title.trim();
+      const hasContent =
+        normalizedTitle ||
+        snapshot.content.trim() ||
+        snapshot.summary.trim() ||
+        snapshot.tags.length > 0 ||
+        snapshot.slug.trim();
+
+      if (!hasContent) {
+        return;
+      }
+
+      try {
+        const serializedSnapshot = JSON.stringify(snapshot);
+        if (serializedSnapshot === previousDraftJSONRef.current) {
+          return;
+        }
+
+        const drafts = getDraftsList();
+        const filteredDrafts = Array.isArray(drafts)
+          ? drafts.filter((draft: any) => !draft?.isAutoSave)
+          : [];
+
+        const now = new Date();
+        const timestamp = now.toISOString();
+        const draftTitle = normalizedTitle || '제목 없음';
+
+        const autoDraft = {
+          id: 'auto-draft',
+          title: draftTitle,
+          content: snapshot.content,
+          tags: snapshot.tags,
+          summary: snapshot.summary,
+          slug: snapshot.slug,
+          timestamp,
+          displayName: `${now.toLocaleString()} - ${draftTitle}`,
+          isAutoSave: true,
+        };
+
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify([autoDraft, ...filteredDrafts]));
+        previousDraftJSONRef.current = serializedSnapshot;
+        setLastAutoSavedAt(now);
+      } catch (error) {
+        console.error('자동 임시저장 오류:', error);
+      }
+    }, AUTO_SAVE_INTERVAL);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [getDraftsList]);
 
   // 수동 임시저장
   const handleManualSave = useCallback(() => {
@@ -124,7 +212,7 @@ export default function VelogWriteEditor({
     } finally {
       setIsManualSaving(false);
     }
-  }, [title, content, tags, summary, slug, getDraftsList, DRAFTS_KEY]);
+  }, [title, content, tags, summary, slug, getDraftsList]);
 
   // 임시저장 글 불러오기
   const handleLoadDraft = useCallback((draft: any) => {
@@ -156,7 +244,7 @@ export default function VelogWriteEditor({
         alert('임시저장 삭제에 실패했습니다.');
       }
     },
-    [getDraftsList, DRAFTS_KEY]
+    [getDraftsList]
   );
 
   // 모든 임시저장 글 삭제
@@ -185,7 +273,7 @@ export default function VelogWriteEditor({
       console.error('임시저장 전체 삭제 오류:', error);
       alert('임시저장 전체 삭제에 실패했습니다.');
     }
-  }, [getDraftsList, DRAFTS_KEY]);
+  }, [getDraftsList]);
 
   // 임시저장된 데이터 확인 및 목록 표시 제안 (편집 모드에서만)
   useEffect(() => {
@@ -406,9 +494,48 @@ export default function VelogWriteEditor({
     }
   };
 
+  // 텍스트 감싸기 함수
+  const wrapSelectedText = useCallback((prefix: string, suffix?: string) => {
+    if (!contentRef.current) return;
+    
+    const textarea = contentRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.slice(start, end);
+    const actualSuffix = suffix || prefix;
+    
+    let newText;
+    let newCursorPos;
+    
+    if (selectedText) {
+      // 텍스트가 선택된 경우: 선택된 텍스트를 감싸기
+      newText = content.slice(0, start) + prefix + selectedText + actualSuffix + content.slice(end);
+      newCursorPos = end + prefix.length + actualSuffix.length;
+    } else {
+      // 텍스트가 선택되지 않은 경우: 커서 위치에 prefix+suffix 삽입하고 커서를 중간에 위치
+      newText = content.slice(0, start) + prefix + actualSuffix + content.slice(start);
+      newCursorPos = start + prefix.length;
+    }
+    
+    setContent(newText);
+    
+    // 다음 렌더링 후 커서 위치 설정
+    setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        contentRef.current.focus();
+      }
+    }, 0);
+  }, [content]);
+
   // 키보드 단축키
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 입력 필드에서 이벤트가 발생한 경우 마크다운 단축키 무시
+      const isInInput = e.target instanceof HTMLElement && 
+        (e.target.tagName === 'INPUT' || 
+         (e.target.tagName === 'TEXTAREA' && e.target !== contentRef.current));
+      
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -427,11 +554,23 @@ export default function VelogWriteEditor({
         e.preventDefault();
         setShowDraftModal(true);
       }
+      
+      // 마크다운 포맷팅 단축키 (콘텐츠 에디터에서만)
+      if (!isInInput && contentRef.current && e.target === contentRef.current) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+          e.preventDefault();
+          wrapSelectedText('`');
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+          e.preventDefault();
+          wrapSelectedText('**');
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isPreviewMode, handleManualSave, handlePublish]);
+  }, [isPreviewMode, handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -509,6 +648,11 @@ export default function VelogWriteEditor({
                   {isSubmitting ? '출간 중...' : '출간하기'}
                 </button>
               </div>
+              {lastAutoSavedAt && (
+                <span className="hidden sm:block text-xs text-gray-500">
+                  자동 저장 {lastAutoSavedAt.toLocaleTimeString()} 저장됨
+                </span>
+              )}
             </div>
           </div>
         </div>

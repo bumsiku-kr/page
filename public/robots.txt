@@ -16,11 +16,8 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /login
 
-# 크롤 속도 제한 (서버 부하 방지)
-Crawl-delay: 1
-
 # Host
-Host: https://bumsiku.kr
+Host: bumsiku.kr
 
 # Sitemap
 Sitemap: https://bumsiku.kr/sitemap.xml 

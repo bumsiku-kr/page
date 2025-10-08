@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Share2Icon, CheckIcon } from 'lucide-react';
+import { normalizeSiteUrl } from '@/lib/site';
 import Button from '../ui/Button';
 
 interface ShareButtonProps {
@@ -16,16 +17,13 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className, canonicalUrl }) =>
   useEffect(() => {
     // canonicalUrl이 제공되면 우선 사용, 그렇지 않으면 현재 URL 사용
     if (canonicalUrl) {
-      // canonicalUrl이 절대 경로이면 도메인 추가
-      const fullUrl = canonicalUrl.startsWith('http')
-        ? canonicalUrl
-        : `https://bumsiku.kr${canonicalUrl}`;
-      setCurrentUrl(fullUrl);
-    } else {
-      // 클라이언트 사이드에서만 window.location.href에 접근 가능
-      if (typeof window !== 'undefined') {
-        setCurrentUrl(window.location.href);
-      }
+      setCurrentUrl(normalizeSiteUrl(canonicalUrl));
+      return;
+    }
+
+    // 클라이언트 사이드에서만 window.location.href에 접근 가능
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(normalizeSiteUrl(window.location.href));
     }
   }, [canonicalUrl]);
 
