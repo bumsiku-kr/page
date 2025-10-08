@@ -1,19 +1,20 @@
 // src/lib/metadata.ts
 import { Metadata, Viewport } from 'next';
+import { SITE_URL, normalizeSiteUrl } from './site';
 
 // 기본 사이트 정보
 const siteName = 'SIKU Tech Blog';
-const siteUrl = 'https://bumsiku.kr';
 const defaultDescription = 'SIKU의 기술 블로그입니다.';
 const defaultImagePath =
   'https://bumsiku-kr-images.s3.ap-northeast-2.amazonaws.com/default-image.png';
 const defaultAuthor = 'Siku';
+const siteMetadataBase = new URL(SITE_URL);
 
 // 기본 메타데이터 설정
 export const defaultMetadata: Metadata = {
   title: siteName,
   description: defaultDescription,
-  metadataBase: new URL(siteUrl),
+  metadataBase: siteMetadataBase,
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
@@ -39,7 +40,7 @@ export const defaultMetadata: Metadata = {
   openGraph: {
     title: siteName,
     description: defaultDescription,
-    url: siteUrl,
+    url: SITE_URL,
     siteName: siteName,
     locale: 'ko_KR',
     type: 'website',
@@ -91,7 +92,7 @@ export function getTagMetadata(tagName: string): Metadata {
     openGraph: {
       title: `#${tagName} | ${siteName}`,
       description: `${siteName}의 #${tagName} 태그 글 모음입니다.`,
-      url: `${siteUrl}?tag=${encodeURIComponent(tagName)}`,
+      url: `${SITE_URL}?tag=${encodeURIComponent(tagName)}`,
     },
   };
 }
@@ -105,7 +106,8 @@ export function getPostMetadata(
   createdAt: string,
   updatedAt: string
 ): Metadata {
-  const url = `${siteUrl}${canonicalPath}`;
+  const canonicalTarget = canonicalPath || `/posts/${slug}`;
+  const url = normalizeSiteUrl(canonicalTarget);
 
   return {
     title: `${title} | ${siteName}`,
@@ -146,23 +148,23 @@ export function getPostMetadata(
     other: {
       'ld+json': JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: title,
-        datePublished: createdAt,
-        dateModified: updatedAt,
-        author: {
-          '@type': 'Person',
-          name: defaultAuthor,
-        },
-        description,
-        mainEntityOfPage: url,
-        publisher: {
-          '@type': 'Organization',
-          name: siteName,
-          url: siteUrl,
-        },
-      }),
-    },
+      '@type': 'BlogPosting',
+      headline: title,
+      datePublished: createdAt,
+      dateModified: updatedAt,
+      author: {
+        '@type': 'Person',
+        name: defaultAuthor,
+      },
+      description,
+      mainEntityOfPage: url,
+      publisher: {
+        '@type': 'Organization',
+        name: siteName,
+        url: SITE_URL,
+      },
+    }),
+  },
   };
 }
 
@@ -174,7 +176,7 @@ export function getPostMetadataById(
   createdAt: string,
   updatedAt: string
 ): Metadata {
-  const url = `${siteUrl}/posts/${postId}`;
+  const url = normalizeSiteUrl(`/posts/${postId}`);
 
   return {
     title: `${title} | ${siteName}`,
@@ -228,7 +230,7 @@ export function getPostMetadataById(
         publisher: {
           '@type': 'Organization',
           name: siteName,
-          url: siteUrl,
+          url: SITE_URL,
         },
       }),
     },
