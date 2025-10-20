@@ -26,6 +26,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const { loginWithSession, isLoading: authLoading } = useAuth();
 
+  console.log('[LoginPage] Rendered - authLoading:', authLoading);
+
   // Note: Middleware handles session-based redirects
   // No need for client-side redirect logic here
 

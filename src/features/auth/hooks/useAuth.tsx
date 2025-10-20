@@ -70,11 +70,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return;
 
     const init = async () => {
+      console.log('[AuthProvider] Starting initialization...');
       setIsLoading(true);
       try {
-        await checkAuthStatus();
+        // TEMPORARILY DISABLED: API call might be causing infinite reload
+        // const authenticated = await checkAuthStatus();
+        // console.log('[AuthProvider] Auth check result:', authenticated);
+        console.log('[AuthProvider] Skipping checkAuthStatus for debugging');
       } finally {
         setIsLoading(false);
+        console.log('[AuthProvider] Initialization complete');
       }
     };
 
