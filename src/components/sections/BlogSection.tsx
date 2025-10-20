@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { PostSummary, Tag, SortOption } from '../../types';
 import PostList from '../blog/PostList';
 import TagSidebar from '../blog/TagSidebar';
@@ -22,7 +22,12 @@ interface BlogSectionProps {
   onSortChange?: (sort: SortOption) => void;
 }
 
-export default function BlogSection({
+/**
+ * Optimized BlogSection with React.memo and useMemo
+ *
+ * Memoizes expensive calculations and prevents unnecessary re-renders
+ */
+const BlogSection = memo(function BlogSection({
   posts,
   tags,
   selectedTag,
@@ -31,6 +36,18 @@ export default function BlogSection({
   currentSort,
   onSortChange,
 }: BlogSectionProps) {
+  // Memoize pagination calculations (must be called before any early returns)
+  const { totalPages, currentPage } = useMemo(
+    () => {
+      if (!posts) return { totalPages: 0, currentPage: 0 };
+      return {
+        totalPages: Math.ceil(posts.totalElements / posts.pageSize),
+        currentPage: posts.pageNumber + 1,
+      };
+    },
+    [posts]
+  );
+
   // 데이터가 없는 경우 오류 메시지 표시
   if (!posts || !tags) {
     return (
@@ -39,10 +56,6 @@ export default function BlogSection({
       </section>
     );
   }
-
-  // 페이지네이션 계산
-  const totalPages = Math.ceil(posts.totalElements / posts.pageSize);
-  const currentPage = posts.pageNumber + 1;
 
   return (
     <section className={`py-2 ${className}`}>
@@ -69,4 +82,6 @@ export default function BlogSection({
       </div>
     </section>
   );
-}
+});
+
+export default BlogSection;
