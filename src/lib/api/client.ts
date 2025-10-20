@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ErrorResponse, APIResponse } from '../../types';
 import { getToken, clearToken } from '@/lib/auth';
+import { logger } from '@/lib/utils/logger';
 
 // API 엔드포인트 상수
 export const API_ENDPOINTS = {
@@ -50,17 +51,15 @@ export class APIClient {
         if (token) {
           config.headers['Authorization'] = `Bearer ${token}`;
         }
-        console.log('API 요청:', {
+        logger.debug('API 요청', {
           url: config.url,
           method: config.method,
-          baseURL: config.baseURL,
           params: config.params,
-          data: config.data,
         });
         return config;
       },
       error => {
-        console.error('API 요청 오류:', error);
+        logger.error('API 요청 오류', error);
         return Promise.reject(error);
       }
     );
@@ -68,21 +67,17 @@ export class APIClient {
     // 응답 인터셉터
     this.client.interceptors.response.use(
       response => {
-        console.log('API 응답 성공:', {
+        logger.debug('API 응답 성공', {
           status: response.status,
-          statusText: response.statusText,
           url: response.config.url,
-          data: response.data,
         });
         return response;
       },
       error => {
-        console.error('API 응답 오류:', {
+        logger.error('API 응답 오류', {
           message: error.message,
           status: error.response?.status,
-          statusText: error.response?.statusText,
           url: error.config?.url,
-          data: error.response?.data,
         });
         if (error?.response?.status === 401) {
           clearToken();
@@ -122,7 +117,7 @@ export class APIClient {
       try {
         return await this.client.request<T>(config);
       } catch (error) {
-        console.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries}):`, error);
+        logger.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries})`, error);
         lastError = error as Error | AxiosError;
 
         if (attempt < maxRetries - 1) {
