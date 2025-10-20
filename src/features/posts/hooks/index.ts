@@ -4,3 +4,4 @@
  */
 export * from './usePostsQuery';
 export * from './usePostForm';
+export * from './usePostsWithParams';
