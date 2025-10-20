@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/features/auth';
@@ -25,16 +24,10 @@ export default function LoginPage() {
   } = useForm<LoginForm>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { loginWithSession, isLoggedIn, isLoading: authLoading } = useAuth();
+  const { loginWithSession, isLoading: authLoading } = useAuth();
 
-  // 이미 로그인되어 있으면 admin으로 리다이렉트
-  // authLoading이 완료된 후에만 체크
-  useEffect(() => {
-    if (!authLoading && isLoggedIn) {
-      router.push('/admin');
-    }
-  }, [isLoggedIn, authLoading, router]);
+  // Note: Middleware handles session-based redirects
+  // No need for client-side redirect logic here
 
   const onSubmit = async (data: LoginForm) => {
     setIsSubmitting(true);
