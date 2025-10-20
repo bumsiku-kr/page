@@ -3,7 +3,7 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '../components/layout/Header';
-import { AuthProvider } from '@/context/AuthContext';
+import { AuthProvider } from '@/features/auth';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/next';
