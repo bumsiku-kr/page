@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ErrorResponse, APIResponse } from '../../types';
-import { getToken, clearToken } from '@/lib/auth';
+import { getToken, clearToken } from './auth';
 import { logger } from '@/lib/utils/logger';
 
 // API 엔드포인트 상수
