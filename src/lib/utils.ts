@@ -1,13 +1,4 @@
-import { dateUtils } from './utils/date';
-
-/**
- * @deprecated Use dateUtils.formatShort() from '@/lib/utils/date' instead
- * ISO 형식의 날짜 문자열을 YYYY.MM.DD 형식으로 포맷팅
- */
-export function formatDate(dateString: string): string {
-  // 하위 호환성을 위해 유지, dateUtils로 위임
-  return dateUtils.formatShort(dateString);
-}
+// dateUtils는 @/lib/utils/date에서 직접 import 하세요
 
 /**
  * 텍스트를 지정된 길이로 자르고 말줄임표를 추가
