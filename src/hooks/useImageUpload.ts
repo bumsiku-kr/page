@@ -25,7 +25,8 @@ export function useImageUpload(
         if (contentRef.current) {
           const start = contentRef.current.selectionStart;
           const end = contentRef.current.selectionEnd;
-          const newContent = content.slice(0, start) + '\n' + imageMarkdown + '\n' + content.slice(end);
+          const newContent =
+            content.slice(0, start) + '\n' + imageMarkdown + '\n' + content.slice(end);
           onContentChange(newContent);
 
           // 커서 위치 조정

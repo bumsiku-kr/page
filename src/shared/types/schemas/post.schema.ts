@@ -14,7 +14,10 @@ export const PostSchema = z.object({
       message: 'Slug는 영문 소문자, 숫자, 한글, 하이픈만 포함할 수 있습니다.',
     }),
   title: z.string().min(1, '제목은 필수입니다.').max(100, '제목은 100자를 초과할 수 없습니다.'),
-  content: z.string().min(1, '내용은 필수입니다.').max(10000, '내용은 10000자를 초과할 수 없습니다.'),
+  content: z
+    .string()
+    .min(1, '내용은 필수입니다.')
+    .max(10000, '내용은 10000자를 초과할 수 없습니다.'),
   summary: z.string().min(1, '요약은 필수입니다.').max(200, '요약은 200자를 초과할 수 없습니다.'),
   tags: z.array(z.string()),
   createdAt: z.string(),

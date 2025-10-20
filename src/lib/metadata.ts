@@ -148,23 +148,23 @@ export function getPostMetadata(
     other: {
       'ld+json': JSON.stringify({
         '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: title,
-      datePublished: createdAt,
-      dateModified: updatedAt,
-      author: {
-        '@type': 'Person',
-        name: defaultAuthor,
-      },
-      description,
-      mainEntityOfPage: url,
-      publisher: {
-        '@type': 'Organization',
-        name: siteName,
-        url: SITE_URL,
-      },
-    }),
-  },
+        '@type': 'BlogPosting',
+        headline: title,
+        datePublished: createdAt,
+        dateModified: updatedAt,
+        author: {
+          '@type': 'Person',
+          name: defaultAuthor,
+        },
+        description,
+        mainEntityOfPage: url,
+        publisher: {
+          '@type': 'Organization',
+          name: siteName,
+          url: SITE_URL,
+        },
+      }),
+    },
   };
 }
 

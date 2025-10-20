@@ -10,7 +10,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, But
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, isLoading = false, children, disabled, ...props }, ref) => {
+  (
+    { className, variant, size, fullWidth, isLoading = false, children, disabled, ...props },
+    ref
+  ) => {
     return (
       <button
         ref={ref}
@@ -25,7 +28,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
             <path
               className="opacity-75"
               fill="currentColor"

@@ -169,7 +169,12 @@ export default function PostForm({
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         {/* Title */}
-        <Input label="제목" {...register('title')} placeholder="게시글 제목을 입력하세요" error={errors.title?.message} />
+        <Input
+          label="제목"
+          {...register('title')}
+          placeholder="게시글 제목을 입력하세요"
+          error={errors.title?.message}
+        />
 
         {/* Slug */}
         <div className="space-y-2">
@@ -270,7 +275,12 @@ export default function PostForm({
               <ul className="space-y-1 max-h-32 overflow-y-auto border rounded-md p-2">
                 {uploadedImages.map((img, idx) => (
                   <li key={idx} className="text-sm flex justify-between">
-                    <a href={img.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline truncate">
+                    <a
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline truncate"
+                    >
                       {img.url}
                     </a>
                     <span className="text-gray-500 ml-2">{Math.round(img.size / 1024)} KB</span>
@@ -309,7 +319,10 @@ export default function PostForm({
           <label className="block text-sm font-medium text-gray-700">태그</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map(tag => (
-              <span key={tag} className="inline-flex items-center px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded">
+              <span
+                key={tag}
+                className="inline-flex items-center px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded"
+              >
                 #{tag}
                 <button
                   type="button"
@@ -347,7 +360,9 @@ export default function PostForm({
                 ))}
             </div>
           )}
-          <p className="text-xs text-gray-500">자유롭게 태그를 입력하거나 기존 태그를 선택하세요.</p>
+          <p className="text-xs text-gray-500">
+            자유롭게 태그를 입력하거나 기존 태그를 선택하세요.
+          </p>
         </div>
 
         {/* Form Actions */}

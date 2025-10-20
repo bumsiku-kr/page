@@ -37,16 +37,13 @@ const BlogSection = memo(function BlogSection({
   onSortChange,
 }: BlogSectionProps) {
   // Memoize pagination calculations (must be called before any early returns)
-  const { totalPages, currentPage } = useMemo(
-    () => {
-      if (!posts) return { totalPages: 0, currentPage: 0 };
-      return {
-        totalPages: Math.ceil(posts.totalElements / posts.pageSize),
-        currentPage: posts.pageNumber + 1,
-      };
-    },
-    [posts]
-  );
+  const { totalPages, currentPage } = useMemo(() => {
+    if (!posts) return { totalPages: 0, currentPage: 0 };
+    return {
+      totalPages: Math.ceil(posts.totalElements / posts.pageSize),
+      currentPage: posts.pageNumber + 1,
+    };
+  }, [posts]);
 
   // 데이터가 없는 경우 오류 메시지 표시
   if (!posts || !tags) {

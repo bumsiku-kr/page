@@ -100,7 +100,6 @@ export class AuthService {
     return parseJwt(token);
   }
 
-
   /**
    * 로그아웃
    */
