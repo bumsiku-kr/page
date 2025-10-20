@@ -93,17 +93,32 @@ export class APIClient {
   // 공통 API 호출 함수
   public async request<T>(config: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await this.retryRequest<any>(config);
+      const response = await this.retryRequest<APIResponse<T>>(config);
       const payload = response?.data;
-      // 표준 래핑 응답(APIResponse<T>) 우선 처리
-      if (payload && typeof payload === 'object' && 'data' in payload) {
-        return payload.data as T;
+
+      // 타입 가드로 APIResponse 구조 검증
+      if (this.isAPIResponse<T>(payload)) {
+        return payload.data;
       }
-      // 비래핑(plain) 응답도 허용 (예: string 또는 { summary: string })
+
+      // Plain response (string, number 등 직접 반환)
       return payload as T;
     } catch (error) {
       return this.handleError(error as AxiosError<ErrorResponse>);
     }
+  }
+
+  /**
+   * Type guard for APIResponse structure
+   * Ensures type safety by checking response shape at runtime
+   */
+  private isAPIResponse<T>(response: unknown): response is APIResponse<T> {
+    return (
+      typeof response === 'object' &&
+      response !== null &&
+      'data' in response &&
+      'success' in response
+    );
   }
 
   // 재시도 로직을 포함한 요청 함수
