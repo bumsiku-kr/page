@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { defaultMetadata } from '@/lib/metadata';
 import { SITE_URL, normalizeSiteUrl } from '@/lib/site';
 

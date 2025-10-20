@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import MarkdownRenderer from '@/components/ui/data-display/MarkdownRenderer';
 
 const DRAFTS_KEY = 'velog-drafts';

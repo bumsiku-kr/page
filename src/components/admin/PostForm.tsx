@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { Tag } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';

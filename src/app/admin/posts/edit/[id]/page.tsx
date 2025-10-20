@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { UpdatePostRequest, Post } from '@/types';
 import VelogWriteEditor from '@/components/admin/VelogWriteEditor';
 

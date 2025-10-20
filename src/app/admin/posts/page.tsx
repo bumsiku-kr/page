@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable from '@/components/ui/DataTable';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { PostSummary } from '@/types';
 import { dateUtils } from '@/lib/utils/date';
 

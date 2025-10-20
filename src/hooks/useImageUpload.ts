@@ -1,5 +1,5 @@
 import { useState, useCallback, RefObject } from 'react';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { logger } from '@/lib/utils/logger';
 
 /**

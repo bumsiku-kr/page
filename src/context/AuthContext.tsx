@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { setToken, parseJwt, User } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { setToken, parseJwt, User } from '@/lib/api/auth';
+import { api } from '@/lib/api/index';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
