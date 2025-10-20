@@ -5,12 +5,25 @@ import Link from 'next/link';
 import { PostSummary } from '../../types';
 import Card from '../ui/Card';
 import { dateUtils } from '@/lib/utils/date';
+import { usePrefetchPost } from '@/features/posts/hooks';
 
 interface PostItemProps {
   post: PostSummary;
 }
 
+/**
+ * PostItem with prefetching optimization
+ *
+ * Prefetches full post data on hover for instant page load
+ */
 export default function PostItem({ post }: PostItemProps) {
+  const prefetch = usePrefetchPost();
+
+  const handleMouseEnter = () => {
+    // Prefetch full post data when user hovers
+    prefetch(post.slug);
+  };
+
   return (
     <Card className="mb-8 last:mb-0" hasShadow={false} hasBorder={false} isPadded={false}>
       <article className="pb-8 border-b border-gray-200 last:border-0">
@@ -19,7 +32,7 @@ export default function PostItem({ post }: PostItemProps) {
           <div className="flex flex-wrap gap-1">
             {(post.tags || [])
               .slice()
-              .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)) // 안전한 문자열 정렬
+              .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
               .map(tag => (
                 <span
                   key={tag}
@@ -31,7 +44,7 @@ export default function PostItem({ post }: PostItemProps) {
           </div>
         </div>
 
-        <Link href={`/posts/${post.slug}`}>
+        <Link href={`/posts/${post.slug}`} onMouseEnter={handleMouseEnter}>
           <h2 className="text-2xl font-bold mb-3 hover:text-blue-600 transition-colors">
             {post.title}
           </h2>
@@ -43,6 +56,7 @@ export default function PostItem({ post }: PostItemProps) {
           <Link
             href={`/posts/${post.slug}`}
             className="text-blue-600 hover:text-blue-800 transition-colors"
+            onMouseEnter={handleMouseEnter}
           >
             더 읽기
           </Link>
