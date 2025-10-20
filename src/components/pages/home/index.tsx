@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { api } from '../../lib/api/index';
-import Container from '../ui/Container';
-import HeroSection from '../sections/HeroSection';
-import BlogSection from '../sections/BlogSection';
-import Divider from '../ui/Divider';
-import { PostListResponse, Tag, SortOption } from '../../types';
-import ErrorMessage from '../ui/feedback/ErrorMessage';
-import Loading from '../ui/feedback/Loading';
+import { api } from '../../../lib/api/index';
+import Container from '../../ui/Container';
+import HeroSection from '../../sections/HeroSection';
+import BlogSection from '../../sections/BlogSection';
+import Divider from '../../ui/Divider';
+import { PostListResponse, Tag, SortOption } from '../../../types';
+import ErrorMessage from '../../ui/feedback/ErrorMessage';
+import Loading from '../../ui/feedback/Loading';
 
 interface HomePageProps {
   initialPosts: PostListResponse;
