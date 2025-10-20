@@ -1,15 +1,12 @@
+import { dateUtils } from './utils/date';
+
 /**
+ * @deprecated Use dateUtils.formatShort() from '@/lib/utils/date' instead
  * ISO 형식의 날짜 문자열을 YYYY.MM.DD 형식으로 포맷팅
- * @param dateString ISO 형식의 날짜 문자열
- * @returns 포맷팅된 날짜 문자열
  */
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}.${month}.${day}`;
+  // 하위 호환성을 위해 유지, dateUtils로 위임
+  return dateUtils.formatShort(dateString);
 }
 
 /**
