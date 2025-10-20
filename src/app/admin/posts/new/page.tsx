@@ -1,18 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api/index';
-import { CreatePostRequest } from '@/types';
-import PostForm from '@/components/admin/PostForm';
+import { PostForm } from '@/features/posts/components';
+import type { CreatePostInput } from '@/shared/types/schemas';
 
 export default function NewPostPage() {
   const router = useRouter();
   const [existingTags, setExistingTags] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // 태그 목록 불러오기 (추천용)
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -20,42 +17,15 @@ export default function NewPostPage() {
         setExistingTags(response.map(t => t.name));
       } catch (err) {
         console.error('태그 로딩 오류:', err);
-        setError('태그를 불러오는 중 오류가 발생했습니다.');
       }
     };
 
     fetchTags();
   }, []);
 
-  // 게시글 저장
-  const handleSubmit = async (formData: {
-    title: string;
-    slug: string;
-    content: string;
-    summary: string;
-    tags: string[];
-  }) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const postData: CreatePostRequest = {
-        title: formData.title,
-        slug: formData.slug,
-        content: formData.content,
-        summary: formData.summary,
-        tags: formData.tags,
-      };
-
-      await api.posts.create(postData);
-      router.push('/admin/posts');
-    } catch (err) {
-      console.error('게시글 저장 오류:', err);
-      setError('게시글을 저장하는 중 오류가 발생했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = async (data: CreatePostInput) => {
+    await api.posts.create(data);
+    router.push('/admin/posts');
   };
 
   const handleCancel = () => {
@@ -72,8 +42,6 @@ export default function NewPostPage() {
         tags: [],
       }}
       existingTags={existingTags}
-      isSubmitting={isLoading}
-      error={error}
       pageTitle="새 게시글 작성"
       submitButtonText="저장"
       onSubmit={handleSubmit}
