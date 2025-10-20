@@ -79,7 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     init();
-  }, [checkAuthStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   const login = (token: string) => {
     setToken(token);
