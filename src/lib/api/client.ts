@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ErrorResponse, APIResponse } from '../../types';
-import { getToken, clearToken } from '@/lib/auth';
+import { getToken, clearToken } from './auth';
+import { logger } from '@/lib/utils/logger';
 
 // API 엔드포인트 상수
 export const API_ENDPOINTS = {
@@ -21,7 +22,8 @@ export class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    const API_URL = 'https://api.bumsiku.kr';
+    // 환경 변수 우선, 없으면 기본값 (반드시 HTTPS 사용)
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.bumsiku.kr';
 
     this.client = axios.create({
       baseURL: API_URL,
@@ -50,17 +52,15 @@ export class APIClient {
         if (token) {
           config.headers['Authorization'] = `Bearer ${token}`;
         }
-        console.log('API 요청:', {
+        logger.debug('API 요청', {
           url: config.url,
           method: config.method,
-          baseURL: config.baseURL,
           params: config.params,
-          data: config.data,
         });
         return config;
       },
       error => {
-        console.error('API 요청 오류:', error);
+        logger.error('API 요청 오류', error);
         return Promise.reject(error);
       }
     );
@@ -68,21 +68,17 @@ export class APIClient {
     // 응답 인터셉터
     this.client.interceptors.response.use(
       response => {
-        console.log('API 응답 성공:', {
+        logger.debug('API 응답 성공', {
           status: response.status,
-          statusText: response.statusText,
           url: response.config.url,
-          data: response.data,
         });
         return response;
       },
       error => {
-        console.error('API 응답 오류:', {
+        logger.error('API 응답 오류', {
           message: error.message,
           status: error.response?.status,
-          statusText: error.response?.statusText,
           url: error.config?.url,
-          data: error.response?.data,
         });
         if (error?.response?.status === 401) {
           clearToken();
@@ -98,17 +94,32 @@ export class APIClient {
   // 공통 API 호출 함수
   public async request<T>(config: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await this.retryRequest<any>(config);
+      const response = await this.retryRequest<APIResponse<T>>(config);
       const payload = response?.data;
-      // 표준 래핑 응답(APIResponse<T>) 우선 처리
-      if (payload && typeof payload === 'object' && 'data' in payload) {
-        return payload.data as T;
+
+      // 타입 가드로 APIResponse 구조 검증
+      if (this.isAPIResponse<T>(payload)) {
+        return payload.data;
       }
-      // 비래핑(plain) 응답도 허용 (예: string 또는 { summary: string })
+
+      // Plain response (string, number 등 직접 반환)
       return payload as T;
     } catch (error) {
       return this.handleError(error as AxiosError<ErrorResponse>);
     }
+  }
+
+  /**
+   * Type guard for APIResponse structure
+   * Ensures type safety by checking response shape at runtime
+   */
+  private isAPIResponse<T>(response: unknown): response is APIResponse<T> {
+    return (
+      typeof response === 'object' &&
+      response !== null &&
+      'data' in response &&
+      'success' in response
+    );
   }
 
   // 재시도 로직을 포함한 요청 함수
@@ -122,7 +133,7 @@ export class APIClient {
       try {
         return await this.client.request<T>(config);
       } catch (error) {
-        console.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries}):`, error);
+        logger.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries})`, error);
         lastError = error as Error | AxiosError;
 
         if (attempt < maxRetries - 1) {

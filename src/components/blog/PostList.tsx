@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { PostSummary } from '../../types';
 import PostItem from './PostItem';
 import Pagination from '../ui/Pagination';
@@ -14,7 +14,13 @@ interface PostListProps {
   footerRight?: React.ReactNode;
 }
 
-export default function PostList({
+/**
+ * Optimized PostList with React.memo
+ *
+ * Prevents unnecessary re-renders when parent updates
+ * but props haven't changed
+ */
+const PostList = memo(function PostList({
   posts,
   currentPage,
   totalPages,
@@ -60,4 +66,6 @@ export default function PostList({
       )}
     </div>
   );
-}
+});
+
+export default PostList;

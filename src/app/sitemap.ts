@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { defaultMetadata } from '@/lib/metadata';
 import { SITE_URL, normalizeSiteUrl } from '@/lib/site';
 
@@ -11,8 +11,7 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 기본 페이지 URL 설정 (config에서 읽기)
   const baseCandidate =
-    ((defaultMetadata.metadataBase as URL | undefined)?.origin as string | undefined) ||
-    SITE_URL;
+    ((defaultMetadata.metadataBase as URL | undefined)?.origin as string | undefined) || SITE_URL;
   const baseUrl = normalizeSiteUrl(baseCandidate);
 
   try {

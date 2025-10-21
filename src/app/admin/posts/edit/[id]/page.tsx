@@ -2,9 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import dynamic from 'next/dynamic';
+import { api } from '@/lib/api/index';
 import { UpdatePostRequest, Post } from '@/types';
-import VelogWriteEditor from '@/components/admin/VelogWriteEditor';
+
+// Dynamic import for heavy markdown editor component
+const VelogWriteEditor = dynamic(() => import('@/components/admin/VelogWriteEditor'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+        <p className="mt-4 text-gray-600">에디터 로딩 중...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function EditPostPage() {
   const router = useRouter();

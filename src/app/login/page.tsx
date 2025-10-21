@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth';
 import axios from 'axios';
 
 interface LoginForm {
@@ -23,20 +22,17 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { loginWithSession, isLoggedIn } = useAuth();
+  const { loginWithSession, isLoading: authLoading } = useAuth();
 
-  // 이미 로그인되어 있으면 admin으로 리다이렉트
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push('/admin');
-    }
-  }, [isLoggedIn, router]);
+  console.log('[LoginPage] Rendered - authLoading:', authLoading);
+
+  // Note: Middleware handles session-based redirects
+  // No need for client-side redirect logic here
 
   const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -83,7 +79,7 @@ export default function LoginPage() {
         setError(errorObj.response?.data?.message || '로그인 중 오류가 발생했습니다.');
       }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -105,7 +101,7 @@ export default function LoginPage() {
               id="username"
               placeholder="관리자 ID를 입력하세요"
               error={errors.username?.message}
-              disabled={isLoading}
+              disabled={isSubmitting}
               {...register('username', { required: '사용자명을 입력하세요' })}
             />
 
@@ -115,7 +111,7 @@ export default function LoginPage() {
               id="password"
               placeholder="비밀번호를 입력하세요"
               error={errors.password?.message}
-              disabled={isLoading}
+              disabled={isSubmitting}
               {...register('password', { required: '비밀번호를 입력하세요' })}
             />
 
@@ -132,8 +128,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? '로그인 중...' : '로그인'}
+          <Button type="submit" disabled={isSubmitting || authLoading} className="w-full">
+            {isSubmitting ? '로그인 중...' : authLoading ? '확인 중...' : '로그인'}
           </Button>
         </form>
       </div>

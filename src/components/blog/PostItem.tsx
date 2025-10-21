@@ -4,52 +4,35 @@ import React from 'react';
 import Link from 'next/link';
 import { PostSummary } from '../../types';
 import Card from '../ui/Card';
-
-// SSR 안전한 날짜 포맷팅 함수
-const formatDateSafely = (dateString: string): string => {
-  try {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    const monthNames = [
-      '',
-      '1월',
-      '2월',
-      '3월',
-      '4월',
-      '5월',
-      '6월',
-      '7월',
-      '8월',
-      '9월',
-      '10월',
-      '11월',
-      '12월',
-    ];
-
-    return `${year}년 ${monthNames[month]} ${day}일`;
-  } catch (error) {
-    console.error('날짜 포맷팅 오류:', error);
-    return '날짜 정보 없음';
-  }
-};
+import { dateUtils } from '@/lib/utils/date';
+import { usePrefetchPost } from '@/features/posts/hooks';
 
 interface PostItemProps {
   post: PostSummary;
 }
 
+/**
+ * PostItem with prefetching optimization
+ *
+ * Prefetches full post data on hover for instant page load
+ */
 export default function PostItem({ post }: PostItemProps) {
+  const prefetch = usePrefetchPost();
+
+  const handleMouseEnter = () => {
+    // Prefetch full post data when user hovers
+    prefetch(post.slug);
+  };
+
   return (
     <Card className="mb-8 last:mb-0" hasShadow={false} hasBorder={false} isPadded={false}>
       <article className="pb-8 border-b border-gray-200 last:border-0">
         <div className="flex justify-between items-start mb-2">
-          <p className="text-sm text-gray-500">{formatDateSafely(post.createdAt)}</p>
+          <p className="text-sm text-gray-500">{dateUtils.formatKorean(post.createdAt)}</p>
           <div className="flex flex-wrap gap-1">
             {(post.tags || [])
               .slice()
-              .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)) // 안전한 문자열 정렬
+              .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
               .map(tag => (
                 <span
                   key={tag}
@@ -61,7 +44,7 @@ export default function PostItem({ post }: PostItemProps) {
           </div>
         </div>
 
-        <Link href={`/posts/${post.slug}`}>
+        <Link href={`/posts/${post.slug}`} onMouseEnter={handleMouseEnter}>
           <h2 className="text-2xl font-bold mb-3 hover:text-blue-600 transition-colors">
             {post.title}
           </h2>
@@ -73,6 +56,7 @@ export default function PostItem({ post }: PostItemProps) {
           <Link
             href={`/posts/${post.slug}`}
             className="text-blue-600 hover:text-blue-800 transition-colors"
+            onMouseEnter={handleMouseEnter}
           >
             더 읽기
           </Link>

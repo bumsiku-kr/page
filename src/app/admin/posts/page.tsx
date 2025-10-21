@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable from '@/components/ui/DataTable';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/index';
 import { PostSummary } from '@/types';
-import { formatDate } from '@/lib/utils';
+import { dateUtils } from '@/lib/utils/date';
 
 export default function PostsManagementPage() {
   const router = useRouter();
