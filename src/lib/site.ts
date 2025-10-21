@@ -10,9 +10,7 @@ export const SITE_HOSTNAME = ORIGIN_URL.hostname;
  */
 export function normalizeSiteUrl(pathOrUrl: string): string {
   try {
-    const url = pathOrUrl.startsWith('http')
-      ? new URL(pathOrUrl)
-      : new URL(pathOrUrl, ORIGIN_URL);
+    const url = pathOrUrl.startsWith('http') ? new URL(pathOrUrl) : new URL(pathOrUrl, ORIGIN_URL);
 
     url.protocol = ORIGIN_URL.protocol;
     url.hostname = ORIGIN_URL.hostname;

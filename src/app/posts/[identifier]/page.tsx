@@ -6,7 +6,7 @@ import { api } from '../../../lib/api/index';
 import Container from '../../../components/ui/Container';
 import Loading from '../../../components/ui/feedback/Loading';
 import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
-import Comments from '../../../components/blog/Comments';
+import { Comments } from '@/features/comments/components';
 import Divider from '../../../components/ui/Divider';
 import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';

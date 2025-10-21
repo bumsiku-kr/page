@@ -3,7 +3,7 @@ import { api } from '../lib/api/index';
 import { PostListResponse, Tag, SortOption } from '../types';
 import { Metadata } from 'next';
 import { homeMetadata, getTagMetadata } from '../lib/metadata';
-import HomePage from '../components/pages/HomePage';
+import HomePage from '../components/pages/home';
 
 type SearchParams = {
   page?: string;

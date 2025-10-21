@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
-import { api } from '@/lib/api';
-import { Tag } from '@/types';
+import { api } from '@/lib/api/index';
+import { usePostForm, generateSlug } from '../hooks/usePostForm';
+import type { CreatePostInput } from '@/shared/types/schemas';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
@@ -15,151 +17,70 @@ import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 
-// next-remove-imports를 사용하여 SSR 문제 해결
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then(mod => mod.default), {
   ssr: false,
 });
 
 interface PostFormProps {
-  initialValues: {
-    title: string;
-    slug: string;
-    content: string;
-    summary: string;
-    tags: string[];
-  };
-  existingTags: string[];
-  isSubmitting: boolean;
-  error: string | null;
+  initialValues?: Partial<CreatePostInput>;
+  existingTags?: string[];
   pageTitle: string;
   submitButtonText: string;
-  onSubmit: (formData: {
-    title: string;
-    slug: string;
-    content: string;
-    summary: string;
-    tags: string[];
-  }) => Promise<void>;
+  onSubmit: (data: CreatePostInput) => Promise<void>;
   onCancel: () => void;
 }
 
 export default function PostForm({
   initialValues,
-  existingTags,
-  isSubmitting,
-  error,
+  existingTags = [],
   pageTitle,
   submitButtonText,
   onSubmit,
   onCancel,
 }: PostFormProps) {
-  const [title, setTitle] = useState(initialValues.title);
-  const [slug, setSlug] = useState(initialValues.slug);
-  const [content, setContent] = useState(initialValues.content);
-  const [summary, setSummary] = useState(initialValues.summary);
-  const [tags, setTags] = useState<string[]>(initialValues.tags || []);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+    setValue,
+    control,
+  } = usePostForm(initialValues);
+
   const [tagInput, setTagInput] = useState('');
-  const [formError, setFormError] = useState<string | null>(error);
   const [uploadedImages, setUploadedImages] = useState<{ url: string; size: number }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  // slug 자동 생성 함수
-  const generateSlug = (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9가-힣\s-]/g, '') // 특수문자 제거 (한글, 영문, 숫자, 공백, 하이픈만 허용)
-      .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
-      .replace(/-+/g, '-') // 연속된 하이픈 제거
-      .trim()
-      .replace(/^-|-$/g, ''); // 시작과 끝의 하이픈 제거
-  };
+  const title = watch('title');
+  const slug = watch('slug');
+  const content = watch('content');
+  const tags = watch('tags');
 
-  // 제목 변경 시 slug 자동 생성 (slug가 비어있거나 제목에서 생성된 것과 같을 때만)
-  const handleTitleChange = (newTitle: string) => {
-    setTitle(newTitle);
-
-    // slug가 비어있거나 이전 제목에서 생성된 slug와 같다면 자동 업데이트
-    const currentSlugFromTitle = generateSlug(title);
-    if (!slug || slug === currentSlugFromTitle) {
-      setSlug(generateSlug(newTitle));
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (!initialValues?.slug && title) {
+      setValue('slug', generateSlug(title));
     }
-  };
+  }, [title, setValue, initialValues?.slug]);
 
-  // slug 유효성 검증
-  const validateSlug = (slug: string): string | null => {
-    if (!slug.trim()) {
-      return 'Slug는 필수입니다.';
-    }
-
-    if (slug.length < 1 || slug.length > 100) {
-      return 'Slug는 1-100자 사이여야 합니다.';
-    }
-
-    if (!/^[a-z0-9가-힣-]+$/.test(slug)) {
-      return 'Slug는 영문 소문자, 숫자, 한글, 하이픈만 포함할 수 있습니다.';
-    }
-
-    if (slug.startsWith('-') || slug.endsWith('-')) {
-      return 'Slug는 하이픈으로 시작하거나 끝날 수 없습니다.';
-    }
-
-    if (slug.includes('--')) {
-      return 'Slug에는 연속된 하이픈을 사용할 수 없습니다.';
-    }
-
-    return null;
-  };
-
-  // 폼 제출 처리
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim()) {
-      setFormError('제목을 입력해주세요.');
-      return;
-    }
-
-    // slug 유효성 검증
-    const slugError = validateSlug(slug);
-    if (slugError) {
-      setFormError(slugError);
-      return;
-    }
-
-    if (!content.trim()) {
-      setFormError('내용을 입력해주세요.');
-      return;
-    }
-
-    try {
-      await onSubmit({
-        title,
-        slug,
-        content,
-        summary: summary || title.substring(0, 100),
-        tags,
-      });
-    } catch (err) {
-      console.error('폼 제출 오류:', err);
-      setFormError('저장 중 오류가 발생했습니다.');
-    }
-  };
-
-  // 태그 추가/삭제 핸들러
+  // Tag management
   const addTag = (value: string) => {
     const newTag = value.trim();
-    if (!newTag) return;
-    if (tags.includes(newTag)) {
+    if (!newTag || tags.includes(newTag)) {
       setTagInput('');
       return;
     }
-    setTags(prev => [...prev, newTag]);
+    setValue('tags', [...tags, newTag]);
     setTagInput('');
   };
 
   const removeTag = (value: string) => {
-    setTags(prev => prev.filter(t => t !== value));
+    setValue(
+      'tags',
+      tags.filter(t => t !== value)
+    );
   };
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -168,11 +89,11 @@ export default function PostForm({
       addTag(tagInput);
     } else if (e.key === 'Backspace' && !tagInput && tags.length) {
       e.preventDefault();
-      setTags(prev => prev.slice(0, -1));
+      setValue('tags', tags.slice(0, -1));
     }
   };
 
-  // 이미지 업로드 처리
+  // Image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -184,9 +105,8 @@ export default function PostForm({
       const response = await api.images.upload(file);
       setUploadedImages(prev => [...prev, { url: response.url, size: response.size }]);
 
-      // 업로드된 이미지 URL을 마크다운 형식으로 에디터에 추가
       const imageMarkdown = `![이미지](${response.url})`;
-      setContent(prev => prev + '\n' + imageMarkdown);
+      setValue('content', content + '\n' + imageMarkdown);
     } catch (err) {
       console.error('이미지 업로드 오류:', err);
       setFormError('이미지 업로드 중 오류가 발생했습니다.');
@@ -195,34 +115,68 @@ export default function PostForm({
     }
   };
 
+  // AI summary generation
+  const handleGenerateSummary = async () => {
+    if (!content.trim() && !title.trim()) {
+      setFormError('요약할 내용 또는 제목이 필요합니다.');
+      return;
+    }
+
+    setIsSummarizing(true);
+    try {
+      const text = content?.trim() ? content : title;
+      const { summary: generated } = await api.ai.generateSummary({ text });
+      if (!generated) {
+        setFormError('요약 결과가 비어 있습니다.');
+        return;
+      }
+      setValue('summary', generated);
+    } catch (err) {
+      console.error('요약 생성 오류:', err);
+      setFormError('요약 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
+  const onFormSubmit = async (data: CreatePostInput) => {
+    try {
+      setFormError(null);
+      await onSubmit({
+        ...data,
+        summary: data.summary || title.substring(0, 100),
+      });
+    } catch (err) {
+      console.error('폼 제출 오류:', err);
+      setFormError('저장 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{pageTitle}</h1>
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
+        <Button onClick={onCancel} variant="outline">
           취소
-        </button>
+        </Button>
       </div>
 
-      {(formError || error) && (
+      {formError && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-          <p>{formError || error}</p>
+          <p>{formError}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+        {/* Title */}
         <Input
           label="제목"
-          value={title}
-          onChange={e => handleTitleChange(e.target.value)}
+          {...register('title')}
           placeholder="게시글 제목을 입력하세요"
-          className="w-full"
-          required
+          error={errors.title?.message}
         />
 
+        {/* Slug */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="block text-sm font-medium text-gray-700">
@@ -230,18 +184,17 @@ export default function PostForm({
             </label>
             <button
               type="button"
-              onClick={() => setSlug(generateSlug(title))}
+              onClick={() => setValue('slug', generateSlug(title))}
               className="text-sm text-blue-600 hover:text-blue-800"
             >
               제목에서 자동 생성
             </button>
           </div>
           <Input
-            value={slug}
-            onChange={e => setSlug(e.target.value.toLowerCase())}
+            {...register('slug')}
             placeholder="url-friendly-slug"
-            className="w-full font-mono text-sm"
-            required
+            className="font-mono text-sm"
+            error={errors.slug?.message}
           />
           <p className="text-xs text-gray-500">
             URL에서 사용될 고유 식별자입니다. 영문 소문자, 숫자, 한글, 하이픈만 사용 가능합니다.
@@ -253,48 +206,56 @@ export default function PostForm({
           )}
         </div>
 
+        {/* Content */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700">내용</label>
-          <div className="wmde-markdown-var"></div>
-          <MDEditor
-            value={content}
-            onChange={(val: string | undefined) => setContent(val || '')}
-            height={400}
-            preview="edit"
-            visibleDragbar={false}
-            previewOptions={{
-              rehypePlugins: [rehypeRaw, rehypeSanitize],
-              components: {
-                code: ({ node, inline, className, children, ...props }: any) => {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={oneLight}
-                      language={match[1]}
-                      PreTag="div"
-                      customStyle={{
-                        backgroundColor: '#fafafa',
-                        padding: '1rem',
-                        overflow: 'auto',
-                        maxWidth: '100%',
-                      }}
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={inline ? 'inline-code' : className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              },
-              className:
-                'prose max-w-none bg-white prose-headings:my-4 prose-h1:text-2xl prose-h1:font-bold prose-h2:text-xl prose-h2:font-semibold prose-h3:text-lg prose-h3:font-medium prose-h4:text-base prose-h4:font-medium prose-p:text-base prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-li:text-base prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-code:text-sm prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-img:my-4',
-            }}
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <MDEditor
+                value={field.value}
+                onChange={(val: string | undefined) => field.onChange(val || '')}
+                height={400}
+                preview="edit"
+                visibleDragbar={false}
+                previewOptions={{
+                  rehypePlugins: [rehypeRaw, rehypeSanitize],
+                  components: {
+                    code: ({ node, inline, className, children, ...props }: any) => {
+                      const match = /language-(\w+)/.exec(className || '');
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={oneLight}
+                          language={match[1]}
+                          PreTag="div"
+                          customStyle={{
+                            backgroundColor: '#fafafa',
+                            padding: '1rem',
+                            overflow: 'auto',
+                            maxWidth: '100%',
+                          }}
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={inline ? 'inline-code' : className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  },
+                  className:
+                    'prose max-w-none bg-white prose-headings:my-4 prose-h1:text-2xl prose-h1:font-bold prose-h2:text-xl prose-h2:font-semibold prose-h3:text-lg prose-h3:font-medium prose-h4:text-base prose-h4:font-medium prose-p:text-base prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-li:text-base prose-pre:text-sm prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0 prose-pre:border-0 prose-pre:shadow-none prose-pre:rounded-none prose-code:text-sm prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-img:my-4',
+                }}
+              />
+            )}
           />
+          {errors.content && <p className="text-sm text-red-600">{errors.content.message}</p>}
         </div>
 
+        {/* Image Upload */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">이미지 첨부</label>
           <div className="flex items-center space-x-2">
@@ -330,6 +291,7 @@ export default function PostForm({
           )}
         </div>
 
+        {/* Summary */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="block text-sm font-medium text-gray-700">요약 (선택사항)</label>
@@ -337,26 +299,7 @@ export default function PostForm({
               type="button"
               size="sm"
               variant="secondary"
-              onClick={async () => {
-                if (!content.trim() && !title.trim()) {
-                  setFormError('요약할 내용 또는 제목이 필요합니다.');
-                  return;
-                }
-                setIsSummarizing(true);
-                try {
-                  const text = content?.trim() ? content : title;
-                  const { summary: generated } = await api.ai.generateSummary({ text });
-                  if (!generated) {
-                    setFormError('요약 결과가 비어 있습니다.');
-                  }
-                  setSummary(generated ?? '');
-                } catch (err) {
-                  console.error('요약 생성 오류:', err);
-                  setFormError('요약 생성 중 오류가 발생했습니다.');
-                } finally {
-                  setIsSummarizing(false);
-                }
-              }}
+              onClick={handleGenerateSummary}
               isLoading={isSummarizing}
               aria-label="요약 자동 생성"
             >
@@ -364,14 +307,14 @@ export default function PostForm({
             </Button>
           </div>
           <Textarea
-            value={summary}
-            onChange={e => setSummary(e.target.value)}
+            {...register('summary')}
             placeholder="게시글 요약을 입력하세요 (미입력시 제목으로 자동생성)"
-            className="w-full"
             rows={5}
+            error={errors.summary?.message}
           />
         </div>
 
+        {/* Tags */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">태그</label>
           <div className="flex flex-wrap gap-2 mb-2">
@@ -422,22 +365,14 @@ export default function PostForm({
           </p>
         </div>
 
+        {/* Form Actions */}
         <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            disabled={isSubmitting}
-          >
+          <Button type="button" onClick={onCancel} variant="outline" disabled={isSubmitting}>
             취소
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            disabled={isSubmitting}
-          >
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? '저장 중...' : submitButtonText}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
