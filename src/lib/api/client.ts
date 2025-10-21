@@ -22,7 +22,8 @@ export class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    const API_URL = 'https://api.bumsiku.kr';
+    // 환경 변수 우선, 없으면 기본값 (반드시 HTTPS 사용)
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.bumsiku.kr';
 
     this.client = axios.create({
       baseURL: API_URL,
