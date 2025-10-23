@@ -20,6 +20,7 @@ export class PostsService {
       const response = await this.client.request<GetPostsResponse['data']>({
         url: API_ENDPOINTS.POSTS,
         method: 'GET',
+        domain: 'public', // Public API 사용
         params: {
           page,
           size,
@@ -46,6 +47,7 @@ export class PostsService {
       const response = await this.client.request<Post>({
         url: `${API_ENDPOINTS.POSTS}/${postId}`,
         method: 'GET',
+        domain: 'public', // Public API 사용
       });
       logger.debug('게시물 상세 응답', response);
       return response;
@@ -61,6 +63,7 @@ export class PostsService {
       const response = await this.client.request<Post>({
         url: `${API_ENDPOINTS.POSTS}/${slug}`,
         method: 'GET',
+        domain: 'public', // Public API 사용
       });
       logger.debug('게시물 슬러그 응답', response);
       return response;
@@ -136,6 +139,7 @@ export class PostsService {
       const response = await this.client.request<string[]>({
         url: '/sitemap',
         method: 'GET',
+        domain: 'public', // Public API 사용
       });
       logger.debug('사이트맵 응답', response);
       return response;
