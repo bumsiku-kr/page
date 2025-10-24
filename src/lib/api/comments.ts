@@ -41,10 +41,10 @@ export class CommentsService {
     }
   }
 
-  async delete(commentId: number): Promise<string> {
+  async delete(commentId: string): Promise<{ deleted: boolean; id: string }> {
     try {
       console.log('댓글 삭제 요청:', { commentId });
-      const response = await this.client.request<string>({
+      const response = await this.client.request<{ deleted: boolean; id: string }>({
         url: `/admin/comments/${commentId}`,
         method: 'DELETE',
       });

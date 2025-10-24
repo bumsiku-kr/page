@@ -5,6 +5,7 @@ import { api } from '@/lib/api/index';
 import { Comment, CreateCommentRequest } from '@/types';
 import Loading from '@/components/ui/feedback/Loading';
 import ErrorMessage from '@/components/ui/feedback/ErrorMessage';
+import { generateRandomNickname, getAnimalEmoji } from '@/shared/lib/nickname-generator';
 
 interface CommentsProps {
   postId: string;
@@ -18,6 +19,16 @@ export default function Comments({ postId }: CommentsProps) {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // 컴포넌트 마운트 시 랜덤 닉네임 생성
+  useEffect(() => {
+    setAuthor(generateRandomNickname());
+  }, []);
+
+  // 랜덤 닉네임 재생성 핸들러
+  const handleRandomNickname = () => {
+    setAuthor(generateRandomNickname());
+  };
 
   // 댓글 목록 가져오기
   useEffect(() => {
@@ -71,8 +82,8 @@ export default function Comments({ postId }: CommentsProps) {
       if (newComment && newComment.id) {
         setComments(prevComments => [...prevComments, newComment]);
 
-        // 폼 초기화
-        setAuthor('');
+        // 폼 초기화 - 새로운 랜덤 닉네임 생성
+        setAuthor(generateRandomNickname());
         setContent('');
       } else {
         throw new Error('댓글이 생성되지 않았습니다.');
@@ -88,8 +99,15 @@ export default function Comments({ postId }: CommentsProps) {
   // 날짜 포맷팅 함수 (SSR 안전)
   const formatDate = (dateString: string) => {
     try {
-      // UTC 시간을 Date 객체로 변환
-      const utcDate = new Date(dateString + 'Z'); // 'Z'를 추가하여 명시적으로 UTC임을 표시
+      // ISO 8601 형식 또는 일반 날짜 문자열을 Date 객체로 변환
+      // 이미 'Z'가 포함되어 있으면 그대로 사용, 없으면 추가
+      const dateToFormat = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+      const utcDate = new Date(dateToFormat);
+
+      // Invalid Date 체크
+      if (isNaN(utcDate.getTime())) {
+        throw new Error('Invalid Date');
+      }
 
       // 서버사이드에서는 기본 포맷 사용, 클라이언트에서는 로컬 시간대 사용
       const formatOptions: Intl.DateTimeFormatOptions = {
@@ -125,11 +143,21 @@ export default function Comments({ postId }: CommentsProps) {
             console.log('개별 댓글 데이터:', comment);
             return (
               <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="font-medium">{comment.authorName}</span>
-                  <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                <div className="flex items-start gap-3">
+                  {/* 댓글 작성자 아바타 */}
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-lg">
+                    {getAnimalEmoji(comment.authorName)}
+                  </div>
+
+                  {/* 댓글 내용 */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium">{comment.authorName}</span>
+                      <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                    </div>
+                    <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
+                  </div>
                 </div>
-                <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
               </div>
             );
           })}
@@ -149,19 +177,39 @@ export default function Comments({ postId }: CommentsProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 닉네임 입력 영역 (토스 스타일) */}
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-              작성자
+              닉네임
             </label>
-            <input
-              type="text"
-              id="author"
-              value={author}
-              onChange={e => setAuthor(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              disabled={submitting}
-              maxLength={20}
-            />
+            <div className="flex gap-2 items-center">
+              {/* 아바타 아이콘 */}
+              <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">
+                {getAnimalEmoji(author)}
+              </div>
+
+              {/* 닉네임 입력 필드 */}
+              <input
+                type="text"
+                id="author"
+                value={author}
+                onChange={e => setAuthor(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                disabled={submitting}
+                maxLength={20}
+                placeholder="닉네임을 입력하세요"
+              />
+
+              {/* 랜덤 변경 버튼 */}
+              <button
+                type="button"
+                onClick={handleRandomNickname}
+                className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={submitting}
+              >
+                랜덤 변경
+              </button>
+            </div>
           </div>
 
           <div>
