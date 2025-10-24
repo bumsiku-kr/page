@@ -12,16 +12,6 @@ interface SortButtonProps {
 
 const SORT_OPTIONS = [
   {
-    value: 'createdAt,desc' as SortOption,
-    label: '최신',
-    isDesc: true,
-  },
-  {
-    value: 'createdAt,asc' as SortOption,
-    label: '최신',
-    isDesc: false,
-  },
-  {
     value: 'views,desc' as SortOption,
     label: '조회수',
     isDesc: true,
@@ -29,6 +19,16 @@ const SORT_OPTIONS = [
   {
     value: 'views,asc' as SortOption,
     label: '조회수',
+    isDesc: false,
+  },
+  {
+    value: 'createdAt,desc' as SortOption,
+    label: '최신',
+    isDesc: true,
+  },
+  {
+    value: 'createdAt,asc' as SortOption,
+    label: '최신',
     isDesc: false,
   },
 ];

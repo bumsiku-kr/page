@@ -9,7 +9,7 @@ import type { SortOption } from '@/types';
 export function usePostsQuery(
   page: number = 0,
   size: number = 10,
-  sort: SortOption = 'createdAt,desc'
+  sort: SortOption = 'views,desc'
 ) {
   return useSWR(['posts', page, size, sort], () => api.posts.getList(page, size, undefined, sort));
 }
@@ -21,7 +21,7 @@ export function usePostsByTagQuery(
   tag: string,
   page: number = 0,
   size: number = 10,
-  sort: SortOption = 'createdAt,desc'
+  sort: SortOption = 'views,desc'
 ) {
   return useSWR(tag ? ['posts', 'tag', tag, page, size, sort] : null, () =>
     api.posts.getList(page, size, tag, sort)

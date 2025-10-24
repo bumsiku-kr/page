@@ -41,7 +41,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
   const { page, tag, sort } = await searchParams;
 
   const currentPage = typeof page === 'string' ? parseInt(page, 10) : 1;
-  const sortOption = (sort as SortOption) || 'createdAt,desc';
+  const sortOption = (sort as SortOption) || 'views,desc';
 
   let postsData: PostListResponse = { content: [], totalElements: 0, pageNumber: 0, pageSize: 5 };
   let tagsData: Tag[] = [];
