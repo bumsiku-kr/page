@@ -31,15 +31,15 @@ export class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    // Admin API: 인증, 쓰기 작업
-    const ADMIN_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.bumsiku.kr';
+    // Admin API: 인증, 쓰기 작업 (Cloudflare Workers - JWT based)
+    const ADMIN_API_URL = 'https://admin-worker.peter012677.workers.dev';
 
     // Public API: 읽기 작업 (Cloudflare Workers)
-    const PUBLIC_API_URL = process.env.NEXT_PUBLIC_PUBLIC_API_URL || ADMIN_API_URL;
+    const PUBLIC_API_URL = 'https://public-worker.peter012677.workers.dev';
 
     this.adminClient = axios.create({
       baseURL: ADMIN_API_URL,
-      withCredentials: true,
+      withCredentials: false, // JWT auth doesn't need cookies
       headers: {
         'Content-Type': 'application/json',
       },
@@ -212,7 +212,12 @@ export class APIClient {
   // 에러 처리 함수
   private handleError(error: AxiosError<ErrorResponse>): never {
     if (error.response) {
-      const errorMessage = error.response.data.error?.message || '알 수 없는 오류가 발생했습니다.';
+      // New backend returns { error: string } directly
+      const errorData = error.response.data;
+      const errorMessage =
+        typeof errorData.error === 'string'
+          ? errorData.error
+          : errorData.error?.message || '알 수 없는 오류가 발생했습니다.';
       throw new Error(errorMessage);
     }
 
