@@ -6,8 +6,10 @@ import { api } from '@/lib/api/index';
 import { Comment } from '@/types';
 import { truncateText } from '@/lib/utils';
 import { dateUtils } from '@/lib/utils/date';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function CommentsManagementPage() {
+  useAuthGuard(); // Protect this admin route
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export default function CommentsManagementPage() {
     }
   }, [selectedPostId, posts]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('이 댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       return;
     }

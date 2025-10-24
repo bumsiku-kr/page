@@ -6,8 +6,10 @@ import DataTable from '@/components/ui/DataTable';
 import { api } from '@/lib/api/index';
 import { PostSummary } from '@/types';
 import { dateUtils } from '@/lib/utils/date';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function PostsManagementPage() {
+  useAuthGuard(); // Protect this admin route
   const router = useRouter();
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);

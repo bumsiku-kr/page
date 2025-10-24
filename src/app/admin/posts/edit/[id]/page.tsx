@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { api } from '@/lib/api/index';
 import { UpdatePostRequest, Post } from '@/types';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 // Dynamic import for heavy markdown editor component
 const VelogWriteEditor = dynamic(() => import('@/components/admin/VelogWriteEditor'), {
@@ -20,6 +21,7 @@ const VelogWriteEditor = dynamic(() => import('@/components/admin/VelogWriteEdit
 });
 
 export default function EditPostPage() {
+  useAuthGuard(); // Protect this admin route
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
@@ -72,6 +74,7 @@ export default function EditPostPage() {
         content: formData.content,
         summary: formData.summary,
         tags: formData.tags,
+        state: 'published', // Required by new backend
       };
 
       await api.posts.update(parseInt(postId, 10), postData);

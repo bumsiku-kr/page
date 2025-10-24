@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { api } from '@/lib/api/index';
 import { CreatePostRequest } from '@/types';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 // Dynamic import for heavy markdown editor component
 // Reduces initial bundle size by ~100KB
@@ -21,6 +22,7 @@ const VelogWriteEditor = dynamic(() => import('@/components/admin/VelogWriteEdit
 });
 
 export default function WritePostPage() {
+  useAuthGuard(); // Protect this admin route
   const router = useRouter();
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +61,7 @@ export default function WritePostPage() {
         content: formData.content,
         summary: formData.summary,
         tags: formData.tags,
+        state: 'published', // Required by new backend
       };
 
       await api.posts.create(postData);

@@ -15,6 +15,7 @@ export function usePostForm(initialValues?: Partial<CreatePostInput>) {
       content: '',
       summary: '',
       tags: [],
+      state: 'published', // Required by new backend
       ...initialValues,
     },
     mode: 'onBlur', // Validate on blur for better UX

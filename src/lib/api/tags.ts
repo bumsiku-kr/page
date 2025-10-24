@@ -14,6 +14,7 @@ export class TagsService {
       const response = await this.client.request<Tag[]>({
         url: API_ENDPOINTS.TAGS,
         method: 'GET',
+        domain: 'public', // Public API 사용
       });
       console.log('태그 목록 응답:', response);
       return response;

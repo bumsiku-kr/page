@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       파일크기: imageFile instanceof File ? imageFile.size : 0,
     });
 
-    // 백엔드 서버로 전송 시도
-    const API_URL = 'https://api.bumsiku.kr';
+    // 백엔드 서버로 전송 시도 (Cloudflare Workers)
+    const API_URL = 'https://admin-worker.peter012677.workers.dev';
     const cookieHeader = request.headers.get('cookie') || '';
 
     // 쿠키 정보 로깅
