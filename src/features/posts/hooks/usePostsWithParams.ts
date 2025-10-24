@@ -27,7 +27,7 @@ export function usePostsWithParams(initialData?: PostListResponse) {
     return {
       page: pageParam ? parseInt(pageParam, 10) : 1,
       tag: tagParam || undefined,
-      sort: (sortParam as SortOption) || 'createdAt,desc',
+      sort: (sortParam as SortOption) || 'views,desc',
     };
   }, [searchParams]);
 
