@@ -111,10 +111,12 @@ export class PostsService {
       await this.client.request<void>({
         url: `${API_ENDPOINTS.POSTS}/${postId}/views`,
         method: 'PATCH',
+        domain: 'public', // Public worker handles view tracking
       });
       logger.debug('게시물 조회수 증가 완료', { postId });
     } catch (error) {
       logger.error('게시물 조회수 증가 오류', error);
+      // Silently fail - view tracking is not critical
     }
   }
 

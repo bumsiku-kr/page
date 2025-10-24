@@ -1,5 +1,5 @@
 import { APIClient } from './client';
-import { AIService } from './ai';
+// import { AIService } from './ai'; // TODO: Re-enable when backend supports AI endpoints
 import { PostsService } from './posts';
 import { TagsService } from './tags';
 import { CommentsService } from './comments';
@@ -11,7 +11,7 @@ const apiClient = APIClient.getInstance();
 
 // 서비스 인스턴스들 생성
 const postsService = new PostsService(apiClient);
-const aiService = new AIService(apiClient);
+// const aiService = new AIService(apiClient); // TODO: Re-enable when backend supports AI endpoints
 const tagsService = new TagsService(apiClient);
 const commentsService = new CommentsService(apiClient);
 const imagesService = new ImagesService(apiClient);
@@ -26,5 +26,5 @@ export const api = {
   images: imagesService,
   adminAuth: adminAuthService,
   auth: authService,
-  ai: aiService,
+  // ai: aiService, // TODO: Re-enable when backend supports AI endpoints
 };
