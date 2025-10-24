@@ -11,6 +11,13 @@ export interface User {
 }
 
 export interface SessionResponse {
+  valid: boolean;
+  userId?: number;
+  expiresAt?: string;
+}
+
+// Legacy format for backward compatibility
+export interface LegacySessionResponse {
   authenticated: boolean;
   user?: User;
 }
@@ -62,7 +69,7 @@ export class AuthService {
   }
 
   /**
-   * 세션 상태 확인
+   * 세션 상태 확인 (JWT 기반)
    */
   async checkSession(): Promise<SessionResponse> {
     try {
@@ -77,7 +84,7 @@ export class AuthService {
       return response;
     } catch (error) {
       console.error('세션 확인 오류:', error);
-      return { authenticated: false };
+      return { valid: false };
     }
   }
 

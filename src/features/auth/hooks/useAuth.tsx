@@ -54,8 +54,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.auth.checkSession();
 
-      if (response.authenticated) {
-        setUser(response.user || null);
+      // New backend returns { valid, userId, expiresAt }
+      if (response.valid) {
+        // Create a minimal user object from the response
+        const userData: User = {
+          id: response.userId?.toString() || '',
+          username: '', // Not provided by new backend
+          email: '', // Not provided by new backend
+          role: 'admin', // Assume admin for authenticated users
+        };
+        setUser(userData);
         return true;
       }
       return false;
