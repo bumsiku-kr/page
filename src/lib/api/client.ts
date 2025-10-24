@@ -3,6 +3,9 @@ import { ErrorResponse, APIResponse } from '../../types';
 import { getToken, clearToken } from './auth';
 import { logger } from '@/lib/utils/logger';
 
+// API 도메인 타입
+export type APIDomain = 'admin' | 'public';
+
 // API 엔드포인트 상수
 export const API_ENDPOINTS = {
   POSTS: '/posts',
@@ -16,22 +19,40 @@ export const API_ENDPOINTS = {
   LOGIN: '/login',
 } as const;
 
+// 확장된 AxiosRequestConfig (도메인 선택 옵션 추가)
+export interface APIRequestConfig extends AxiosRequestConfig {
+  domain?: APIDomain;
+}
+
 // API 클라이언트 설정
 export class APIClient {
-  private client: AxiosInstance;
+  private adminClient: AxiosInstance;
+  private publicClient: AxiosInstance;
   private static instance: APIClient;
 
   private constructor() {
-    // 환경 변수 우선, 없으면 기본값 (반드시 HTTPS 사용)
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.bumsiku.kr';
+    // Admin API: 인증, 쓰기 작업 (Cloudflare Workers - JWT based)
+    const ADMIN_API_URL = 'https://admin-worker.peter012677.workers.dev';
 
-    this.client = axios.create({
-      baseURL: API_URL,
-      withCredentials: true,
+    // Public API: 읽기 작업 (Cloudflare Workers)
+    const PUBLIC_API_URL = 'https://public-worker.peter012677.workers.dev';
+
+    this.adminClient = axios.create({
+      baseURL: ADMIN_API_URL,
+      withCredentials: false, // JWT auth doesn't need cookies
       headers: {
         'Content-Type': 'application/json',
       },
       timeout: 60000,
+    });
+
+    this.publicClient = axios.create({
+      baseURL: PUBLIC_API_URL,
+      withCredentials: false, // Public API는 쿠키 불필요
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 30000, // 더 짧은 타임아웃 (CDN 엣지)
     });
 
     this.setupInterceptors();
@@ -45,14 +66,14 @@ export class APIClient {
   }
 
   private setupInterceptors(): void {
-    // 요청 인터셉터
-    this.client.interceptors.request.use(
+    // Admin 클라이언트 인터셉터 (인증 필요)
+    this.adminClient.interceptors.request.use(
       config => {
         const token = getToken();
         if (token) {
           config.headers['Authorization'] = `Bearer ${token}`;
         }
-        logger.debug('API 요청', {
+        logger.debug('Admin API 요청', {
           url: config.url,
           method: config.method,
           params: config.params,
@@ -60,22 +81,21 @@ export class APIClient {
         return config;
       },
       error => {
-        logger.error('API 요청 오류', error);
+        logger.error('Admin API 요청 오류', error);
         return Promise.reject(error);
       }
     );
 
-    // 응답 인터셉터
-    this.client.interceptors.response.use(
+    this.adminClient.interceptors.response.use(
       response => {
-        logger.debug('API 응답 성공', {
+        logger.debug('Admin API 응답 성공', {
           status: response.status,
           url: response.config.url,
         });
         return response;
       },
       error => {
-        logger.error('API 응답 오류', {
+        logger.error('Admin API 응답 오류', {
           message: error.message,
           status: error.response?.status,
           url: error.config?.url,
@@ -89,10 +109,49 @@ export class APIClient {
         return Promise.reject(error);
       }
     );
+
+    // Public 클라이언트 인터셉터 (인증 불필요)
+    this.publicClient.interceptors.request.use(
+      config => {
+        logger.debug('Public API 요청', {
+          url: config.url,
+          method: config.method,
+          params: config.params,
+        });
+        return config;
+      },
+      error => {
+        logger.error('Public API 요청 오류', error);
+        return Promise.reject(error);
+      }
+    );
+
+    this.publicClient.interceptors.response.use(
+      response => {
+        logger.debug('Public API 응답 성공', {
+          status: response.status,
+          url: response.config.url,
+        });
+        return response;
+      },
+      error => {
+        logger.error('Public API 응답 오류', {
+          message: error.message,
+          status: error.response?.status,
+          url: error.config?.url,
+        });
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  // 도메인에 따라 적절한 클라이언트 선택
+  private getClient(domain: APIDomain = 'admin'): AxiosInstance {
+    return domain === 'public' ? this.publicClient : this.adminClient;
   }
 
   // 공통 API 호출 함수
-  public async request<T>(config: AxiosRequestConfig): Promise<T> {
+  public async request<T>(config: APIRequestConfig): Promise<T> {
     try {
       const response = await this.retryRequest<APIResponse<T>>(config);
       const payload = response?.data;
@@ -124,14 +183,18 @@ export class APIClient {
 
   // 재시도 로직을 포함한 요청 함수
   private async retryRequest<T>(
-    config: AxiosRequestConfig,
+    config: APIRequestConfig,
     maxRetries: number = 3
   ): Promise<AxiosResponse<T>> {
     let lastError: Error | AxiosError = new Error();
+    const client = this.getClient(config.domain);
+
+    // domain 속성은 Axios 요청에 포함되지 않도록 제거
+    const { domain, ...axiosConfig } = config;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
-        return await this.client.request<T>(config);
+        return await client.request<T>(axiosConfig);
       } catch (error) {
         logger.warn(`API 호출 실패 (시도 ${attempt + 1}/${maxRetries})`, error);
         lastError = error as Error | AxiosError;
@@ -149,7 +212,12 @@ export class APIClient {
   // 에러 처리 함수
   private handleError(error: AxiosError<ErrorResponse>): never {
     if (error.response) {
-      const errorMessage = error.response.data.error?.message || '알 수 없는 오류가 발생했습니다.';
+      // New backend returns { error: string } directly
+      const errorData = error.response.data;
+      const errorMessage =
+        typeof errorData.error === 'string'
+          ? errorData.error
+          : errorData.error?.message || '알 수 없는 오류가 발생했습니다.';
       throw new Error(errorMessage);
     }
 

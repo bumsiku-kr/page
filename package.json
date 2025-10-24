@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "dev:https": "next dev --experimental-https",
-    "build": "next build",
-    "start": "next start",
+    "dev": "NODE_OPTIONS='--no-deprecation' next dev",
+    "dev:https": "NODE_OPTIONS='--no-deprecation' next dev --experimental-https",
+    "build": "NODE_OPTIONS='--no-deprecation' next build",
+    "start": "NODE_OPTIONS='--no-deprecation' next start",
     "lint": "next lint",
     "format": "prettier --config .prettierrc --ignore-path .prettierignore --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "format:check": "prettier --config .prettierrc --ignore-path .prettierignore --check \"src/**/*.{js,jsx,ts,tsx}\""

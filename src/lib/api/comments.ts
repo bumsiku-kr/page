@@ -14,6 +14,7 @@ export class CommentsService {
       const response = await this.client.request<Comment[]>({
         url: `/comments/${postId}`,
         method: 'GET',
+        domain: 'public', // Public API 사용 (읽기)
       });
       console.log('댓글 목록 응답:', response);
       return response;
@@ -29,6 +30,7 @@ export class CommentsService {
       const response = await this.client.request<Comment>({
         url: `/comments/${postId}`,
         method: 'POST',
+        domain: 'public', // Public API 사용 (익명 댓글 작성 가능)
         data,
       });
       console.log('댓글 생성 응답:', response);
@@ -39,10 +41,10 @@ export class CommentsService {
     }
   }
 
-  async delete(commentId: number): Promise<string> {
+  async delete(commentId: string): Promise<{ deleted: boolean; id: string }> {
     try {
       console.log('댓글 삭제 요청:', { commentId });
-      const response = await this.client.request<string>({
+      const response = await this.client.request<{ deleted: boolean; id: string }>({
         url: `/admin/comments/${commentId}`,
         method: 'DELETE',
       });

@@ -1,6 +1,7 @@
 import { useState, useCallback, RefObject } from 'react';
 import { api } from '@/lib/api/index';
 import { logger } from '@/lib/utils/logger';
+import { compressImage } from '@/lib/utils/imageCompression';
 
 /**
  * 이미지 업로드 및 드래그 앤 드롭 Hook
@@ -18,8 +19,28 @@ export function useImageUpload(
     async (file: File) => {
       setIsUploading(true);
       try {
-        const response = await api.images.upload(file);
-        const imageMarkdown = `![${file.name}](${response.url})`;
+        // 이미지 압축 및 포맷 변환 (WebP 우선, JPEG 폴백)
+        logger.debug('이미지 압축 시작', {
+          originalName: file.name,
+          originalSize: file.size,
+        });
+
+        const compressedFile = await compressImage(file, {
+          quality: 0.85, // 15% 손실 압축
+          maxWidth: 2048,
+          maxHeight: 2048,
+          preferredFormat: 'webp',
+        });
+
+        logger.debug('이미지 압축 완료', {
+          compressedName: compressedFile.name,
+          compressedSize: compressedFile.size,
+          compressionRatio: ((1 - compressedFile.size / file.size) * 100).toFixed(2) + '%',
+        });
+
+        // 압축된 이미지 업로드
+        const response = await api.images.upload(compressedFile);
+        const imageMarkdown = `![${compressedFile.name}](${response.url})`;
 
         // 커서 위치에 이미지 삽입
         if (contentRef.current) {
@@ -39,7 +60,10 @@ export function useImageUpload(
           }, 0);
         }
 
-        logger.debug('이미지 업로드 성공', { fileName: file.name });
+        logger.debug('이미지 업로드 성공', {
+          originalFileName: file.name,
+          uploadedFileName: compressedFile.name,
+        });
       } catch (error) {
         logger.error('이미지 업로드 오류', error);
         throw error;

@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api/index';
 import { PostForm } from '@/features/posts/components';
 import type { CreatePostInput } from '@/shared/types/schemas';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function NewPostPage() {
+  useAuthGuard(); // Protect this admin route
   const router = useRouter();
   const [existingTags, setExistingTags] = useState<string[]>([]);
 
@@ -40,6 +42,7 @@ export default function NewPostPage() {
         content: '',
         summary: '',
         tags: [],
+        state: 'published', // Required by new backend
       }}
       existingTags={existingTags}
       pageTitle="새 게시글 작성"

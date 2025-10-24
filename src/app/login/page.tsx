@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { useAuth } from '@/features/auth';
-import axios from 'axios';
+import { api } from '@/lib/api/index';
+import { getToken, isTokenExpired } from '@/lib/api/auth';
 
 interface LoginForm {
   username: string;
@@ -13,10 +14,8 @@ interface LoginForm {
   remember: boolean;
 }
 
-// API 기본 설정
-axios.defaults.withCredentials = true; // 모든 요청에 쿠키 포함
-
 export default function LoginPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -24,60 +23,40 @@ export default function LoginPage() {
   } = useForm<LoginForm>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { loginWithSession, isLoading: authLoading } = useAuth();
 
-  console.log('[LoginPage] Rendered - authLoading:', authLoading);
-
-  // Note: Middleware handles session-based redirects
-  // No need for client-side redirect logic here
+  // Check if already logged in
+  useEffect(() => {
+    const token = getToken();
+    if (token && !isTokenExpired(token)) {
+      router.push('/admin');
+    }
+  }, [router]);
 
   const onSubmit = async (data: LoginForm) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const response = await axios.post(
-        `https://api.bumsiku.kr/login`,
-        {
-          username: data.username,
-          password: data.password,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            ...(typeof window !== 'undefined' && { Origin: window.location.origin }),
-          },
-        }
-      );
+      // Call new JWT-based login API
+      const response = await api.adminAuth.login({
+        username: data.username,
+        password: data.password,
+      });
 
-      if (response.status === 200) {
-        if (typeof window !== 'undefined') {
-          if (!document.cookie.includes('JSESSIONID')) {
-            document.cookie = `isLoggedIn=true; path=/; max-age=86400; SameSite=None; ${window.location.protocol === 'https:' ? 'Secure;' : ''}`;
-          }
+      console.log('[LoginPage] Login successful, token received');
 
-          if (data.remember) {
-            localStorage.setItem('rememberMe', 'true');
-          }
+      // Token is automatically saved to localStorage by api.adminAuth.login()
 
-          setTimeout(() => {
-            window.location.href = '/admin';
-          }, 1000);
-        }
-
-        loginWithSession(data.username, data.password);
-      } else {
-        setError('인증에 실패했습니다.');
+      if (data.remember) {
+        localStorage.setItem('rememberMe', 'true');
       }
+
+      // Redirect to admin page
+      router.push('/admin');
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string }; status?: number } };
-
-      if (errorObj.response?.status === 401) {
-        setError('로그인에 실패했습니다. 사용자명과 비밀번호를 확인하세요.');
-      } else {
-        setError(errorObj.response?.data?.message || '로그인 중 오류가 발생했습니다.');
-      }
+      console.error('[LoginPage] Login error:', err);
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || '로그인에 실패했습니다. 사용자명과 비밀번호를 확인하세요.');
     } finally {
       setIsSubmitting(false);
     }
@@ -128,8 +107,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button type="submit" disabled={isSubmitting || authLoading} className="w-full">
-            {isSubmitting ? '로그인 중...' : authLoading ? '확인 중...' : '로그인'}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? '로그인 중...' : '로그인'}
           </Button>
         </form>
       </div>
