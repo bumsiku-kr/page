@@ -20,6 +20,7 @@ export const PostSchema = z.object({
     .max(10000, '내용은 10000자를 초과할 수 없습니다.'),
   summary: z.string().min(1, '요약은 필수입니다.').max(200, '요약은 200자를 초과할 수 없습니다.'),
   tags: z.array(z.string()),
+  state: z.enum(['draft', 'published']), // Required by new backend
   createdAt: z.string(),
   updatedAt: z.string(),
   views: z.number().optional(),
@@ -46,9 +47,14 @@ export const CreatePostSchema = PostSchema.omit({
 });
 
 /**
- * Update post schema (all fields optional except slug)
+ * Update post schema (required: title, content, slug, state)
  */
-export const UpdatePostSchema = CreatePostSchema.partial().required({ slug: true });
+export const UpdatePostSchema = CreatePostSchema.partial().required({
+  title: true,
+  content: true,
+  slug: true,
+  state: true,
+});
 
 // Type exports
 export type Post = z.infer<typeof PostSchema>;

@@ -33,7 +33,7 @@ export interface Tag {
 
 // 댓글 관련 타입
 export interface Comment {
-  id: number;
+  id: string; // UUID format (changed from number for new backend)
   authorName: string;
   content: string;
   createdAt: string;
@@ -61,18 +61,20 @@ export interface CreatePostRequest {
   /** @maxLength 200 @minLength 1 */
   summary: string;
   tags: string[];
+  state: 'draft' | 'published'; // Required by new backend
 }
 
 export interface UpdatePostRequest {
   /** @maxLength 100 @minLength 1 */
-  title?: string;
+  title: string; // Required by new backend
   /** @maxLength 100 @minLength 1 */
   slug: string;
   /** @maxLength 10000 @minLength 1 */
-  content?: string;
+  content: string; // Required by new backend
   /** @maxLength 200 @minLength 1 */
   summary?: string;
   tags?: string[];
+  state: 'draft' | 'published'; // Required by new backend
 }
 
 export interface CreateCommentRequest {
@@ -107,7 +109,7 @@ export type GetTagsResponse = APIResponse<Tag[]>;
 // 이미지 업로드 관련 타입
 export interface UploadImageResponse {
   url: string;
-  size: number; // API Spec 에서는 int64지만, JavaScript 에서는 number 로 충분
+  key: string; // R2 storage key (new backend)
 }
 
 // 정렬 관련 타입
