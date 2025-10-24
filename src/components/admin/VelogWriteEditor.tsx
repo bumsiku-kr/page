@@ -351,8 +351,17 @@ export default function VelogWriteEditor({
   const handleImageUpload = async (file: File) => {
     setIsUploading(true);
     try {
-      const response = await api.images.upload(file);
-      const imageMarkdown = `![${file.name}](${response.url})`;
+      // Compress image before upload
+      const { compressImage } = await import('@/lib/utils/imageCompression');
+      const compressedFile = await compressImage(file, {
+        quality: 0.85,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        preferredFormat: 'webp',
+      });
+
+      const response = await api.images.upload(compressedFile);
+      const imageMarkdown = `![${compressedFile.name}](${response.url})`;
 
       // 커서 위치에 이미지 삽입
       if (contentRef.current) {
@@ -788,26 +797,31 @@ export default function VelogWriteEditor({
                   <button
                     type="button"
                     onClick={async () => {
-                      if (!content.trim()) {
-                        alert('요약할 내용이 필요합니다.');
-                        return;
-                      }
-                      setIsSummarizing(true);
-                      try {
-                        const { summary: generated } = await api.ai.generateSummary({
-                          text: content,
-                        });
-                        if (generated) {
-                          setSummary(generated);
-                        } else {
-                          alert('요약 생성에 실패했습니다.');
-                        }
-                      } catch (err) {
-                        console.error('요약 생성 오류:', err);
-                        alert('요약 생성 중 오류가 발생했습니다.');
-                      } finally {
-                        setIsSummarizing(false);
-                      }
+                      // AI service temporarily disabled
+                      alert('AI 요약 기능은 현재 사용할 수 없습니다.');
+                      return;
+
+                      // TODO: Re-enable when backend supports AI endpoints
+                      // if (!content.trim()) {
+                      //   alert('요약할 내용이 필요합니다.');
+                      //   return;
+                      // }
+                      // setIsSummarizing(true);
+                      // try {
+                      //   const { summary: generated } = await api.ai.generateSummary({
+                      //     text: content,
+                      //   });
+                      //   if (generated) {
+                      //     setSummary(generated);
+                      //   } else {
+                      //     alert('요약 생성에 실패했습니다.');
+                      //   }
+                      // } catch (err) {
+                      //   console.error('요약 생성 오류:', err);
+                      //   alert('요약 생성 중 오류가 발생했습니다.');
+                      // } finally {
+                      //   setIsSummarizing(false);
+                      // }
                     }}
                     disabled={isSummarizing || !content.trim()}
                     className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 transition-colors"
@@ -835,27 +849,32 @@ export default function VelogWriteEditor({
                   <button
                     type="button"
                     onClick={async () => {
-                      if (!title.trim() || !content.trim()) {
-                        alert('제목과 내용을 입력해주세요.');
-                        return;
-                      }
-                      setIsGeneratingSlug(true);
-                      try {
-                        const { slug: generated } = await api.ai.generateSlug({
-                          title: title.trim(),
-                          text: content.trim(),
-                        });
-                        if (generated) {
-                          setSlug(generated);
-                        } else {
-                          alert('slug 생성에 실패했습니다.');
-                        }
-                      } catch (err) {
-                        console.error('slug 생성 오류:', err);
-                        alert('slug 생성 중 오류가 발생했습니다.');
-                      } finally {
-                        setIsGeneratingSlug(false);
-                      }
+                      // AI service temporarily disabled
+                      alert('AI slug 생성 기능은 현재 사용할 수 없습니다.');
+                      return;
+
+                      // TODO: Re-enable when backend supports AI endpoints
+                      // if (!title.trim() || !content.trim()) {
+                      //   alert('제목과 내용을 입력해주세요.');
+                      //   return;
+                      // }
+                      // setIsGeneratingSlug(true);
+                      // try {
+                      //   const { slug: generated } = await api.ai.generateSlug({
+                      //     title: title.trim(),
+                      //     text: content.trim(),
+                      //   });
+                      //   if (generated) {
+                      //     setSlug(generated);
+                      //   } else {
+                      //     alert('slug 생성에 실패했습니다.');
+                      //   }
+                      // } catch (err) {
+                      //   console.error('slug 생성 오류:', err);
+                      //   alert('slug 생성 중 오류가 발생했습니다.');
+                      // } finally {
+                      //   setIsGeneratingSlug(false);
+                      // }
                     }}
                     disabled={isGeneratingSlug || !title.trim() || !content.trim()}
                     className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50 transition-colors"

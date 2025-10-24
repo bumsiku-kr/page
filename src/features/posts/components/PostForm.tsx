@@ -102,8 +102,18 @@ export default function PostForm({
     const file = files[0];
 
     try {
-      const response = await api.images.upload(file);
-      setUploadedImages(prev => [...prev, { url: response.url, size: response.size }]);
+      // Compress image before upload
+      const { compressImage } = await import('@/lib/utils/imageCompression');
+      const compressedFile = await compressImage(file, {
+        quality: 0.85,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        preferredFormat: 'webp',
+      });
+
+      const response = await api.images.upload(compressedFile);
+      // New backend returns { url, key } instead of { url, size }
+      setUploadedImages(prev => [...prev, { url: response.url, size: compressedFile.size }]);
 
       const imageMarkdown = `![이미지](${response.url})`;
       setValue('content', content + '\n' + imageMarkdown);
@@ -122,21 +132,26 @@ export default function PostForm({
       return;
     }
 
-    setIsSummarizing(true);
-    try {
-      const text = content?.trim() ? content : title;
-      const { summary: generated } = await api.ai.generateSummary({ text });
-      if (!generated) {
-        setFormError('요약 결과가 비어 있습니다.');
-        return;
-      }
-      setValue('summary', generated);
-    } catch (err) {
-      console.error('요약 생성 오류:', err);
-      setFormError('요약 생성 중 오류가 발생했습니다.');
-    } finally {
-      setIsSummarizing(false);
-    }
+    // AI service temporarily disabled
+    setFormError('AI 요약 기능은 현재 사용할 수 없습니다.');
+    return;
+
+    // TODO: Re-enable when backend supports AI endpoints
+    // setIsSummarizing(true);
+    // try {
+    //   const text = content?.trim() ? content : title;
+    //   const { summary: generated } = await api.ai.generateSummary({ text });
+    //   if (!generated) {
+    //     setFormError('요약 결과가 비어 있습니다.');
+    //     return;
+    //   }
+    //   setValue('summary', generated);
+    // } catch (err) {
+    //   console.error('요약 생성 오류:', err);
+    //   setFormError('요약 생성 중 오류가 발생했습니다.');
+    // } finally {
+    //   setIsSummarizing(false);
+    // }
   };
 
   const onFormSubmit = async (data: CreatePostInput) => {

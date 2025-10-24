@@ -19,13 +19,13 @@ export interface CompressionOptions {
  * Check if browser supports WebP format
  */
 const checkWebPSupport = (): Promise<boolean> => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
 
     canvas.toBlob(
-      (blob) => {
+      blob => {
         resolve(blob !== null && blob.type === 'image/webp');
       },
       'image/webp',
@@ -127,7 +127,7 @@ export const compressImage = async (
   // Convert to blob
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (result) => {
+      result => {
         if (result) {
           resolve(result);
         } else {
@@ -172,5 +172,5 @@ export const compressImages = async (
   files: File[],
   options: CompressionOptions = {}
 ): Promise<File[]> => {
-  return Promise.all(files.map((file) => compressImage(file, options)));
+  return Promise.all(files.map(file => compressImage(file, options)));
 };
