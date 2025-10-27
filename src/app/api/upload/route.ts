@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// App Router에서는 다른 방식으로 bodyParser 크기 제한을 설정합니다
+// Cloudflare Workers edge runtime
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // 최대 실행 시간 60초로 설정
 
 export async function POST(request: NextRequest) {
   console.log('API 라우트 호출됨');

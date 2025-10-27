@@ -6,7 +6,6 @@ import Header from '../components/layout/Header';
 import { AuthProvider } from '@/features/auth';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Analytics } from '@vercel/analytics/next';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -19,7 +18,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <ToastProvider>
             {!isAdminRoute && <Header />}
             <main className={`flex-grow ${!isAdminRoute ? 'pt-24 pb-6' : ''}`}>{children}</main>
-            <Analytics />
           </ToastProvider>
         </AuthProvider>
       </div>
