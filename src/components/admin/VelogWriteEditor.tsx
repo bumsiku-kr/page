@@ -424,6 +424,26 @@ export default function VelogWriteEditor({
     }
   };
 
+  // 클립보드 붙여넣기 핸들러
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const items = Array.from(e.clipboardData.items);
+      const imageItems = items.filter(item => item.type.startsWith('image/'));
+
+      if (imageItems.length > 0) {
+        e.preventDefault(); // 이미지가 있을 때만 기본 동작 차단
+
+        imageItems.forEach(item => {
+          const file = item.getAsFile();
+          if (file) {
+            handleImageUpload(file);
+          }
+        });
+      }
+    },
+    [handleImageUpload]
+  );
+
   // 출간 모달 열기
   const handlePublish = () => {
     if (!title.trim()) {
@@ -722,6 +742,7 @@ export default function VelogWriteEditor({
                   ref={contentRef}
                   value={content}
                   onChange={handleContentChange}
+                  onPaste={handlePaste}
                   placeholder="당신의 이야기를 적어보세요..."
                   className="w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]"
                 />

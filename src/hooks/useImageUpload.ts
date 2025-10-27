@@ -4,7 +4,7 @@ import { logger } from '@/lib/utils/logger';
 import { compressImage } from '@/lib/utils/imageCompression';
 
 /**
- * 이미지 업로드 및 드래그 앤 드롭 Hook
+ * 이미지 업로드, 드래그 앤 드롭, 클립보드 붙여넣기 Hook
  */
 export function useImageUpload(
   contentRef: RefObject<HTMLTextAreaElement>,
@@ -102,6 +102,26 @@ export function useImageUpload(
     }
   }, []);
 
+  // 클립보드 붙여넣기 핸들러
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const items = Array.from(e.clipboardData.items);
+      const imageItems = items.filter(item => item.type.startsWith('image/'));
+
+      if (imageItems.length > 0) {
+        e.preventDefault(); // 이미지가 있을 때만 기본 동작 차단
+
+        imageItems.forEach(item => {
+          const file = item.getAsFile();
+          if (file) {
+            uploadImage(file);
+          }
+        });
+      }
+    },
+    [uploadImage]
+  );
+
   return {
     isUploading,
     isDragging,
@@ -109,5 +129,6 @@ export function useImageUpload(
     handleDrop,
     handleDragOver,
     handleDragLeave,
+    handlePaste,
   };
 }
