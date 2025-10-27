@@ -5,6 +5,8 @@ import { Metadata } from 'next';
 import { homeMetadata, getTagMetadata } from '../lib/metadata';
 import HomePage from '../components/pages/home';
 
+export const runtime = 'edge';
+
 type SearchParams = {
   page?: string;
   tag?: string;
