@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Cloudflare Workers edge runtime
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {

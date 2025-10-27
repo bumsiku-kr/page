@@ -1,6 +1,11 @@
 name = "blog-frontend"
-compatibility_date = "2025-10-25"
-pages_build_output_dir = ".vercel/output/static"
+main = ".open-next/worker.js"
+compatibility_date = "2025-10-27"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 
 [env.production]
 vars = { NODE_ENV = "production" }
