@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import AdminHeader from '@/components/layout/AdminHeader';
-import { Analytics } from '@vercel/analytics/next';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -15,7 +14,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <main>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">{children}</div>
       </main>
-      <Analytics />
     </div>
   );
 }

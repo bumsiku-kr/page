@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import ClientLayout from './client-layout';
-import { Analytics } from '@vercel/analytics/next';
 import { defaultMetadata, defaultViewport } from '../lib/metadata';
 
 export const metadata: Metadata = defaultMetadata;
@@ -24,7 +23,6 @@ export default function RootLayout({
       </head>
       <body>
         <ClientLayout>{children}</ClientLayout>
-        <Analytics />
       </body>
     </html>
   );
