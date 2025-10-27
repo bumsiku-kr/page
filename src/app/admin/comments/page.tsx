@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import DataTable from '@/components/ui/DataTable';
 import { api } from '@/lib/api/index';
 import { Comment } from '@/types';
-import { truncateText } from '@/lib/utils';
+import { truncateText } from '@/lib/text-utils';
 import { dateUtils } from '@/lib/utils/date';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 
