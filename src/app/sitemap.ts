@@ -39,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 백엔드가 이미 최신 업데이트 순으로 정렬해서 제공하므로
     // 순서에 따라 우선순위를 차등 적용
     const postUrls = sitemapPaths.map((path, index) => {
-      // 백엔드에서 '/posts/{slug}' 형태로 제공되므로 baseUrl과 결합
+      // 백엔드에서 '/{slug}' 형태로 제공되므로 baseUrl과 결합
       const fullUrl = normalizeSiteUrl(path);
 
       // 최신 순서에 따른 우선순위 계산

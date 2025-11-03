@@ -12,6 +12,16 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
   },
+  // 301 redirect from old /posts/* URLs to new /* URLs
+  async redirects() {
+    return [
+      {
+        source: '/posts/:slug*',
+        destination: '/:slug*',
+        permanent: true, // 301 redirect
+      },
+    ];
+  },
 };
 
 export default removeImports()(nextConfig); 

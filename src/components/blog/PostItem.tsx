@@ -44,7 +44,7 @@ export default function PostItem({ post }: PostItemProps) {
           </div>
         </div>
 
-        <Link href={`/posts/${post.slug}`} onMouseEnter={handleMouseEnter}>
+        <Link href={`/${post.slug}`} onMouseEnter={handleMouseEnter}>
           <h2 className="text-2xl font-bold mb-3 hover:text-blue-600 transition-colors">
             {post.title}
           </h2>
@@ -54,7 +54,7 @@ export default function PostItem({ post }: PostItemProps) {
 
         <div className="flex justify-between items-center">
           <Link
-            href={`/posts/${post.slug}`}
+            href={`/${post.slug}`}
             className="text-blue-600 hover:text-blue-800 transition-colors"
             onMouseEnter={handleMouseEnter}
           >

@@ -216,7 +216,7 @@ export default function PostForm({
           </p>
           {slug && (
             <p className="text-xs text-blue-600">
-              미리보기: <code className="bg-gray-100 px-1 rounded">/posts/{slug}</code>
+              미리보기: <code className="bg-gray-100 px-1 rounded">/{slug}</code>
             </p>
           )}
         </div>

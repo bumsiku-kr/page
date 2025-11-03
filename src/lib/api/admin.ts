@@ -24,16 +24,16 @@ export class ImagesService {
 
       // Use admin-worker endpoint with JWT authentication
       const adminApiUrl = 'https://admin-worker.peter012677.workers.dev';
-      const response = await axios.post<{ success: boolean; data: UploadImageResponse; error: null }>(
-        `${adminApiUrl}${API_ENDPOINTS.ADMIN_IMAGES}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            // axios will automatically set multipart/form-data with boundary
-          },
-        }
-      );
+      const response = await axios.post<{
+        success: boolean;
+        data: UploadImageResponse;
+        error: null;
+      }>(`${adminApiUrl}${API_ENDPOINTS.ADMIN_IMAGES}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // axios will automatically set multipart/form-data with boundary
+        },
+      });
 
       console.log('이미지 업로드 응답:', response.data);
 

@@ -913,7 +913,7 @@ export default function VelogWriteEditor({
                 <div className="text-xs text-gray-500 mt-1">
                   {slug && (
                     <span className="text-green-600">
-                      미리보기: <code className="bg-gray-100 px-1 rounded">/posts/{slug}</code>
+                      미리보기: <code className="bg-gray-100 px-1 rounded">/{slug}</code>
                     </span>
                   )}
                 </div>

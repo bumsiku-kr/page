@@ -106,7 +106,7 @@ export function getPostMetadata(
   createdAt: string,
   updatedAt: string
 ): Metadata {
-  const canonicalTarget = canonicalPath || `/posts/${slug}`;
+  const canonicalTarget = canonicalPath || `/${slug}`;
   const url = normalizeSiteUrl(canonicalTarget);
 
   return {
@@ -176,7 +176,7 @@ export function getPostMetadataById(
   createdAt: string,
   updatedAt: string
 ): Metadata {
-  const url = normalizeSiteUrl(`/posts/${postId}`);
+  const url = normalizeSiteUrl(`/${postId}`);
 
   return {
     title: `${title} | ${siteName}`,

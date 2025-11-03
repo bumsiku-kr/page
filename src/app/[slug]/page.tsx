@@ -1,41 +1,41 @@
-// src/app/posts/[identifier]/page.tsx
+// src/app/[slug]/page.tsx
 
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { api } from '../../../lib/api/index';
-import Container from '../../../components/ui/Container';
-import Loading from '../../../components/ui/feedback/Loading';
-import ErrorMessage from '../../../components/ui/feedback/ErrorMessage';
+import { api } from '../../lib/api/index';
+import Container from '../../components/ui/Container';
+import Loading from '../../components/ui/feedback/Loading';
+import ErrorMessage from '../../components/ui/feedback/ErrorMessage';
 import { Comments } from '@/features/comments/components';
-import Divider from '../../../components/ui/Divider';
-import MarkdownRenderer from '../../../components/ui/data-display/MarkdownRenderer';
+import Divider from '../../components/ui/Divider';
+import MarkdownRenderer from '../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import ShareButton from '../../../components/blog/ShareButton';
-import { getPostMetadata, getPostMetadataById } from '../../../lib/metadata';
-import ViewCounter from '../../../components/blog/ViewCounter';
-import RedirectHandler from '../../../components/RedirectHandler';
+import ShareButton from '../../components/blog/ShareButton';
+import { getPostMetadata, getPostMetadataById } from '../../lib/metadata';
+import ViewCounter from '../../components/blog/ViewCounter';
+import RedirectHandler from '../../components/RedirectHandler';
 
 interface PostDetailPageProps {
-  params: Promise<{ identifier: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ identifier: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { identifier } = await params;
+  const { slug } = await params;
 
   try {
     let post;
 
-    // identifier가 숫자인지 확인 (ID인 경우)
-    if (/^\d+$/.test(identifier)) {
-      post = await api.posts.getOne(parseInt(identifier, 10));
+    // slug가 숫자인지 확인 (ID인 경우)
+    if (/^\d+$/.test(slug)) {
+      post = await api.posts.getOne(parseInt(slug, 10));
     } else {
       // slug인 경우
-      post = await api.posts.getBySlug(identifier);
+      post = await api.posts.getBySlug(slug);
     }
 
     if (!post) {
@@ -71,14 +71,14 @@ export async function generateMetadata({
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const { identifier } = await params;
+  const { slug } = await params;
 
   try {
     let post;
 
-    // identifier가 숫자인지 확인 (ID인 경우)
-    if (/^\d+$/.test(identifier)) {
-      post = await api.posts.getOne(parseInt(identifier, 10));
+    // slug가 숫자인지 확인 (ID인 경우)
+    if (/^\d+$/.test(slug)) {
+      post = await api.posts.getOne(parseInt(slug, 10));
 
       // 디버깅을 위한 로그 추가
       console.log('ID로 조회한 게시물:', {
@@ -90,8 +90,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
       // ID로 접근했지만 slug URL로 리다이렉트해야 함
       // canonicalPath가 있으면 우선 사용, 없으면 slug로 경로 생성
-      const redirectPath = post.canonicalPath || `/posts/${post.slug}`;
-      const currentPath = `/posts/${identifier}`;
+      const redirectPath = post.canonicalPath || `/${post.slug}`;
+      const currentPath = `/${slug}`;
 
       // 현재 경로와 리다이렉트할 경로가 다른 경우에만 리다이렉트
       if (currentPath !== redirectPath) {
@@ -102,7 +102,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       }
     } else {
       // slug인 경우
-      post = await api.posts.getBySlug(identifier);
+      post = await api.posts.getBySlug(slug);
     }
 
     if (!post || !post.id) {
@@ -200,7 +200,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   }
 }
 
-// for SSG: generate all valid [identifier] params at build time
+// for SSG: generate all valid [slug] params at build time
 export async function generateStaticParams() {
   try {
     // sitemap을 사용하여 slug 기반 경로 생성
@@ -208,18 +208,19 @@ export async function generateStaticParams() {
 
     if (sitemap && Array.isArray(sitemap)) {
       return sitemap.map(path => ({
-        identifier: path.replace('/posts/', ''),
+        // 백엔드가 '/posts/{slug}' 형태로 제공하면 '/posts/' 제거
+        slug: path.replace('/posts/', '').replace('/', ''),
       }));
     }
 
-    // 폴백: 게시글 목록에서 ID 생성
+    // 폴백: 게시글 목록에서 slug 생성
     const postsData = await api.posts.getList();
     if (!postsData?.content || !Array.isArray(postsData.content)) {
       return [];
     }
 
     return postsData.content.map(post => ({
-      identifier: post.slug,
+      slug: post.slug,
     }));
   } catch (error) {
     console.error('정적 경로 생성 중 오류:', error);

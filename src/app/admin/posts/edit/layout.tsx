@@ -7,9 +7,5 @@ interface EditLayoutProps {
 }
 
 export default function EditLayout({ children }: EditLayoutProps) {
-  return (
-    <div className="min-h-screen bg-white">
-      {children}
-    </div>
-  );
+  return <div className="min-h-screen bg-white">{children}</div>;
 }

@@ -7,9 +7,5 @@ interface WriteLayoutProps {
 }
 
 export default function WriteLayout({ children }: WriteLayoutProps) {
-  return (
-    <div className="min-h-screen bg-white">
-      {children}
-    </div>
-  );
+  return <div className="min-h-screen bg-white">{children}</div>;
 }

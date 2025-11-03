@@ -16,7 +16,7 @@ import { api } from '@/lib/api';
  * const prefetch = usePrefetchPost();
  *
  * <Link
- *   href={`/posts/${post.slug}`}
+ *   href={`/${post.slug}`}
  *   onMouseEnter={() => prefetch(post.slug)}
  * >
  *   {post.title}
