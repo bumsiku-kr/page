@@ -678,7 +678,7 @@ export default function VelogWriteEditor({
   }, [isPreviewMode, handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-y-auto">
       {/* 헤더 */}
       <div className="flex-shrink-0 z-10 bg-white border-b border-gray-200">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3">
@@ -765,13 +765,13 @@ export default function VelogWriteEditor({
 
       {/* 메인 컨텐츠 */}
       <div
-        className={`flex-1 min-h-0 flex flex-col ${
+        className={`flex-1 flex flex-col ${
           isSplitMode ? 'w-full' : 'max-w-4xl mx-auto w-full'
         } px-4 sm:px-6 lg:px-8`}
       >
         <div
-          className={`flex-1 min-h-0 ${
-            isSplitMode ? 'hidden lg:grid lg:grid-cols-2 h-full' : 'flex flex-col'
+          className={`flex-1 ${
+            isSplitMode ? 'hidden lg:grid lg:grid-cols-2' : 'flex flex-col'
           }`}
         >
           {/* 편집 영역 */}
@@ -780,7 +780,7 @@ export default function VelogWriteEditor({
               ref={editorPanelRef}
               onScroll={handleEditorScroll}
               className={`${
-                isSplitMode ? 'h-full overflow-y-auto scrollbar-hide pr-4 lg:pr-8' : 'flex-1'
+                isSplitMode ? 'pr-4 lg:pr-8' : 'flex-1'
               } ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg' : ''}`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -829,7 +829,7 @@ export default function VelogWriteEditor({
                     placeholder="당신의 이야기를 적어보세요..."
                     className={`w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent ${
                       isSplitMode
-                        ? 'min-h-[calc(100vh-280px)] scrollbar-hide'
+                        ? 'min-h-[400px]'
                         : 'min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]'
                     }`}
                   />
@@ -882,7 +882,7 @@ export default function VelogWriteEditor({
               onScroll={handlePreviewScroll}
               className={`${
                 isSplitMode
-                  ? 'h-full overflow-y-auto border-l border-gray-200 pl-4 lg:pl-8'
+                  ? 'border-l border-gray-200 pl-4 lg:pl-8'
                   : 'flex-1'
               }`}
             >
