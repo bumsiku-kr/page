@@ -780,7 +780,7 @@ export default function VelogWriteEditor({
               ref={editorPanelRef}
               onScroll={handleEditorScroll}
               className={`${
-                isSplitMode ? 'h-full overflow-y-auto pr-4 lg:pr-8' : 'flex-1'
+                isSplitMode ? 'h-full overflow-y-auto scrollbar-hide pr-4 lg:pr-8' : 'flex-1'
               } ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg' : ''}`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -829,7 +829,7 @@ export default function VelogWriteEditor({
                     placeholder="당신의 이야기를 적어보세요..."
                     className={`w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent ${
                       isSplitMode
-                        ? 'min-h-[calc(100vh-280px)]'
+                        ? 'min-h-[calc(100vh-280px)] scrollbar-hide'
                         : 'min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]'
                     }`}
                   />
