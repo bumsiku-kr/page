@@ -1,19 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { api } from '@/lib/api/index';
 import MarkdownRenderer from '@/components/ui/data-display/MarkdownRenderer';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/hooks/useConfirm';
+import { ConfirmModal } from '@/components/ui/Modal';
+import { useEditorStore, type DraftSnapshot } from '@/features/posts/store';
 
 const DRAFTS_KEY = 'velog-drafts';
 const AUTO_SAVE_INTERVAL = 30000;
-
-type DraftSnapshot = {
-  title: string;
-  content: string;
-  tags: string[];
-  summary: string;
-  slug: string;
-};
 
 interface VelogWriteEditorProps {
   initialValues: {
@@ -42,45 +38,73 @@ export default function VelogWriteEditor({
   onCancel,
   isSubmitting,
 }: VelogWriteEditorProps) {
-  const [title, setTitle] = useState(initialValues.title);
-  const [content, setContent] = useState(initialValues.content);
-  const [tags, setTags] = useState<string[]>(initialValues.tags || []);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [isSplitMode, setIsSplitMode] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [showPublishModal, setShowPublishModal] = useState(false);
-  const [showDraftModal, setShowDraftModal] = useState(false);
-  const [isManualSaving, setIsManualSaving] = useState(false);
-  const [summary, setSummary] = useState(initialValues.summary || '');
-  const [slug, setSlug] = useState(initialValues.slug || '');
-  const [isSummarizing, setIsSummarizing] = useState(false);
-  const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
-  const [tagInput, setTagInput] = useState('');
-  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
+  const { addToast } = useToast();
+  const { confirm, confirmState, handleConfirm, handleCancel } = useConfirm();
+
+  // Zustand store
+  const {
+    title,
+    setTitle,
+    content,
+    setContent,
+    tags,
+    setTags,
+    addTag,
+    removeTag,
+    summary,
+    setSummary,
+    slug,
+    setSlug,
+    isPreviewMode,
+    setIsPreviewMode,
+    isSplitMode,
+    setIsSplitMode,
+    isDragging,
+    setIsDragging,
+    isUploading,
+    setIsUploading,
+    showPublishModal,
+    openPublishModal,
+    closePublishModal,
+    showDraftModal,
+    setShowDraftModal,
+    isManualSaving,
+    setIsManualSaving,
+    isSummarizing,
+    setIsSummarizing,
+    isGeneratingSlug,
+    setIsGeneratingSlug,
+    tagInput,
+    setTagInput,
+    showTagSuggestions,
+    setShowTagSuggestions,
+    lastAutoSavedAt,
+    setLastAutoSavedAt,
+    loadDraft,
+    initializeFromProps,
+    getSnapshot,
+  } = useEditorStore();
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const latestDraftRef = useRef<DraftSnapshot>({
-    title,
-    content,
-    tags,
-    summary,
-    slug,
-  });
   const previousDraftJSONRef = useRef<string | null>(null);
 
+  // Initialize from props on mount
   useEffect(() => {
-    latestDraftRef.current = { title, content, tags, summary, slug };
-  }, [title, content, tags, summary, slug]);
+    initializeFromProps({
+      title: initialValues.title,
+      content: initialValues.content,
+      tags: initialValues.tags,
+      summary: initialValues.summary,
+      slug: initialValues.slug,
+    });
+  }, []);
 
   // slug 생성 함수
-  const generateSlug = useCallback((title: string): string => {
-    return title
+  const generateSlug = useCallback((titleText: string): string => {
+    return titleText
       .toLowerCase()
       .replace(/[^a-z0-9가-힣\s-]/g, '')
       .replace(/\s+/g, '-')
@@ -89,12 +113,12 @@ export default function VelogWriteEditor({
       .replace(/^-|-$/g, '');
   }, []);
 
-  // 초기값 설정
+  // 초기 slug 생성 (한 번만)
   useEffect(() => {
-    if (initialValues.title && !slug) {
+    if (initialValues.title && !initialValues.slug) {
       setSlug(generateSlug(initialValues.title));
     }
-  }, [initialValues.title, slug, generateSlug]);
+  }, []);
 
   // 임시저장된 글 목록 가져오기
   const getDraftsList = useCallback(() => {
@@ -120,7 +144,7 @@ export default function VelogWriteEditor({
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      const snapshot = latestDraftRef.current;
+      const snapshot = getSnapshot();
       const normalizedTitle = snapshot.title.trim();
       const hasContent =
         normalizedTitle ||
@@ -176,7 +200,7 @@ export default function VelogWriteEditor({
   // 수동 임시저장
   const handleManualSave = useCallback(() => {
     if (!title.trim() && !content.trim()) {
-      alert('제목 또는 내용을 입력해주세요.');
+      addToast('제목 또는 내용을 입력해주세요.', 'warning');
       return;
     }
 
@@ -205,31 +229,40 @@ export default function VelogWriteEditor({
       const updatedDrafts = [newDraft, ...filteredDrafts];
       localStorage.setItem(DRAFTS_KEY, JSON.stringify(updatedDrafts));
 
-      alert('임시저장되었습니다.');
+      addToast('임시저장되었습니다.', 'success');
     } catch (error) {
       console.error('임시저장 오류:', error);
-      alert('임시저장에 실패했습니다.');
+      addToast('임시저장에 실패했습니다.', 'error');
     } finally {
       setIsManualSaving(false);
     }
-  }, [title, content, tags, summary, slug, getDraftsList]);
+  }, [title, content, tags, summary, slug, getDraftsList, addToast]);
 
   // 임시저장 글 불러오기
-  const handleLoadDraft = useCallback((draft: any) => {
-    setTitle(draft.title || '');
-    setContent(draft.content || '');
-    setTags(draft.tags || []);
-    setSummary(draft.summary || '');
-    setSlug(draft.slug || '');
-    setShowDraftModal(false);
-  }, []);
+  const handleLoadDraft = useCallback(
+    (draft: any) => {
+      loadDraft({
+        title: draft.title || '',
+        content: draft.content || '',
+        tags: draft.tags || [],
+        summary: draft.summary || '',
+        slug: draft.slug || '',
+      });
+    },
+    [loadDraft]
+  );
 
   // 임시저장 글 삭제
   const handleDeleteDraft = useCallback(
-    (draftId: string, draftTitle: string) => {
-      if (!confirm(`"${draftTitle}"을(를) 삭제하시겠습니까?`)) {
-        return;
-      }
+    async (draftId: string, draftTitle: string) => {
+      const confirmed = await confirm({
+        title: '임시저장 삭제',
+        message: `"${draftTitle}"을(를) 삭제하시겠습니까?`,
+        confirmText: '삭제',
+        cancelText: '취소',
+      });
+
+      if (!confirmed) return;
 
       try {
         const drafts = getDraftsList();
@@ -241,27 +274,28 @@ export default function VelogWriteEditor({
         setTimeout(() => setShowDraftModal(true), 0);
       } catch (error) {
         console.error('임시저장 삭제 오류:', error);
-        alert('임시저장 삭제에 실패했습니다.');
+        addToast('임시저장 삭제에 실패했습니다.', 'error');
       }
     },
-    [getDraftsList]
+    [getDraftsList, confirm, addToast]
   );
 
   // 모든 임시저장 글 삭제
-  const handleDeleteAllDrafts = useCallback(() => {
+  const handleDeleteAllDrafts = useCallback(async () => {
     const drafts = getDraftsList();
     if (drafts.length === 0) {
-      alert('삭제할 임시저장이 없습니다.');
+      addToast('삭제할 임시저장이 없습니다.', 'warning');
       return;
     }
 
-    if (
-      !confirm(
-        `총 ${drafts.length}개의 임시저장을 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: '전체 삭제',
+      message: `총 ${drafts.length}개의 임시저장을 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
+      confirmText: '전체 삭제',
+      cancelText: '취소',
+    });
+
+    if (!confirmed) return;
 
     try {
       localStorage.setItem(DRAFTS_KEY, JSON.stringify([]));
@@ -271,9 +305,9 @@ export default function VelogWriteEditor({
       setTimeout(() => setShowDraftModal(true), 0);
     } catch (error) {
       console.error('임시저장 전체 삭제 오류:', error);
-      alert('임시저장 전체 삭제에 실패했습니다.');
+      addToast('임시저장 전체 삭제에 실패했습니다.', 'error');
     }
-  }, [getDraftsList]);
+  }, [getDraftsList, confirm, addToast]);
 
   // 임시저장된 데이터 확인 및 목록 표시 제안 (편집 모드에서만)
   useEffect(() => {
@@ -306,19 +340,11 @@ export default function VelogWriteEditor({
     setContent(e.target.value);
   };
 
-  // 태그 추가
-  const addTag = (tagName: string) => {
-    const newTag = tagName.trim();
-    if (newTag && !tags.includes(newTag) && tags.length < 10) {
-      setTags(prev => [...prev, newTag]);
-    }
+  // 태그 추가 (with UI cleanup)
+  const handleAddTag = (tagName: string) => {
+    addTag(tagName);
     setTagInput('');
     setShowTagSuggestions(false);
-  };
-
-  // 태그 제거
-  const removeTag = (tagToRemove: string) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
   // 태그 입력 핸들러 (출간 모달용)
@@ -332,7 +358,7 @@ export default function VelogWriteEditor({
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag(tagInput);
+      handleAddTag(tagInput);
     } else if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
     }
@@ -382,7 +408,7 @@ export default function VelogWriteEditor({
       }
     } catch (error) {
       console.error('이미지 업로드 오류:', error);
-      alert('이미지 업로드에 실패했습니다.');
+      addToast('이미지 업로드에 실패했습니다.', 'error');
     } finally {
       setIsUploading(false);
     }
@@ -447,20 +473,20 @@ export default function VelogWriteEditor({
   // 출간 모달 열기
   const handlePublish = () => {
     if (!title.trim()) {
-      alert('제목을 입력해주세요.');
+      addToast('제목을 입력해주세요.', 'warning');
       titleRef.current?.focus();
       return;
     }
 
     if (!content.trim()) {
-      alert('내용을 입력해주세요.');
+      addToast('내용을 입력해주세요.', 'warning');
       contentRef.current?.focus();
       return;
     }
 
     // 모달 열 때 기본값 설정하지 않음 (사용자가 직접 생성하도록)
 
-    setShowPublishModal(true);
+    openPublishModal();
   };
 
   // slug 유효성 검증
@@ -492,13 +518,13 @@ export default function VelogWriteEditor({
   const handleActualSave = async () => {
     // 유효성 검증
     if (!summary.trim()) {
-      alert('요약을 입력해주세요.');
+      addToast('요약을 입력해주세요.', 'warning');
       return;
     }
 
     const slugError = validateSlug(slug);
     if (slugError) {
-      alert(slugError);
+      addToast(slugError, 'error');
       return;
     }
 
@@ -514,10 +540,7 @@ export default function VelogWriteEditor({
         console.error('임시저장 정리 오류:', error);
       }
 
-      setShowPublishModal(false);
-      // 모달 상태 리셋
-      setTagInput('');
-      setShowTagSuggestions(false);
+      closePublishModal();
     } catch (error) {
       console.error('저장 오류:', error);
     }
@@ -819,7 +842,7 @@ export default function VelogWriteEditor({
                     type="button"
                     onClick={async () => {
                       // AI service temporarily disabled
-                      alert('AI 요약 기능은 현재 사용할 수 없습니다.');
+                      addToast('AI 요약 기능은 현재 사용할 수 없습니다.', 'info');
                       return;
 
                       // TODO: Re-enable when backend supports AI endpoints
@@ -871,7 +894,7 @@ export default function VelogWriteEditor({
                     type="button"
                     onClick={async () => {
                       // AI service temporarily disabled
-                      alert('AI slug 생성 기능은 현재 사용할 수 없습니다.');
+                      addToast('AI slug 생성 기능은 현재 사용할 수 없습니다.', 'info');
                       return;
 
                       // TODO: Re-enable when backend supports AI endpoints
@@ -969,7 +992,7 @@ export default function VelogWriteEditor({
                       <button
                         type="button"
                         key={index}
-                        onClick={() => addTag(tag)}
+                        onClick={() => handleAddTag(tag)}
                         className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm border-b border-gray-100 last:border-b-0"
                       >
                         #{tag}
@@ -986,11 +1009,7 @@ export default function VelogWriteEditor({
 
             <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowPublishModal(false);
-                  setTagInput('');
-                  setShowTagSuggestions(false);
-                }}
+                onClick={closePublishModal}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors order-2 sm:order-1"
               >
                 취소
@@ -1088,6 +1107,17 @@ export default function VelogWriteEditor({
           </div>
         </div>
       )}
+
+      {/* 확인 모달 */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+      />
     </div>
   );
 }

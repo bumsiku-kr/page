@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-type ToastType = 'success' | 'error' | 'info';
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface Toast {
   id: string;
@@ -73,7 +73,9 @@ function ToastContainer() {
                 ? 'bg-green-50 text-green-800 border-l-4 border-green-600'
                 : toast.type === 'error'
                   ? 'bg-red-50 text-red-800 border-l-4 border-red-600'
-                  : 'bg-blue-50 text-blue-800 border-l-4 border-blue-600'
+                  : toast.type === 'warning'
+                    ? 'bg-yellow-50 text-yellow-800 border-l-4 border-yellow-600'
+                    : 'bg-blue-50 text-blue-800 border-l-4 border-blue-600'
             }
           `}
         >

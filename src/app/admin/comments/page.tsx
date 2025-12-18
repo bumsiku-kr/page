@@ -7,9 +7,15 @@ import { Comment } from '@/types';
 import { truncateText } from '@/lib/text-utils';
 import { dateUtils } from '@/lib/utils/date';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/hooks/useConfirm';
+import { ConfirmModal } from '@/components/ui/Modal';
 
 export default function CommentsManagementPage() {
   useAuthGuard(); // Protect this admin route
+  const { addToast } = useToast();
+  const { confirm, confirmState, handleConfirm, handleCancel } = useConfirm();
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,16 +81,22 @@ export default function CommentsManagementPage() {
   }, [selectedPostId, posts]);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('이 댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: '댓글 삭제',
+      message: '이 댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+      confirmText: '삭제',
+      cancelText: '취소',
+    });
+
+    if (!confirmed) return;
 
     try {
       await api.comments.delete(id);
+      addToast('댓글이 삭제되었습니다.', 'success');
       fetchComments();
     } catch (err) {
       console.error('댓글 삭제 중 오류 발생:', err);
-      alert('댓글을 삭제하는 중 오류가 발생했습니다.');
+      addToast('댓글을 삭제하는 중 오류가 발생했습니다.', 'error');
     }
   };
 
@@ -159,6 +171,16 @@ export default function CommentsManagementPage() {
       </div>
 
       <DataTable columns={columns} data={comments} isLoading={isLoading} error={error} />
+
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+      />
     </div>
   );
 }

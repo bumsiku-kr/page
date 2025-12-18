@@ -7,10 +7,16 @@ import { api } from '@/lib/api/index';
 import { PostSummary } from '@/types';
 import { dateUtils } from '@/lib/utils/date';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/hooks/useConfirm';
+import { ConfirmModal } from '@/components/ui/Modal';
 
 export default function PostsManagementPage() {
   useAuthGuard(); // Protect this admin route
   const router = useRouter();
+  const { addToast } = useToast();
+  const { confirm, confirmState, handleConfirm, handleCancel } = useConfirm();
+
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,16 +48,22 @@ export default function PostsManagementPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: '게시글 삭제',
+      message: '이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+      confirmText: '삭제',
+      cancelText: '취소',
+    });
+
+    if (!confirmed) return;
 
     try {
       await api.posts.delete(id);
+      addToast('게시글이 삭제되었습니다.', 'success');
       fetchPosts();
     } catch (err) {
       console.error('게시글 삭제 중 오류 발생:', err);
-      alert('게시글을 삭제하는 중 오류가 발생했습니다.');
+      addToast('게시글을 삭제하는 중 오류가 발생했습니다.', 'error');
     }
   };
 
@@ -151,6 +163,16 @@ export default function PostsManagementPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+      />
     </div>
   );
 }
