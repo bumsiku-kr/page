@@ -19,7 +19,6 @@ interface EditorState {
   slug: string;
 
   // UI Mode
-  isPreviewMode: boolean;
   isSplitMode: boolean;
 
   // Loading States
@@ -52,9 +51,7 @@ interface EditorActions {
   removeTag: (tag: string) => void;
 
   // UI Mode Actions
-  togglePreviewMode: () => void;
   toggleSplitMode: () => void;
-  setIsPreviewMode: (value: boolean) => void;
   setIsSplitMode: (value: boolean) => void;
 
   // Loading State Actions
@@ -91,8 +88,7 @@ const initialState: EditorState = {
   tags: [],
   summary: '',
   slug: '',
-  isPreviewMode: false,
-  isSplitMode: false,
+  isSplitMode: true,
   isUploading: false,
   isManualSaving: false,
   isSummarizing: false,
@@ -129,9 +125,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       })),
 
     // UI Mode Actions
-    togglePreviewMode: () => set(state => ({ isPreviewMode: !state.isPreviewMode })),
     toggleSplitMode: () => set(state => ({ isSplitMode: !state.isSplitMode })),
-    setIsPreviewMode: value => set({ isPreviewMode: value }),
     setIsSplitMode: value => set({ isSplitMode: value }),
 
     // Loading State Actions
@@ -197,7 +191,6 @@ export const useEditorContent = () =>
 
 export const useEditorUIMode = () =>
   useEditorStore(state => ({
-    isPreviewMode: state.isPreviewMode,
     isSplitMode: state.isSplitMode,
   }));
 

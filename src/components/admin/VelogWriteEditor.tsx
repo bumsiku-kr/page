@@ -10,6 +10,7 @@ import { useEditorStore, type DraftSnapshot } from '@/features/posts/store';
 
 const DRAFTS_KEY = 'velog-drafts';
 const AUTO_SAVE_INTERVAL = 30000;
+const PREVIEW_DATA_KEY = 'blog-preview-data';
 
 interface VelogWriteEditorProps {
   initialValues: {
@@ -55,10 +56,7 @@ export default function VelogWriteEditor({
     setSummary,
     slug,
     setSlug,
-    isPreviewMode,
-    setIsPreviewMode,
     isSplitMode,
-    setIsSplitMode,
     isDragging,
     setIsDragging,
     isUploading,
@@ -124,6 +122,14 @@ export default function VelogWriteEditor({
       setSlug(generateSlug(initialValues.title));
     }
   }, []);
+
+  // 스플릿 모드 전환 시 textarea 높이 자동 조절
+  useEffect(() => {
+    if (isSplitMode && contentRef.current) {
+      contentRef.current.style.height = 'auto';
+      contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+    }
+  }, [isSplitMode, content]);
 
   // 임시저장된 글 목록 가져오기
   const getDraftsList = useCallback(() => {
@@ -340,9 +346,14 @@ export default function VelogWriteEditor({
     setTitle(e.target.value);
   };
 
-  // 내용 변경 핸들러
+  // 내용 변경 핸들러 + 자동 높이 조절
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
+    // 스플릿 모드에서 textarea 높이를 콘텐츠에 맞게 자동 조절
+    if (isSplitMode && contentRef.current) {
+      contentRef.current.style.height = 'auto';
+      contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+    }
   };
 
   // 태그 추가 (with UI cleanup)
@@ -493,6 +504,25 @@ export default function VelogWriteEditor({
 
     openPublishModal();
   };
+
+  // 새 탭에서 미리보기 열기
+  const handleOpenPreview = useCallback(() => {
+    const previewData = {
+      title,
+      content,
+      tags,
+      summary,
+      timestamp: Date.now(),
+    };
+
+    try {
+      localStorage.setItem(PREVIEW_DATA_KEY, JSON.stringify(previewData));
+      window.open('/preview', '_blank');
+    } catch (error) {
+      console.error('미리보기 데이터 저장 오류:', error);
+      addToast('미리보기를 열 수 없습니다.', 'error');
+    }
+  }, [title, content, tags, summary, addToast]);
 
   // slug 유효성 검증
   const validateSlug = (slug: string): string | null => {
@@ -651,10 +681,6 @@ export default function VelogWriteEditor({
           handlePublish();
         }
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
-        e.preventDefault();
-        setIsPreviewMode(!isPreviewMode);
-      }
       if ((e.metaKey || e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         setShowDraftModal(true);
@@ -675,7 +701,7 @@ export default function VelogWriteEditor({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isPreviewMode, handleManualSave, handlePublish, wrapSelectedText]);
+  }, [handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-y-auto">
@@ -724,25 +750,11 @@ export default function VelogWriteEditor({
                 </button>
 
                 <button
-                  onClick={() => setIsSplitMode(!isSplitMode)}
-                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm border rounded-md transition-colors hidden lg:block ${
-                    isSplitMode
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
+                  onClick={handleOpenPreview}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 >
-                  나란히
-                </button>
-
-                <button
-                  onClick={() => setIsPreviewMode(!isPreviewMode)}
-                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm border rounded-md transition-colors ${
-                    isPreviewMode
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {isPreviewMode ? '편집' : '미리보기'}
+                  <span className="hidden sm:inline">미리보기</span>
+                  <span className="sm:hidden">👁</span>
                 </button>
 
                 <button
@@ -775,8 +787,7 @@ export default function VelogWriteEditor({
           }`}
         >
           {/* 편집 영역 */}
-          {(!isPreviewMode || isSplitMode) && (
-            <div
+          <div
               ref={editorPanelRef}
               onScroll={handleEditorScroll}
               className={`${
@@ -829,7 +840,7 @@ export default function VelogWriteEditor({
                     placeholder="당신의 이야기를 적어보세요..."
                     className={`w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent ${
                       isSplitMode
-                        ? 'min-h-[400px]'
+                        ? 'min-h-[400px] overflow-hidden'
                         : 'min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]'
                     }`}
                   />
@@ -873,18 +884,13 @@ export default function VelogWriteEditor({
                 </div>
               </div>
             </div>
-          )}
 
           {/* 미리보기 영역 */}
-          {(isPreviewMode || isSplitMode) && (
+          {isSplitMode && (
             <div
               ref={previewPanelRef}
               onScroll={handlePreviewScroll}
-              className={`${
-                isSplitMode
-                  ? 'border-l border-gray-200 pl-4 lg:pl-8'
-                  : 'flex-1'
-              }`}
+              className="border-l border-gray-200 pl-4 lg:pl-8"
             >
               <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
