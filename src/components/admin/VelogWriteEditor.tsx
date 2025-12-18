@@ -91,6 +91,11 @@ export default function VelogWriteEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previousDraftJSONRef = useRef<string | null>(null);
 
+  // 스크롤 연동을 위한 refs
+  const editorPanelRef = useRef<HTMLDivElement>(null);
+  const previewPanelRef = useRef<HTMLDivElement>(null);
+  const isScrollingSyncRef = useRef(false);
+
   // Initialize from props on mount
   useEffect(() => {
     initializeFromProps({
@@ -584,6 +589,49 @@ export default function VelogWriteEditor({
     [content]
   );
 
+  // 스크롤 연동 핸들러 (textarea <-> preview panel)
+  const handleEditorScroll = useCallback(() => {
+    if (!isSplitMode || isScrollingSyncRef.current) return;
+
+    const editor = contentRef.current; // textarea
+    const preview = previewPanelRef.current;
+    if (!editor || !preview) return;
+
+    const maxEditorScroll = editor.scrollHeight - editor.clientHeight;
+    if (maxEditorScroll <= 0) return;
+
+    isScrollingSyncRef.current = true;
+
+    const editorScrollRatio = editor.scrollTop / maxEditorScroll;
+    const maxPreviewScroll = preview.scrollHeight - preview.clientHeight;
+    preview.scrollTop = editorScrollRatio * maxPreviewScroll;
+
+    requestAnimationFrame(() => {
+      isScrollingSyncRef.current = false;
+    });
+  }, [isSplitMode]);
+
+  const handlePreviewScroll = useCallback(() => {
+    if (!isSplitMode || isScrollingSyncRef.current) return;
+
+    const editor = contentRef.current; // textarea
+    const preview = previewPanelRef.current;
+    if (!editor || !preview) return;
+
+    const maxPreviewScroll = preview.scrollHeight - preview.clientHeight;
+    if (maxPreviewScroll <= 0) return;
+
+    isScrollingSyncRef.current = true;
+
+    const previewScrollRatio = preview.scrollTop / maxPreviewScroll;
+    const maxEditorScroll = editor.scrollHeight - editor.clientHeight;
+    editor.scrollTop = previewScrollRatio * maxEditorScroll;
+
+    requestAnimationFrame(() => {
+      isScrollingSyncRef.current = false;
+    });
+  }, [isSplitMode]);
+
   // 키보드 단축키
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -630,10 +678,10 @@ export default function VelogWriteEditor({
   }, [isPreviewMode, handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-hidden">
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="flex-shrink-0 z-10 bg-white border-b border-gray-200">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={onCancel}
@@ -717,92 +765,111 @@ export default function VelogWriteEditor({
 
       {/* 메인 컨텐츠 */}
       <div
-        className={`${isSplitMode ? 'max-w-7xl' : 'max-w-4xl'} mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8`}
+        className={`flex-1 min-h-0 flex flex-col ${
+          isSplitMode ? 'w-full' : 'max-w-4xl mx-auto w-full'
+        } px-4 sm:px-6 lg:px-8`}
       >
-        <div className={`${isSplitMode ? 'hidden lg:grid lg:grid-cols-2 gap-8' : ''}`}>
+        <div
+          className={`flex-1 min-h-0 ${
+            isSplitMode ? 'hidden lg:grid lg:grid-cols-2 h-full' : 'flex flex-col'
+          }`}
+        >
           {/* 편집 영역 */}
           {(!isPreviewMode || isSplitMode) && (
             <div
-              className={`space-y-6 ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4' : ''}`}
+              ref={editorPanelRef}
+              onScroll={handleEditorScroll}
+              className={`${
+                isSplitMode ? 'h-full overflow-y-auto pr-4 lg:pr-8' : 'flex-1'
+              } ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg' : ''}`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              {isDragging && (
-                <div className="text-center text-blue-600 font-medium py-8">
-                  <svg
-                    className="w-12 h-12 mx-auto mb-4 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  이미지를 여기에 드롭하세요
-                </div>
-              )}
-
-              {/* 제목 입력 */}
-              <div>
-                <textarea
-                  ref={titleRef}
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="제목을 입력하세요"
-                  className="w-full text-2xl sm:text-3xl lg:text-4xl font-bold placeholder-gray-300 border-none outline-none resize-none overflow-hidden bg-transparent"
-                  rows={1}
-                />
-              </div>
-
-              {/* 내용 입력 */}
-              <div className="relative">
-                <textarea
-                  ref={contentRef}
-                  value={content}
-                  onChange={handleContentChange}
-                  onPaste={handlePaste}
-                  placeholder="당신의 이야기를 적어보세요..."
-                  className="w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]"
-                />
-
-                {/* 하단 툴바 */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploading}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+              <div className="py-4 sm:py-6 space-y-6">
+                {isDragging && (
+                  <div className="text-center text-blue-600 font-medium py-8">
+                    <svg
+                      className="w-12 h-12 mx-auto mb-4 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {isUploading ? '업로드 중...' : '이미지 추가'}
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    이미지를 여기에 드롭하세요
                   </div>
+                )}
 
-                  <div className="text-sm text-gray-500">{content.length.toLocaleString()} 자</div>
+                {/* 제목 입력 */}
+                <div>
+                  <textarea
+                    ref={titleRef}
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="제목을 입력하세요"
+                    className="w-full text-2xl sm:text-3xl lg:text-4xl font-bold placeholder-gray-300 border-none outline-none resize-none overflow-hidden bg-transparent"
+                    rows={1}
+                  />
+                </div>
+
+                {/* 내용 입력 */}
+                <div className="relative">
+                  <textarea
+                    ref={contentRef}
+                    value={content}
+                    onChange={handleContentChange}
+                    onPaste={handlePaste}
+                    onScroll={handleEditorScroll}
+                    placeholder="당신의 이야기를 적어보세요..."
+                    className={`w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent ${
+                      isSplitMode
+                        ? 'min-h-[calc(100vh-280px)]'
+                        : 'min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]'
+                    }`}
+                  />
+
+                  {/* 하단 툴바 */}
+                  <div className="sticky bottom-0 bg-white flex items-center justify-between py-4 border-t border-gray-100">
+                    <div className="flex items-center gap-4">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        {isUploading ? '업로드 중...' : '이미지 추가'}
+                      </button>
+                    </div>
+
+                    <div className="text-sm text-gray-500">
+                      {content.length.toLocaleString()} 자
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -810,8 +877,16 @@ export default function VelogWriteEditor({
 
           {/* 미리보기 영역 */}
           {(isPreviewMode || isSplitMode) && (
-            <div className={`${isSplitMode ? 'border-l border-gray-200 pl-4 sm:pl-8' : ''}`}>
-              <div className="space-y-4 sm:space-y-6">
+            <div
+              ref={previewPanelRef}
+              onScroll={handlePreviewScroll}
+              className={`${
+                isSplitMode
+                  ? 'h-full overflow-y-auto border-l border-gray-200 pl-4 lg:pl-8'
+                  : 'flex-1'
+              }`}
+            >
+              <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
                   {title || '제목을 입력하세요'}
                 </h1>
