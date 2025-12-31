@@ -18,9 +18,6 @@ interface EditorState {
   summary: string;
   slug: string;
 
-  // UI Mode
-  isSplitMode: boolean;
-
   // Loading States
   isUploading: boolean;
   isManualSaving: boolean;
@@ -49,10 +46,6 @@ interface EditorActions {
   setTags: (tags: string[]) => void;
   addTag: (tag: string) => void;
   removeTag: (tag: string) => void;
-
-  // UI Mode Actions
-  toggleSplitMode: () => void;
-  setIsSplitMode: (value: boolean) => void;
 
   // Loading State Actions
   setIsUploading: (value: boolean) => void;
@@ -88,7 +81,6 @@ const initialState: EditorState = {
   tags: [],
   summary: '',
   slug: '',
-  isSplitMode: true,
   isUploading: false,
   isManualSaving: false,
   isSummarizing: false,
@@ -123,10 +115,6 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       set(state => ({
         tags: state.tags.filter(t => t !== tag),
       })),
-
-    // UI Mode Actions
-    toggleSplitMode: () => set(state => ({ isSplitMode: !state.isSplitMode })),
-    setIsSplitMode: value => set({ isSplitMode: value }),
 
     // Loading State Actions
     setIsUploading: value => set({ isUploading: value }),
@@ -187,11 +175,6 @@ export const useEditorContent = () =>
     tags: state.tags,
     summary: state.summary,
     slug: state.slug,
-  }));
-
-export const useEditorUIMode = () =>
-  useEditorStore(state => ({
-    isSplitMode: state.isSplitMode,
   }));
 
 export const useEditorLoading = () =>

@@ -49,14 +49,12 @@ export default function VelogWriteEditor({
     content,
     setContent,
     tags,
-    setTags,
     addTag,
     removeTag,
     summary,
     setSummary,
     slug,
     setSlug,
-    isSplitMode,
     isDragging,
     setIsDragging,
     isUploading,
@@ -123,13 +121,15 @@ export default function VelogWriteEditor({
     }
   }, []);
 
-  // 스플릿 모드 전환 시 textarea 높이 자동 조절
+  // textarea 높이 자동 조절 (초기 로드 시)
   useEffect(() => {
-    if (isSplitMode && contentRef.current) {
+    if (contentRef.current && editorPanelRef.current) {
+      const scrollTop = editorPanelRef.current.scrollTop;
       contentRef.current.style.height = 'auto';
       contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+      editorPanelRef.current.scrollTop = scrollTop;
     }
-  }, [isSplitMode, content]);
+  }, [content]);
 
   // 임시저장된 글 목록 가져오기
   const getDraftsList = useCallback(() => {
@@ -349,10 +349,13 @@ export default function VelogWriteEditor({
   // 내용 변경 핸들러 + 자동 높이 조절
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
-    // 스플릿 모드에서 textarea 높이를 콘텐츠에 맞게 자동 조절
-    if (isSplitMode && contentRef.current) {
+
+    // textarea 높이를 콘텐츠에 맞게 자동 조절 (스크롤 위치 보존)
+    if (contentRef.current && editorPanelRef.current) {
+      const scrollTop = editorPanelRef.current.scrollTop;
       contentRef.current.style.height = 'auto';
       contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+      editorPanelRef.current.scrollTop = scrollTop;
     }
   };
 
@@ -619,11 +622,11 @@ export default function VelogWriteEditor({
     [content]
   );
 
-  // 스크롤 연동 핸들러 (textarea <-> preview panel)
+  // 스크롤 연동 핸들러 (에디터 패널 <-> 미리보기 패널)
   const handleEditorScroll = useCallback(() => {
-    if (!isSplitMode || isScrollingSyncRef.current) return;
+    if (isScrollingSyncRef.current) return;
 
-    const editor = contentRef.current; // textarea
+    const editor = editorPanelRef.current;
     const preview = previewPanelRef.current;
     if (!editor || !preview) return;
 
@@ -639,12 +642,12 @@ export default function VelogWriteEditor({
     requestAnimationFrame(() => {
       isScrollingSyncRef.current = false;
     });
-  }, [isSplitMode]);
+  }, []);
 
   const handlePreviewScroll = useCallback(() => {
-    if (!isSplitMode || isScrollingSyncRef.current) return;
+    if (isScrollingSyncRef.current) return;
 
-    const editor = contentRef.current; // textarea
+    const editor = editorPanelRef.current;
     const preview = previewPanelRef.current;
     if (!editor || !preview) return;
 
@@ -660,7 +663,7 @@ export default function VelogWriteEditor({
     requestAnimationFrame(() => {
       isScrollingSyncRef.current = false;
     });
-  }, [isSplitMode]);
+  }, []);
 
   // 키보드 단축키
   useEffect(() => {
@@ -704,7 +707,7 @@ export default function VelogWriteEditor({
   }, [handleManualSave, handlePublish, wrapSelectedText]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white overflow-hidden">
       {/* 헤더 */}
       <div className="flex-shrink-0 z-10 bg-white border-b border-gray-200">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3">
@@ -775,134 +778,115 @@ export default function VelogWriteEditor({
         </div>
       </div>
 
-      {/* 메인 컨텐츠 */}
-      <div
-        className={`flex-1 flex flex-col ${
-          isSplitMode ? 'w-full' : 'max-w-4xl mx-auto w-full'
-        } px-4 sm:px-6 lg:px-8`}
-      >
-        <div
-          className={`flex-1 ${
-            isSplitMode ? 'hidden lg:grid lg:grid-cols-2' : 'flex flex-col'
-          }`}
-        >
+      {/* 메인 컨텐츠 - 스플릿 모드 전용 */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="hidden lg:grid lg:grid-cols-2">
           {/* 편집 영역 */}
           <div
               ref={editorPanelRef}
               onScroll={handleEditorScroll}
-              className={`${
-                isSplitMode ? 'pr-4 lg:pr-8' : 'flex-1'
-              } ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg' : ''}`}
+              className={`overflow-y-auto max-h-[calc(100vh-60px)] pr-4 lg:pr-8 ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg' : ''}`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              <div className="py-4 sm:py-6 space-y-6">
-                {isDragging && (
-                  <div className="text-center text-blue-600 font-medium py-8">
-                    <svg
-                      className="w-12 h-12 mx-auto mb-4 text-blue-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    이미지를 여기에 드롭하세요
-                  </div>
-                )}
-
-                {/* 제목 입력 */}
-                <div>
-                  <textarea
-                    ref={titleRef}
-                    value={title}
-                    onChange={handleTitleChange}
-                    placeholder="제목을 입력하세요"
-                    className="w-full text-2xl sm:text-3xl lg:text-4xl font-bold placeholder-gray-300 border-none outline-none resize-none overflow-hidden bg-transparent"
-                    rows={1}
-                  />
+              {isDragging && (
+                <div className="text-center text-blue-600 font-medium py-8">
+                  <svg
+                    className="w-12 h-12 mx-auto mb-4 text-blue-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  이미지를 여기에 드롭하세요
                 </div>
+              )}
 
-                {/* 내용 입력 */}
-                <div className="relative">
-                  <textarea
-                    ref={contentRef}
-                    value={content}
-                    onChange={handleContentChange}
-                    onPaste={handlePaste}
-                    onScroll={handleEditorScroll}
-                    placeholder="당신의 이야기를 적어보세요..."
-                    className={`w-full text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent ${
-                      isSplitMode
-                        ? 'min-h-[400px] overflow-hidden'
-                        : 'min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]'
-                    }`}
-                  />
+              {/* 제목 입력 */}
+              <div className="flex-shrink-0 pt-4 sm:pt-6">
+                <textarea
+                  ref={titleRef}
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="제목을 입력하세요"
+                  className="w-full text-2xl sm:text-3xl lg:text-4xl font-bold placeholder-gray-300 border-none outline-none resize-none overflow-hidden bg-transparent"
+                  rows={1}
+                />
+              </div>
 
-                  {/* 하단 툴바 */}
-                  <div className="sticky bottom-0 bg-white flex items-center justify-between py-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+              {/* 내용 입력 - Full Height textarea */}
+              <div className="mt-6 pb-4">
+                <textarea
+                  ref={contentRef}
+                  value={content}
+                  onChange={handleContentChange}
+                  onPaste={handlePaste}
+                  placeholder="당신의 이야기를 적어보세요..."
+                  className="w-full min-h-[60vh] text-base sm:text-lg leading-relaxed placeholder-gray-400 border-none outline-none resize-none bg-transparent overflow-hidden"
+                />
+
+                {/* 하단 툴바 */}
+                <div className="flex-shrink-0 bg-white flex items-center justify-between py-4 border-t border-gray-100">
+                  <div className="flex items-center gap-4">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        {isUploading ? '업로드 중...' : '이미지 추가'}
-                      </button>
-                    </div>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      {isUploading ? '업로드 중...' : '이미지 추가'}
+                    </button>
+                  </div>
 
-                    <div className="text-sm text-gray-500">
-                      {content.length.toLocaleString()} 자
-                    </div>
+                  <div className="text-sm text-gray-500">
+                    {content.length.toLocaleString()} 자
                   </div>
                 </div>
               </div>
             </div>
 
           {/* 미리보기 영역 */}
-          {isSplitMode && (
-            <div
-              ref={previewPanelRef}
-              onScroll={handlePreviewScroll}
-              className="border-l border-gray-200 pl-4 lg:pl-8"
-            >
-              <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-                  {title || '제목을 입력하세요'}
-                </h1>
+          <div
+            ref={previewPanelRef}
+            onScroll={handlePreviewScroll}
+            className="border-l border-gray-200 pl-4 lg:pl-8 overflow-y-auto max-h-[calc(100vh-60px)]"
+          >
+            <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+                {title || '제목을 입력하세요'}
+              </h1>
 
-                <div className="border-t border-gray-200 pt-6">
-                  <MarkdownRenderer content={content || '내용을 입력하세요...'} />
-                </div>
+              <div className="border-t border-gray-200 pt-6">
+                <MarkdownRenderer content={content || '내용을 입력하세요...'} />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
