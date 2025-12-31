@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api/index';
-import { Comment, CreateCommentRequest } from '@/types';
+import { useCommentsQuery } from '../hooks';
+import { useCreateComment } from '../mutations';
+import type { CreateCommentRequest } from '@/types';
 import Loading from '@/components/ui/feedback/Loading';
 import ErrorMessage from '@/components/ui/feedback/ErrorMessage';
 import { generateRandomNickname, getAnimalEmoji } from '@/shared/lib/nickname-generator';
@@ -12,49 +13,27 @@ interface CommentsProps {
 }
 
 export default function Comments({ postId }: CommentsProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // SWR hooks for data fetching
+  const { data: comments = [], isLoading, error } = useCommentsQuery(postId);
+  const { createComment } = useCreateComment(postId);
+
+  // Form state
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // 컴포넌트 마운트 시 랜덤 닉네임 생성
+  // Generate random nickname on mount
   useEffect(() => {
     setAuthor(generateRandomNickname());
   }, []);
 
-  // 랜덤 닉네임 재생성 핸들러
+  // Random nickname regeneration handler
   const handleRandomNickname = () => {
     setAuthor(generateRandomNickname());
   };
 
-  // 댓글 목록 가져오기
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setLoading(true);
-        if (!postId) {
-          throw new Error('게시물 ID가 없습니다.');
-        }
-
-        const response = await api.comments.getByPostId(parseInt(postId, 10));
-        console.log('댓글 데이터:', response);
-        setComments(response || []);
-        setError(null);
-      } catch (err) {
-        setError('댓글을 불러오는 중 오류가 발생했습니다.');
-        console.error('댓글 불러오기 오류:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchComments();
-  }, [postId]);
-
-  // 댓글 제출 핸들러
+  // Comment submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -67,100 +46,79 @@ export default function Comments({ postId }: CommentsProps) {
       setSubmitting(true);
       setSubmitError(null);
 
-      if (!postId) {
-        throw new Error('게시물 ID가 없습니다.');
-      }
-
       const commentData: CreateCommentRequest = {
         author,
         content,
       };
 
-      const newComment = await api.comments.create(parseInt(postId, 10), commentData);
+      await createComment(commentData);
 
-      // 새 댓글이 성공적으로 생성된 경우에만 목록에 추가
-      if (newComment && newComment.id) {
-        setComments(prevComments => [...prevComments, newComment]);
-
-        // 폼 초기화 - 새로운 랜덤 닉네임 생성
-        setAuthor(generateRandomNickname());
-        setContent('');
-      } else {
-        throw new Error('댓글이 생성되지 않았습니다.');
-      }
-    } catch (err) {
+      // Reset form with new random nickname
+      setAuthor(generateRandomNickname());
+      setContent('');
+    } catch {
       setSubmitError('댓글 작성 중 오류가 발생했습니다.');
-      console.error('댓글 작성 오류:', err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // 날짜 포맷팅 함수 (SSR 안전)
+  // Date formatting function (SSR safe)
   const formatDate = (dateString: string) => {
     try {
-      // ISO 8601 형식 또는 일반 날짜 문자열을 Date 객체로 변환
-      // 이미 'Z'가 포함되어 있으면 그대로 사용, 없으면 추가
       const dateToFormat = dateString.endsWith('Z') ? dateString : dateString + 'Z';
       const utcDate = new Date(dateToFormat);
 
-      // Invalid Date 체크
       if (isNaN(utcDate.getTime())) {
         throw new Error('Invalid Date');
       }
 
-      // 서버사이드에서는 기본 포맷 사용, 클라이언트에서는 로컬 시간대 사용
       const formatOptions: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false, // 24시간 형식 사용
+        hour12: false,
       };
 
-      // 클라이언트에서만 시간대 설정
       if (typeof window !== 'undefined') {
         formatOptions.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       }
 
       return new Intl.DateTimeFormat('ko-KR', formatOptions).format(utcDate);
-    } catch (error) {
-      console.error('날짜 포맷팅 오류:', error, '입력값:', dateString);
+    } catch {
       return '날짜 정보 없음';
     }
   };
 
-  if (loading) return <Loading />;
-  if (error) return <ErrorMessage message={error} />;
+  if (isLoading) return <Loading />;
+  if (error) return <ErrorMessage message="댓글을 불러오는 중 오류가 발생했습니다." />;
 
   return (
     <div className="space-y-8">
-      {/* 댓글 목록 */}
+      {/* Comments list */}
       {comments.length > 0 ? (
         <div className="space-y-6">
-          {comments.map(comment => {
-            console.log('개별 댓글 데이터:', comment);
-            return (
-              <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  {/* 댓글 작성자 아바타 */}
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-lg">
-                    {getAnimalEmoji(comment.authorName)}
-                  </div>
+          {comments.map(comment => (
+            <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                {/* Comment author avatar */}
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-lg">
+                  {getAnimalEmoji(comment.authorName)}
+                </div>
 
-                  {/* 댓글 내용 */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium">{comment.authorName}</span>
-                      <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
-                    </div>
-                    <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
+                {/* Comment content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="font-medium">{comment.authorName}</span>
+                    <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
                   </div>
+                  <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
@@ -168,7 +126,7 @@ export default function Comments({ postId }: CommentsProps) {
         </div>
       )}
 
-      {/* 댓글 작성 폼 */}
+      {/* Comment form */}
       <div className="bg-gray-50 p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">댓글 작성</h3>
 
@@ -177,18 +135,18 @@ export default function Comments({ postId }: CommentsProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* 닉네임 입력 영역 (토스 스타일) */}
+          {/* Nickname input area */}
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
               닉네임
             </label>
             <div className="flex gap-2 items-center">
-              {/* 아바타 아이콘 */}
+              {/* Avatar icon */}
               <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">
                 {getAnimalEmoji(author)}
               </div>
 
-              {/* 닉네임 입력 필드 */}
+              {/* Nickname input field */}
               <input
                 type="text"
                 id="author"
@@ -200,7 +158,7 @@ export default function Comments({ postId }: CommentsProps) {
                 placeholder="닉네임을 입력하세요"
               />
 
-              {/* 랜덤 변경 버튼 */}
+              {/* Random button */}
               <button
                 type="button"
                 onClick={handleRandomNickname}

@@ -1,9 +1,9 @@
 'use client';
 
 import React, { memo } from 'react';
-import { PostSummary } from '../../types';
+import { PostSummary } from '@/types';
 import PostItem from './PostItem';
-import Pagination from '../ui/Pagination';
+import Pagination from '@/components/ui/Pagination';
 
 interface PostListProps {
   posts: PostSummary[];

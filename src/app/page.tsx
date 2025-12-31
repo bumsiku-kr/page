@@ -71,3 +71,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
     />
   );
 }
+
+// Revalidate page every hour
+export const revalidate = 3600;

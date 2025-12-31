@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import ProfileImage from '../ui/ProfileImage';
 import Link from 'next/link';

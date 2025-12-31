@@ -11,10 +11,10 @@ import Divider from '../../components/ui/Divider';
 import MarkdownRenderer from '../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import ShareButton from '../../components/blog/ShareButton';
+import { ShareButton, ViewCounter } from '@/features/posts/components';
 import { getPostMetadata, getPostMetadataById } from '../../lib/metadata';
-import ViewCounter from '../../components/blog/ViewCounter';
 import RedirectHandler from '../../components/RedirectHandler';
+import { isClientError, getErrorMessage } from '@/lib/utils/errors';
 
 interface PostDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -179,14 +179,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </section>
       </Container>
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('데이터 로딩 중 오류 발생:', err);
 
     // 400 계열 오류는 슬러그 검증 실패로 간주
-    if (err?.message || (err?.response?.status >= 400 && err?.response?.status < 500)) {
+    if (isClientError(err)) {
+      const errorMessage = getErrorMessage(err);
       return (
         <Container size="md" className="py-8">
-          <ErrorMessage message={err?.message || '잘못된 게시글 주소입니다.'} />
+          <ErrorMessage message={errorMessage || '잘못된 게시글 주소입니다.'} />
           <div className="mt-4 text-center">
             <Link href="/" className="text-blue-600 hover:text-blue-800 transition-colors">
               홈으로 돌아가기

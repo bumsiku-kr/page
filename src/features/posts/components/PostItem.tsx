@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PostSummary } from '../../types';
-import Card from '../ui/Card';
+import { PostSummary } from '@/types';
+import Card from '@/components/ui/Card';
 import { dateUtils } from '@/lib/utils/date';
 import { usePrefetchPost } from '@/features/posts/hooks';
 
@@ -25,8 +25,8 @@ export default function PostItem({ post }: PostItemProps) {
   };
 
   return (
-    <Card className="mb-8 last:mb-0" hasShadow={false} hasBorder={false} isPadded={false}>
-      <article className="pb-8 border-b border-gray-200 last:border-0">
+    <Card className="last:mb-0" hasShadow={false} hasBorder={false} isPadded={false} style={{ marginBottom: '64px' }}>
+      <article className="pb-4">
         <div className="flex justify-between items-start mb-2">
           <p className="text-sm text-gray-500">{dateUtils.formatKorean(post.createdAt)}</p>
           <div className="flex flex-wrap gap-1">
