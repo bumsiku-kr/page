@@ -14,8 +14,8 @@ export const API_ENDPOINTS = {
   COMMENTS: '/comments',
   ADMIN_COMMENTS: '/admin/comments',
   ADMIN_IMAGES: '/admin/images',
-  AI_SUMMARY: '/ai/summary',
-  AI_SLUG: '/ai/slug',
+  AI_SUMMARY: '/admin/ai/summary',
+  AI_SLUG: '/admin/ai/slug',
   LOGIN: '/login',
 } as const;
 

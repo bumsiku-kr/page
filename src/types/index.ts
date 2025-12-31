@@ -18,6 +18,7 @@ export interface PostSummary {
   title: string;
   summary: string;
   tags?: string[];
+  state?: 'draft' | 'published';
   createdAt: string;
   updatedAt: string;
   views?: number;

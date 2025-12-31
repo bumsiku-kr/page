@@ -907,31 +907,27 @@ export default function VelogWriteEditor({
                   <button
                     type="button"
                     onClick={async () => {
-                      // AI service temporarily disabled
-                      addToast('AI 요약 기능은 현재 사용할 수 없습니다.', 'info');
-                      return;
-
-                      // TODO: Re-enable when backend supports AI endpoints
-                      // if (!content.trim()) {
-                      //   alert('요약할 내용이 필요합니다.');
-                      //   return;
-                      // }
-                      // setIsSummarizing(true);
-                      // try {
-                      //   const { summary: generated } = await api.ai.generateSummary({
-                      //     text: content,
-                      //   });
-                      //   if (generated) {
-                      //     setSummary(generated);
-                      //   } else {
-                      //     alert('요약 생성에 실패했습니다.');
-                      //   }
-                      // } catch (err) {
-                      //   console.error('요약 생성 오류:', err);
-                      //   alert('요약 생성 중 오류가 발생했습니다.');
-                      // } finally {
-                      //   setIsSummarizing(false);
-                      // }
+                      if (!content.trim()) {
+                        addToast('요약할 내용이 필요합니다.', 'warning');
+                        return;
+                      }
+                      setIsSummarizing(true);
+                      try {
+                        const { summary: generated } = await api.ai.generateSummary({
+                          text: content,
+                        });
+                        if (generated) {
+                          setSummary(generated);
+                          addToast('AI 요약이 생성되었습니다.', 'success');
+                        } else {
+                          addToast('요약 생성에 실패했습니다.', 'error');
+                        }
+                      } catch (err) {
+                        console.error('요약 생성 오류:', err);
+                        addToast('요약 생성 중 오류가 발생했습니다.', 'error');
+                      } finally {
+                        setIsSummarizing(false);
+                      }
                     }}
                     disabled={isSummarizing || !content.trim()}
                     className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 transition-colors"
@@ -959,32 +955,28 @@ export default function VelogWriteEditor({
                   <button
                     type="button"
                     onClick={async () => {
-                      // AI service temporarily disabled
-                      addToast('AI slug 생성 기능은 현재 사용할 수 없습니다.', 'info');
-                      return;
-
-                      // TODO: Re-enable when backend supports AI endpoints
-                      // if (!title.trim() || !content.trim()) {
-                      //   alert('제목과 내용을 입력해주세요.');
-                      //   return;
-                      // }
-                      // setIsGeneratingSlug(true);
-                      // try {
-                      //   const { slug: generated } = await api.ai.generateSlug({
-                      //     title: title.trim(),
-                      //     text: content.trim(),
-                      //   });
-                      //   if (generated) {
-                      //     setSlug(generated);
-                      //   } else {
-                      //     alert('slug 생성에 실패했습니다.');
-                      //   }
-                      // } catch (err) {
-                      //   console.error('slug 생성 오류:', err);
-                      //   alert('slug 생성 중 오류가 발생했습니다.');
-                      // } finally {
-                      //   setIsGeneratingSlug(false);
-                      // }
+                      if (!title.trim() || !content.trim()) {
+                        addToast('제목과 내용을 입력해주세요.', 'warning');
+                        return;
+                      }
+                      setIsGeneratingSlug(true);
+                      try {
+                        const { slug: generated } = await api.ai.generateSlug({
+                          title: title.trim(),
+                          text: content.trim(),
+                        });
+                        if (generated) {
+                          setSlug(generated);
+                          addToast('AI slug가 생성되었습니다.', 'success');
+                        } else {
+                          addToast('slug 생성에 실패했습니다.', 'error');
+                        }
+                      } catch (err) {
+                        console.error('slug 생성 오류:', err);
+                        addToast('slug 생성 중 오류가 발생했습니다.', 'error');
+                      } finally {
+                        setIsGeneratingSlug(false);
+                      }
                     }}
                     disabled={isGeneratingSlug || !title.trim() || !content.trim()}
                     className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50 transition-colors"

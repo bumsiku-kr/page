@@ -1,22 +1,24 @@
 import { APIClient } from './client';
-// import { AIService } from './ai'; // TODO: Re-enable when backend supports AI endpoints
+import { AIService } from './ai';
 import { PostsService } from './posts';
 import { TagsService } from './tags';
 import { CommentsService } from './comments';
 import { ImagesService, AuthService as AdminAuthService } from './admin';
 import { AuthService } from './auth';
+import { EmbeddingService } from './embedding';
 
 // APIClient 인스턴스 생성
 const apiClient = APIClient.getInstance();
 
 // 서비스 인스턴스들 생성
 const postsService = new PostsService(apiClient);
-// const aiService = new AIService(apiClient); // TODO: Re-enable when backend supports AI endpoints
+const aiService = new AIService(apiClient);
 const tagsService = new TagsService(apiClient);
 const commentsService = new CommentsService(apiClient);
 const imagesService = new ImagesService(apiClient);
 const adminAuthService = new AdminAuthService(apiClient);
 const authService = new AuthService(apiClient);
+const embeddingService = new EmbeddingService(apiClient);
 
 // 통합된 API 객체 생성
 export const api = {
@@ -26,5 +28,6 @@ export const api = {
   images: imagesService,
   adminAuth: adminAuthService,
   auth: authService,
-  // ai: aiService, // TODO: Re-enable when backend supports AI endpoints
+  embedding: embeddingService,
+  ai: aiService,
 };
