@@ -7,8 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-noto-sans-kr)', 'Noto Sans KR', 'sans-serif'],
-        mono: ['var(--font-jetbrains-mono)', 'JetBrains Mono', 'ui-monospace', 'monospace'],
+        sans: ['Noto Sans KR', 'sans-serif'],
+        mono: ['Noto Sans KR', 'monospace'],
       },
       typography: {
         DEFAULT: {

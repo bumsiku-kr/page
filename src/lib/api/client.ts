@@ -31,14 +31,11 @@ export class APIClient {
   private static instance: APIClient;
 
   private constructor() {
-    // Admin API: 인증, 쓰기 작업 (Cloudflare Workers - JWT based)
-    const ADMIN_API_URL = 'https://admin-worker.peter012677.workers.dev';
-
-    // Public API: 읽기 작업 (Cloudflare Workers)
-    const PUBLIC_API_URL = 'https://public-worker.peter012677.workers.dev';
+    // 통합 백엔드 API URL (Cloudflare Workers)
+    const API_URL = 'https://blog-server.peter012677.workers.dev';
 
     this.adminClient = axios.create({
-      baseURL: ADMIN_API_URL,
+      baseURL: API_URL,
       withCredentials: false, // JWT auth doesn't need cookies
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +44,7 @@ export class APIClient {
     });
 
     this.publicClient = axios.create({
-      baseURL: PUBLIC_API_URL,
+      baseURL: API_URL,
       withCredentials: false, // Public API는 쿠키 불필요
       headers: {
         'Content-Type': 'application/json',

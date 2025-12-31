@@ -3,6 +3,7 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   hasShadow?: boolean;
   hasBorder?: boolean;
   isPadded?: boolean;
@@ -12,6 +13,7 @@ interface CardProps {
 export default function Card({
   children,
   className = '',
+  style,
   hasShadow = true,
   hasBorder = true,
   isPadded = true,
@@ -27,6 +29,7 @@ export default function Card({
         ${isHoverable ? 'transition-shadow hover:shadow-md' : ''}
         ${className}
       `}
+      style={style}
     >
       {children}
     </div>
