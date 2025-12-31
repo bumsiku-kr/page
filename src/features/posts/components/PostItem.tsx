@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PostSummary } from '../../types';
-import Card from '../ui/Card';
+import { PostSummary } from '@/types';
+import Card from '@/components/ui/Card';
 import { dateUtils } from '@/lib/utils/date';
 import { usePrefetchPost } from '@/features/posts/hooks';
 

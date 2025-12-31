@@ -1,21 +1,36 @@
-'use client';
-
 import { ReactNode } from 'react';
 
-interface Column {
-  key: string;
+/**
+ * Generic column definition for DataTable
+ * @template T - The type of data items in the table
+ */
+export interface Column<T> {
+  key: keyof T | string;
   label: string;
-  render?: (item: any) => ReactNode;
+  render?: (item: T) => ReactNode;
 }
 
-interface DataTableProps {
-  columns: Column[];
-  data: any[];
+/**
+ * Props for DataTable component
+ * @template T - The type of data items, must have an optional id field
+ */
+export interface DataTableProps<T extends { id?: string | number }> {
+  columns: Column<T>[];
+  data: T[];
   isLoading?: boolean;
   error?: string | null;
 }
 
-export default function DataTable({ columns, data, isLoading, error }: DataTableProps) {
+/**
+ * Generic DataTable component with type safety
+ * @template T - The type of data items in the table
+ */
+export default function DataTable<T extends { id?: string | number }>({
+  columns,
+  data,
+  isLoading,
+  error,
+}: DataTableProps<T>) {
   if (isLoading) {
     return (
       <div className="bg-white shadow rounded-lg p-6">
@@ -47,7 +62,7 @@ export default function DataTable({ columns, data, isLoading, error }: DataTable
           <tr>
             {columns.map(column => (
               <th
-                key={column.key}
+                key={String(column.key)}
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
@@ -68,13 +83,15 @@ export default function DataTable({ columns, data, isLoading, error }: DataTable
             </tr>
           ) : (
             data.map((item, index) => (
-              <tr key={item.id || index}>
+              <tr key={item.id ?? index}>
                 {columns.map(column => (
                   <td
-                    key={`${item.id || index}-${column.key}`}
+                    key={`${item.id ?? index}-${String(column.key)}`}
                     className="px-6 py-4 whitespace-nowrap"
                   >
-                    {column.render ? column.render(item) : item[column.key]}
+                    {column.render
+                      ? column.render(item)
+                      : String((item as Record<string, unknown>)[column.key as string] ?? '')}
                   </td>
                 ))}
               </tr>

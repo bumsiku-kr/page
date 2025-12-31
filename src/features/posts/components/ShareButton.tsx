@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Share2Icon, CheckIcon } from 'lucide-react';
 import { normalizeSiteUrl } from '@/lib/site';
-import Button from '../ui/Button';
+import Button from '@/components/ui/Button';
 
 interface ShareButtonProps {
   className?: string;

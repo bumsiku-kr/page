@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 
 type SocialIconType = 'github' | 'linkedin' | 'twitter' | 'facebook' | 'instagram';

@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmModal } from '@/components/ui/Modal';
 import { useEditorStore, type DraftSnapshot } from '@/features/posts/store';
+import { type Draft, validateDraftList } from '@/shared/types/schemas/draft.schema';
 
 const DRAFTS_KEY = 'velog-drafts';
 const AUTO_SAVE_INTERVAL = 30000;
@@ -132,10 +133,12 @@ export default function VelogWriteEditor({
   }, [content]);
 
   // 임시저장된 글 목록 가져오기
-  const getDraftsList = useCallback(() => {
+  const getDraftsList = useCallback((): Draft[] => {
     try {
       const saved = localStorage.getItem(DRAFTS_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return validateDraftList(parsed);
     } catch (error) {
       console.error('임시저장 목록 로드 오류:', error);
       return [];
@@ -147,7 +150,7 @@ export default function VelogWriteEditor({
     if (!Array.isArray(drafts)) {
       return;
     }
-    const autoDraft = drafts.find((draft: any) => draft?.isAutoSave && draft?.timestamp);
+    const autoDraft = drafts.find((draft) => draft.isAutoSave && draft.timestamp);
     if (autoDraft) {
       setLastAutoSavedAt(new Date(autoDraft.timestamp));
     }
@@ -175,9 +178,7 @@ export default function VelogWriteEditor({
         }
 
         const drafts = getDraftsList();
-        const filteredDrafts = Array.isArray(drafts)
-          ? drafts.filter((draft: any) => !draft?.isAutoSave)
-          : [];
+        const filteredDrafts = drafts.filter((draft) => !draft.isAutoSave);
 
         const now = new Date();
         const timestamp = now.toISOString();
@@ -224,7 +225,7 @@ export default function VelogWriteEditor({
       const draftTitle = title.trim() || '제목 없음';
 
       // 같은 제목의 기존 임시저장 제거
-      const filteredDrafts = drafts.filter((draft: any) => draft.title !== draftTitle);
+      const filteredDrafts = drafts.filter((draft) => draft.title !== draftTitle);
 
       const newDraft = {
         id: `${timestamp}-${draftTitle}`,
@@ -251,7 +252,7 @@ export default function VelogWriteEditor({
 
   // 임시저장 글 불러오기
   const handleLoadDraft = useCallback(
-    (draft: any) => {
+    (draft: Draft) => {
       loadDraft({
         title: draft.title || '',
         content: draft.content || '',
@@ -277,7 +278,7 @@ export default function VelogWriteEditor({
 
       try {
         const drafts = getDraftsList();
-        const filteredDrafts = drafts.filter((draft: any) => draft.id !== draftId);
+        const filteredDrafts = drafts.filter((draft) => draft.id !== draftId);
         localStorage.setItem(DRAFTS_KEY, JSON.stringify(filteredDrafts));
 
         // 모달을 강제로 새로고침하기 위해 상태를 업데이트
@@ -572,7 +573,7 @@ export default function VelogWriteEditor({
       // 저장 성공시 해당 제목의 임시저장 삭제
       try {
         const drafts = getDraftsList();
-        const filteredDrafts = drafts.filter((draft: any) => draft.title !== title.trim());
+        const filteredDrafts = drafts.filter((draft) => draft.title !== title.trim());
         localStorage.setItem(DRAFTS_KEY, JSON.stringify(filteredDrafts));
       } catch (error) {
         console.error('임시저장 정리 오류:', error);
@@ -1103,7 +1104,7 @@ export default function VelogWriteEditor({
                   <p>임시저장된 글이 없습니다.</p>
                 </div>
               ) : (
-                getDraftsList().map((draft: any, index: number) => (
+                getDraftsList().map((draft, index) => (
                   <div
                     key={draft.id}
                     className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"

@@ -2,10 +2,9 @@
 
 import React, { memo, useMemo } from 'react';
 import { PostSummary, Tag, SortOption } from '../../types';
-import PostList from '../blog/PostList';
-import TagSidebar from '../blog/TagSidebar';
+import { PostList, SortButton } from '@/features/posts/components';
+import { TagSidebar } from '@/features/tags/components';
 import ErrorMessage from '../ui/feedback/ErrorMessage';
-import SortButton from '../blog/SortButton';
 
 interface BlogSectionProps {
   posts?: {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { SortOption } from '../../types';
+import { SortOption } from '@/types';
 
 interface SortButtonProps {
   currentSort: SortOption;

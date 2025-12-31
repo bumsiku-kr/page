@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import Container from '../ui/Container';
 import SocialLink from '../ui/SocialLink';

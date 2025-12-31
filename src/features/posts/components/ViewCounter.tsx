@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { api } from '../../lib/api/index';
+import { api } from '@/lib/api/index';
 
 interface ViewCounterProps {
   postId: string;
