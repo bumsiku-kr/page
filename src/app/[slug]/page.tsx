@@ -11,7 +11,7 @@ import Divider from '../../components/ui/Divider';
 import MarkdownRenderer from '../../components/ui/data-display/MarkdownRenderer';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { ShareButton, ViewCounter } from '@/features/posts/components';
+import { RelatedPosts, ShareButton, ViewCounter } from '@/features/posts/components';
 import { getPostMetadata, getPostMetadataById } from '../../lib/metadata';
 import RedirectHandler from '../../components/RedirectHandler';
 import { isClientError, getErrorMessage } from '@/lib/utils/errors';
@@ -165,6 +165,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </Suspense>
           </div>
         </article>
+
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <>
+            <Divider variant="border" />
+            <RelatedPosts posts={post.relatedPosts} maxPosts={2} />
+          </>
+        )}
 
         <Divider variant="border" />
 

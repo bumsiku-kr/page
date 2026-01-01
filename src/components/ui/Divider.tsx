@@ -14,7 +14,7 @@ export default function Divider({
   if (variant === 'line') {
     return (
       <hr
-        className={`w-full my-6 border-gray-200 ${
+        className={`w-full my-4 border-gray-200 ${
           type === 'vertical' ? 'h-full border-r' : 'border-t'
         } ${className}`}
       />
@@ -23,7 +23,7 @@ export default function Divider({
 
   return (
     <div
-      className={`w-full my-6 border-gray-300 ${
+      className={`w-full my-4 border-gray-300 ${
         type === 'vertical' ? 'h-full border-r' : 'border-t'
       } ${className}`}
     />

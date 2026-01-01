@@ -1,3 +1,11 @@
+// 관련 게시물 타입
+export interface RelatedPost {
+  id: number;
+  slug: string;
+  title: string;
+  score: number;
+}
+
 // 게시물 관련 타입
 export interface Post {
   id: number;
@@ -10,6 +18,7 @@ export interface Post {
   updatedAt: string;
   views?: number;
   canonicalPath?: string;
+  relatedPosts?: RelatedPost[];
 }
 
 export interface PostSummary {
