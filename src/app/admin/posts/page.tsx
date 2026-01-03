@@ -4,30 +4,34 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable from '@/components/ui/DataTable';
 import { api } from '@/lib/api/index';
-import { PostSummary } from '@/types';
+import { AdminPostSummary } from '@/types';
 import { dateUtils } from '@/lib/utils/date';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmModal } from '@/components/ui/Modal';
 
+type LocaleTab = 'ko' | 'en';
+
 export default function PostsManagementPage() {
-  useAuthGuard(); // Protect this admin route
+  useAuthGuard();
   const router = useRouter();
   const { addToast } = useToast();
   const { confirm, confirmState, handleConfirm, handleCancel } = useConfirm();
 
-  const [posts, setPosts] = useState<PostSummary[]>([]);
+  const [activeTab, setActiveTab] = useState<LocaleTab>('ko');
+  const [posts, setPosts] = useState<AdminPostSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPosts, setTotalPosts] = useState(0);
   const [page, setPage] = useState(0);
   const [pageSize] = useState(10);
+  const [translatingId, setTranslatingId] = useState<number | null>(null);
 
   const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await api.posts.getList(page, pageSize);
+      const response = await api.posts.getAdminList(page, pageSize, 'createdAt,desc', activeTab);
       setPosts(response.content);
       setTotalPosts(response.totalElements);
       setError(null);
@@ -40,8 +44,12 @@ export default function PostsManagementPage() {
   };
 
   useEffect(() => {
+    setPage(0);
+  }, [activeTab]);
+
+  useEffect(() => {
     fetchPosts();
-  }, [page, pageSize]);
+  }, [page, pageSize, activeTab]);
 
   const handleEdit = (id: number) => {
     router.push(`/admin/posts/edit/${id}`);
@@ -67,40 +75,78 @@ export default function PostsManagementPage() {
     }
   };
 
+  const handleTranslate = async (id: number) => {
+    setTranslatingId(id);
+    try {
+      const result = await api.posts.translate(id, 'en');
+      if (result.success) {
+        addToast('번역이 생성되었습니다. English 탭에서 확인하세요.', 'success');
+        // Switch to English tab to show the new translation
+        setActiveTab('en');
+      }
+    } catch (err) {
+      console.error('번역 생성 중 오류 발생:', err);
+      addToast('번역 생성에 실패했습니다.', 'error');
+    } finally {
+      setTranslatingId(null);
+    }
+  };
+
   const handleNewPost = () => {
     router.push('/admin/posts/write');
+  };
+
+  const stateStyles: Record<string, string> = {
+    published: 'bg-green-100 text-green-800',
+    scheduled: 'bg-yellow-100 text-yellow-800',
+    draft: 'bg-gray-100 text-gray-800',
+  };
+
+  const stateLabels: Record<string, string> = {
+    published: '발행됨',
+    scheduled: '예약됨',
+    draft: '임시저장',
   };
 
   const columns = [
     {
       key: 'id',
       label: 'ID',
-      render: (post: PostSummary) => (
+      render: (post: AdminPostSummary) => (
         <div className="font-mono text-sm text-gray-600">{post.id}</div>
       ),
     },
     {
-      key: 'slug',
-      label: 'SLUG',
-      render: (post: PostSummary) => (
-        <div className="font-mono text-sm max-w-xs truncate" title={post.slug}>
-          {post.slug || '-'}
-        </div>
+      key: 'state',
+      label: '상태',
+      render: (post: AdminPostSummary) => (
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${stateStyles[post.state] || stateStyles.draft}`}
+        >
+          {stateLabels[post.state] || post.state}
+        </span>
       ),
     },
     {
       key: 'title',
       label: 'TITLE',
-      render: (post: PostSummary) => (
+      render: (post: AdminPostSummary) => (
         <div className="truncate font-medium max-w-md" title={post.title}>
           {post.title}
         </div>
       ),
     },
     {
+      key: 'createdAt',
+      label: '발행일',
+      render: (post: AdminPostSummary) => (
+        <span className="text-sm text-gray-600">{dateUtils.formatShort(post.createdAt)}</span>
+      ),
+    },
+    {
       key: 'actions',
       label: '관리',
-      render: (post: PostSummary) => (
+      render: (post: AdminPostSummary) => (
         <div className="flex space-x-2">
           <button
             onClick={() => handleEdit(post.id)}
@@ -108,6 +154,15 @@ export default function PostsManagementPage() {
           >
             수정
           </button>
+          {activeTab === 'ko' && (
+            <button
+              onClick={() => handleTranslate(post.id)}
+              disabled={translatingId === post.id}
+              className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {translatingId === post.id ? '번역 중...' : '번역'}
+            </button>
+          )}
           <button
             onClick={() => handleDelete(post.id)}
             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
@@ -131,6 +186,32 @@ export default function PostsManagementPage() {
         </button>
       </div>
 
+      {/* Locale Tabs */}
+      <div className="mb-4 border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('ko')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'ko'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            한국어
+          </button>
+          <button
+            onClick={() => setActiveTab('en')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'en'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            English
+          </button>
+        </nav>
+      </div>
+
       <DataTable columns={columns} data={posts} isLoading={isLoading} error={error} />
 
       {!isLoading && !error && (
@@ -147,7 +228,7 @@ export default function PostsManagementPage() {
               이전
             </button>
             <span className="px-3 py-1">
-              {page + 1} / {Math.ceil(totalPosts / pageSize)}
+              {page + 1} / {Math.max(1, Math.ceil(totalPosts / pageSize))}
             </span>
             <button
               disabled={(page + 1) * pageSize >= totalPosts}

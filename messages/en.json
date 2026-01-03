@@ -1,0 +1,45 @@
+{
+  "common": {
+    "home": "Home",
+    "blog": "Blog",
+    "about": "About",
+    "login": "Login",
+    "logout": "Logout",
+    "admin": "Admin",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "noResults": "No results",
+    "readMore": "Read more",
+    "back": "Back",
+    "language": "Language"
+  },
+  "post": {
+    "publishedAt": "Published",
+    "updatedAt": "Updated",
+    "views": "Views",
+    "tags": "Tags",
+    "relatedPosts": "Related Posts",
+    "comments": "Comments",
+    "writeComment": "Write a comment",
+    "noComments": "No comments yet",
+    "availableIn": "This post is also available in"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "posts": "Posts",
+    "comments": "Comments",
+    "newPost": "New Post",
+    "edit": "Edit",
+    "delete": "Delete",
+    "publish": "Publish",
+    "draft": "Draft",
+    "scheduled": "Scheduled",
+    "translate": "Generate Translation",
+    "translating": "Translating...",
+    "translateSuccess": "Translation created successfully",
+    "translateError": "Failed to create translation",
+    "korean": "한국어",
+    "english": "English"
+  }
+}

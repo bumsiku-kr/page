@@ -1,4 +1,10 @@
-import { Post, GetPostsResponse, CreatePostRequest, UpdatePostRequest } from '../../types';
+import {
+  Post,
+  GetPostsResponse,
+  CreatePostRequest,
+  UpdatePostRequest,
+  AdminPostsResponse,
+} from '../../types';
 import { APIClient, API_ENDPOINTS } from './client';
 import { logger } from '@/lib/utils/logger';
 
@@ -13,18 +19,20 @@ export class PostsService {
     page: number = 0,
     size: number = 5,
     tag?: string,
-    sort: string = 'createdAt,desc'
+    sort: string = 'createdAt,desc',
+    locale: string = 'ko'
   ): Promise<GetPostsResponse['data']> {
     try {
-      logger.debug('게시물 목록 요청', { page, size, tag, sort });
+      logger.debug('게시물 목록 요청', { page, size, tag, sort, locale });
       const response = await this.client.request<GetPostsResponse['data']>({
         url: API_ENDPOINTS.POSTS,
         method: 'GET',
-        domain: 'public', // Public API 사용
+        domain: 'public',
         params: {
           page,
           size,
           sort,
+          locale,
           ...(tag && { tag }),
         },
       });
@@ -38,6 +46,53 @@ export class PostsService {
         pageNumber: page,
         pageSize: size,
       };
+    }
+  }
+
+  async getAdminList(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'createdAt,desc',
+    locale?: string
+  ): Promise<AdminPostsResponse> {
+    try {
+      logger.debug('관리자 게시물 목록 요청', { page, size, sort, locale });
+      const response = await this.client.request<AdminPostsResponse>({
+        url: API_ENDPOINTS.ADMIN_POSTS,
+        method: 'GET',
+        params: {
+          page,
+          size,
+          sort,
+          ...(locale && { locale }),
+        },
+      });
+      logger.debug('관리자 게시물 목록 응답', response);
+      return response;
+    } catch (error) {
+      logger.error('관리자 게시물 목록 조회 오류', error);
+      return {
+        content: [],
+        totalElements: 0,
+        pageNumber: page,
+        pageSize: size,
+      };
+    }
+  }
+
+  async translate(postId: number, targetLocale: string = 'en'): Promise<{ success: boolean; translatedPost?: Post }> {
+    try {
+      logger.debug('게시물 번역 요청', { postId, targetLocale });
+      const response = await this.client.request<{ success: boolean; translatedPost: Post }>({
+        url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}/translate`,
+        method: 'POST',
+        data: { targetLocale },
+      });
+      logger.debug('게시물 번역 응답', response);
+      return response;
+    } catch (error) {
+      logger.error('게시물 번역 오류', error);
+      throw error;
     }
   }
 

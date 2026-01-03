@@ -6,6 +6,12 @@ export interface RelatedPost {
   score: number;
 }
 
+// Locale info for language switching
+export interface LocaleInfo {
+  locale: string;
+  slug: string;
+}
+
 // 게시물 관련 타입
 export interface Post {
   id: number;
@@ -14,6 +20,9 @@ export interface Post {
   content: string;
   summary: string;
   tags?: string[];
+  locale?: string;
+  originalPostId?: number | null;
+  availableLocales?: LocaleInfo[];
   createdAt: string;
   updatedAt: string;
   views?: number;
@@ -31,6 +40,26 @@ export interface PostSummary {
   createdAt: string;
   updatedAt: string;
   views?: number;
+}
+
+// Admin API 전용 타입 (scheduled 상태 포함)
+export interface AdminPostSummary {
+  id: number;
+  slug: string;
+  title: string;
+  summary: string | null;
+  tags: string[];
+  state: 'draft' | 'published' | 'scheduled';
+  createdAt: string;
+  updatedAt: string;
+  views: number;
+}
+
+export interface AdminPostsResponse {
+  content: AdminPostSummary[];
+  totalElements: number;
+  pageNumber: number;
+  pageSize: number;
 }
 
 // 태그 관련 타입
@@ -72,6 +101,8 @@ export interface CreatePostRequest {
   summary: string;
   tags: string[];
   state: 'draft' | 'published'; // Required by new backend
+  /** ISO 8601 형식. 미래 날짜면 예약 발행 */
+  createdAt?: string;
 }
 
 export interface UpdatePostRequest {
@@ -85,6 +116,8 @@ export interface UpdatePostRequest {
   summary?: string;
   tags?: string[];
   state: 'draft' | 'published'; // Required by new backend
+  /** ISO 8601 형식. 미래 날짜면 예약 발행, 재예약 가능 */
+  createdAt?: string;
 }
 
 export interface CreateCommentRequest {

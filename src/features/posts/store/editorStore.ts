@@ -8,6 +8,7 @@ export interface DraftSnapshot {
   tags: string[];
   summary: string;
   slug: string;
+  scheduledAt: string | null;
 }
 
 interface EditorState {
@@ -17,6 +18,7 @@ interface EditorState {
   tags: string[];
   summary: string;
   slug: string;
+  scheduledAt: string | null;
 
   // Loading States
   isUploading: boolean;
@@ -46,6 +48,7 @@ interface EditorActions {
   setTags: (tags: string[]) => void;
   addTag: (tag: string) => void;
   removeTag: (tag: string) => void;
+  setScheduledAt: (date: string | null) => void;
 
   // Loading State Actions
   setIsUploading: (value: boolean) => void;
@@ -81,6 +84,7 @@ const initialState: EditorState = {
   tags: [],
   summary: '',
   slug: '',
+  scheduledAt: null,
   isUploading: false,
   isManualSaving: false,
   isSummarizing: false,
@@ -115,6 +119,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       set(state => ({
         tags: state.tags.filter(t => t !== tag),
       })),
+    setScheduledAt: scheduledAt => set({ scheduledAt }),
 
     // Loading State Actions
     setIsUploading: value => set({ isUploading: value }),
@@ -146,6 +151,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         tags: draft.tags || [],
         summary: draft.summary || '',
         slug: draft.slug || '',
+        scheduledAt: draft.scheduledAt || null,
         showDraftModal: false,
       }),
 
@@ -156,13 +162,14 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         tags: values.tags || [],
         summary: values.summary || '',
         slug: values.slug || '',
+        scheduledAt: values.scheduledAt || null,
       }),
 
     reset: () => set(initialState),
 
     getSnapshot: () => {
-      const { title, content, tags, summary, slug } = get();
-      return { title, content, tags, summary, slug };
+      const { title, content, tags, summary, slug, scheduledAt } = get();
+      return { title, content, tags, summary, slug, scheduledAt };
     },
   }))
 );
@@ -175,6 +182,7 @@ export const useEditorContent = () =>
     tags: state.tags,
     summary: state.summary,
     slug: state.slug,
+    scheduledAt: state.scheduledAt,
   }));
 
 export const useEditorLoading = () =>

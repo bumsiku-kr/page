@@ -63,6 +63,7 @@ export default function EditPostPage() {
     tags: string[];
     summary: string;
     slug: string;
+    createdAt?: string;
   }) => {
     setIsSaving(true);
     setError(null);
@@ -75,6 +76,7 @@ export default function EditPostPage() {
         summary: formData.summary,
         tags: formData.tags,
         state: 'published', // Required by new backend
+        createdAt: formData.createdAt, // 예약 발행/재예약용
       };
 
       await api.posts.update(parseInt(postId, 10), postData);
@@ -116,6 +118,7 @@ export default function EditPostPage() {
         tags: post.tags || [],
         summary: post.summary,
         slug: post.slug,
+        createdAt: post.createdAt, // 예약 수정용
       }}
       existingTags={existingTags}
       isSubmitting={isSaving}

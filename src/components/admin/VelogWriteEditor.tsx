@@ -8,6 +8,7 @@ import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmModal } from '@/components/ui/Modal';
 import { useEditorStore, type DraftSnapshot } from '@/features/posts/store';
 import { type Draft, validateDraftList } from '@/shared/types/schemas/draft.schema';
+import { dateUtils } from '@/lib/utils/date';
 
 const DRAFTS_KEY = 'velog-drafts';
 const AUTO_SAVE_INTERVAL = 30000;
@@ -20,6 +21,7 @@ interface VelogWriteEditorProps {
     tags: string[];
     summary?: string;
     slug?: string;
+    createdAt?: string;
   };
   existingTags: string[];
   onSave: (data: {
@@ -28,6 +30,7 @@ interface VelogWriteEditorProps {
     tags: string[];
     summary: string;
     slug: string;
+    createdAt?: string;
   }) => Promise<void>;
   onCancel: () => void;
   isSubmitting: boolean;
@@ -56,6 +59,8 @@ export default function VelogWriteEditor({
     setSummary,
     slug,
     setSlug,
+    scheduledAt,
+    setScheduledAt,
     isDragging,
     setIsDragging,
     isUploading,
@@ -95,12 +100,15 @@ export default function VelogWriteEditor({
 
   // Initialize from props on mount
   useEffect(() => {
+    // createdAt이 미래 날짜인 경우에만 scheduledAt으로 설정
+    const isFutureDate = initialValues.createdAt && new Date(initialValues.createdAt) > new Date();
     initializeFromProps({
       title: initialValues.title,
       content: initialValues.content,
       tags: initialValues.tags,
       summary: initialValues.summary,
       slug: initialValues.slug,
+      scheduledAt: isFutureDate ? initialValues.createdAt : null,
     });
   }, []);
 
@@ -259,6 +267,7 @@ export default function VelogWriteEditor({
         tags: draft.tags || [],
         summary: draft.summary || '',
         slug: draft.slug || '',
+        scheduledAt: null,
       });
     },
     [loadDraft]
@@ -568,7 +577,14 @@ export default function VelogWriteEditor({
     }
 
     try {
-      await onSave({ title, content, tags, summary, slug });
+      await onSave({
+        title,
+        content,
+        tags,
+        summary,
+        slug,
+        createdAt: scheduledAt || undefined,
+      });
 
       // 저장 성공시 해당 제목의 임시저장 삭제
       try {
@@ -1063,6 +1079,54 @@ export default function VelogWriteEditor({
                   포스트와 관련된 태그를 추가해보세요. 최대 10개까지 가능합니다.
                 </div>
               </div>
+
+              {/* 예약 발행 입력 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">발행 일시</label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="publishTiming"
+                        checked={!scheduledAt}
+                        onChange={() => setScheduledAt(null)}
+                        className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                      />
+                      <span className="text-sm text-gray-700">즉시 발행</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="publishTiming"
+                        checked={!!scheduledAt}
+                        onChange={() => setScheduledAt(new Date().toISOString())}
+                        className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                      />
+                      <span className="text-sm text-gray-700">예약 발행</span>
+                    </label>
+                  </div>
+
+                  {scheduledAt && (
+                    <div className="space-y-2">
+                      <input
+                        type="datetime-local"
+                        value={dateUtils.toDatetimeLocal(scheduledAt)}
+                        onChange={(e) => setScheduledAt(dateUtils.fromDatetimeLocal(e.target.value))}
+                        min={dateUtils.getMinDatetimeLocal()}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                      />
+                      <div className="text-xs text-blue-600">
+                        예약 발행: {dateUtils.formatKorean(scheduledAt)}{' '}
+                        {new Date(scheduledAt).toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end gap-3">
@@ -1077,7 +1141,13 @@ export default function VelogWriteEditor({
                 disabled={isSubmitting || !summary.trim() || !slug.trim()}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors order-1 sm:order-2"
               >
-                {isSubmitting ? '출간 중...' : '출간하기'}
+                {isSubmitting
+                  ? scheduledAt
+                    ? '예약 중...'
+                    : '출간 중...'
+                  : scheduledAt
+                    ? '예약 발행'
+                    : '출간하기'}
               </button>
             </div>
           </div>

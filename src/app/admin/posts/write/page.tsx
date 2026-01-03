@@ -50,6 +50,7 @@ export default function WritePostPage() {
     tags: string[];
     summary: string;
     slug: string;
+    createdAt?: string;
   }) => {
     setIsLoading(true);
     setError(null);
@@ -62,6 +63,7 @@ export default function WritePostPage() {
         summary: formData.summary,
         tags: formData.tags,
         state: 'published', // Required by new backend
+        createdAt: formData.createdAt, // 예약 발행용
       };
 
       await api.posts.create(postData);

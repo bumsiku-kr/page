@@ -1,9 +1,9 @@
-// src/app/page.tsx
-import { api } from '../lib/api/index';
-import { PostListResponse, Tag, SortOption } from '../types';
+import { api } from '@/lib/api/index';
+import { PostListResponse, Tag, SortOption } from '@/types';
 import { Metadata } from 'next';
-import { homeMetadata, getTagMetadata } from '../lib/metadata';
-import HomePage from '../components/pages/home';
+import { homeMetadata, getTagMetadata } from '@/lib/metadata';
+import HomePage from '@/components/pages/home';
+import { setRequestLocale } from 'next-intl/server';
 
 type SearchParams = {
   page?: string;
@@ -11,34 +11,36 @@ type SearchParams = {
   sort?: string;
 };
 
-export async function generateMetadata({
-  searchParams,
-}: {
+type Props = {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<SearchParams>;
-}): Promise<Metadata> {
+};
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { tag } = await searchParams;
 
-  // 태그가 없는 경우 기본 홈페이지 메타데이터 반환
   if (!tag) {
     return homeMetadata;
   }
 
-  // 태그가 있는 경우 해당 태그의 메타데이터 생성
   try {
     const tags = await api.tags.getList();
-    const selectedTag = tags.find(t => t.name === tag);
+    const selectedTag = tags.find((t) => t.name === tag);
 
     if (selectedTag) return getTagMetadata(selectedTag.name);
   } catch (error) {
-    console.error('태그 데이터 로딩 중 오류 발생:', error);
+    console.error('Error loading tag data:', error);
   }
 
-  // 태그를 찾지 못한 경우 기본 홈페이지 메타데이터 반환
   return homeMetadata;
 }
 
-export default async function Home({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function Home({ params, searchParams }: Props) {
+  const { locale } = await params;
   const { page, tag, sort } = await searchParams;
+
+  // Enable static rendering
+  setRequestLocale(locale);
 
   const currentPage = typeof page === 'string' ? parseInt(page, 10) : 1;
   const sortOption = (sort as SortOption) || 'views,desc';
@@ -48,18 +50,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
 
   try {
     [postsData, tagsData] = await Promise.all([
-      api.posts.getList(currentPage - 1, 5, tag, sortOption),
+      api.posts.getList(currentPage - 1, 5, tag, sortOption, locale),
       api.tags.getList(),
     ]);
-    // 정렬: 태그를 postCount 내림차순, 이름 오름차순으로 정렬 (SSR 안전)
     tagsData = tagsData.slice().sort((a, b) => {
       const byCount = (b.postCount || 0) - (a.postCount || 0);
       if (byCount !== 0) return byCount;
-      // 안전한 문자열 정렬 (localeCompare 대신)
       return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
     });
   } catch (error) {
-    console.error('데이터 로딩 중 오류 발생:', error);
+    console.error('Error loading data:', error);
   }
 
   return (
@@ -72,5 +72,4 @@ export default async function Home({ searchParams }: { searchParams: Promise<Sea
   );
 }
 
-// Revalidate page every hour
 export const revalidate = 3600;

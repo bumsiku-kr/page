@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Container from '../ui/Container';
 import SocialLink from '../ui/SocialLink';
+import { HeaderLanguageSwitcher } from '../ui/LanguageSwitcher';
 
 export default function Header() {
   return (
@@ -16,8 +17,9 @@ export default function Header() {
             <span className="font-extrabold">Siku</span>.class
           </Link>
 
-          {/* 소셜 아이콘 */}
-          <div className="flex space-x-4">
+          {/* 언어 전환 & 소셜 아이콘 */}
+          <div className="flex items-center space-x-4">
+            <HeaderLanguageSwitcher />
             <SocialLink type="github" href="https://github.com/SIKU-KR" label="GitHub" />
             <SocialLink type="linkedin" href="https://linkedin.com/in/siku-kr" label="LinkedIn" />
             <SocialLink
