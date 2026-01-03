@@ -15,7 +15,6 @@ import RedirectHandler from '@/components/RedirectHandler';
 import { isClientError, getErrorMessage } from '@/lib/utils/errors';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 interface PostDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -99,26 +98,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       }
     );
 
-    // Check for available language versions
-    const availableLocales = post.availableLocales || [];
-    const hasOtherLanguage = availableLocales.length > 1;
-
     return (
       <Container size="md" className="py-4">
         <ViewCounter postId={post.id.toString()} />
         <article itemScope itemType="https://schema.org/BlogPosting">
           <header className="mb-8">
-            {/* Language switcher for available translations */}
-            {hasOtherLanguage && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600 mr-2">{t('availableIn')}:</span>
-                <LanguageSwitcher
-                  availableLocales={availableLocales}
-                  currentLocale={locale}
-                />
-              </div>
-            )}
-
             {post.tags && post.tags.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {post.tags

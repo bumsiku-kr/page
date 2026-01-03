@@ -91,28 +91,20 @@ export interface ErrorResponse {
 
 // API 요청 관련 타입
 export interface CreatePostRequest {
-  /** @maxLength 100 @minLength 1 */
   title: string;
-  /** @maxLength 100 @minLength 1 */
   slug: string;
-  /** @maxLength 10000 @minLength 1 */
   content: string;
-  /** @maxLength 200 @minLength 1 */
   summary: string;
   tags: string[];
-  state: 'draft' | 'published'; // Required by new backend
+  state: 'draft' | 'published';
   /** ISO 8601 형식. 미래 날짜면 예약 발행 */
   createdAt?: string;
 }
 
 export interface UpdatePostRequest {
-  /** @maxLength 100 @minLength 1 */
-  title: string; // Required by new backend
-  /** @maxLength 100 @minLength 1 */
+  title: string;
   slug: string;
-  /** @maxLength 10000 @minLength 1 */
-  content: string; // Required by new backend
-  /** @maxLength 200 @minLength 1 */
+  content: string;
   summary?: string;
   tags?: string[];
   state: 'draft' | 'published'; // Required by new backend
