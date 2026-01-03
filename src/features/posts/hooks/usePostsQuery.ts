@@ -9,9 +9,12 @@ import type { SortOption } from '@/types';
 export function usePostsQuery(
   page: number = 0,
   size: number = 10,
-  sort: SortOption = 'views,desc'
+  sort: SortOption = 'views,desc',
+  locale?: string
 ) {
-  return useSWR(['posts', page, size, sort], () => api.posts.getList(page, size, undefined, sort));
+  return useSWR(['posts', page, size, sort, locale], () =>
+    api.posts.getList(page, size, undefined, sort, locale)
+  );
 }
 
 /**
@@ -21,10 +24,11 @@ export function usePostsByTagQuery(
   tag: string,
   page: number = 0,
   size: number = 10,
-  sort: SortOption = 'views,desc'
+  sort: SortOption = 'views,desc',
+  locale?: string
 ) {
-  return useSWR(tag ? ['posts', 'tag', tag, page, size, sort] : null, () =>
-    api.posts.getList(page, size, tag, sort)
+  return useSWR(tag ? ['posts', 'tag', tag, page, size, sort, locale] : null, () =>
+    api.posts.getList(page, size, tag, sort, locale)
   );
 }
 
@@ -43,8 +47,8 @@ export function usePostByIdQuery(id: number) {
 }
 
 /**
- * Hook for fetching all tags with post counts
+ * Hook for fetching all tags with post counts for a specific locale
  */
-export function useTagsQuery() {
-  return useSWR(['tags'], () => api.tags.getList());
+export function useTagsQuery(locale?: string) {
+  return useSWR(['tags', locale], () => api.tags.getList(locale));
 }

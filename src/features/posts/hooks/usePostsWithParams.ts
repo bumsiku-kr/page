@@ -1,4 +1,5 @@
 import { useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useMemo } from 'react';
 import { usePostsQuery, usePostsByTagQuery } from './usePostsQuery';
 import type { PostListResponse, SortOption } from '@/types';
@@ -12,11 +13,13 @@ import type { PostListResponse, SortOption } from '@/types';
  * - Deduplication of requests
  * - Optimistic updates support
  * - Type-safe URL params parsing
+ * - Locale-aware post filtering
  *
  * @param initialData - SSR data for hydration (optional)
  */
 export function usePostsWithParams(initialData?: PostListResponse) {
   const searchParams = useSearchParams();
+  const locale = useLocale();
 
   // Parse URL params with type safety
   const params = useMemo(() => {
@@ -33,8 +36,8 @@ export function usePostsWithParams(initialData?: PostListResponse) {
 
   // Always call both hooks to comply with Rules of Hooks
   // The unused one will be null-keyed and won't make requests
-  const byTagResult = usePostsByTagQuery(params.tag || '', params.page - 1, 5, params.sort);
-  const allPostsResult = usePostsQuery(params.page - 1, 5, params.sort);
+  const byTagResult = usePostsByTagQuery(params.tag || '', params.page - 1, 5, params.sort, locale);
+  const allPostsResult = usePostsQuery(params.page - 1, 5, params.sort, locale);
 
   // Select the appropriate result based on tag presence
   const swrResult = params.tag ? byTagResult : allPostsResult;

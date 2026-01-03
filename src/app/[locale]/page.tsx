@@ -16,7 +16,8 @@ type Props = {
   searchParams: Promise<SearchParams>;
 };
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const { locale } = await params;
   const { tag } = await searchParams;
 
   if (!tag) {
@@ -24,7 +25,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   try {
-    const tags = await api.tags.getList();
+    const tags = await api.tags.getList(locale);
     const selectedTag = tags.find((t) => t.name === tag);
 
     if (selectedTag) return getTagMetadata(selectedTag.name);
@@ -51,7 +52,7 @@ export default async function Home({ params, searchParams }: Props) {
   try {
     [postsData, tagsData] = await Promise.all([
       api.posts.getList(currentPage - 1, 5, tag, sortOption, locale),
-      api.tags.getList(),
+      api.tags.getList(locale),
     ]);
     tagsData = tagsData.slice().sort((a, b) => {
       const byCount = (b.postCount || 0) - (a.postCount || 0);

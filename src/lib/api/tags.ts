@@ -8,13 +8,14 @@ export class TagsService {
     this.client = client;
   }
 
-  async getList(): Promise<Tag[]> {
+  async getList(locale?: string): Promise<Tag[]> {
     try {
-      console.log('태그 목록 요청');
+      console.log('태그 목록 요청, locale:', locale);
       const response = await this.client.request<Tag[]>({
         url: API_ENDPOINTS.TAGS,
         method: 'GET',
-        domain: 'public', // Public API 사용
+        domain: 'public',
+        params: locale ? { locale } : undefined,
       });
       console.log('태그 목록 응답:', response);
       return response;
