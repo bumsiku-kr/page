@@ -73,7 +73,7 @@ export function HeaderLanguageSwitcher({ className = '' }: { className?: string 
       onClick={handleSwitch}
       className={`px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100 transition-colors ${className}`}
     >
-      {currentLocale === 'ko' ? 'EN' : '한국어'}
+      {currentLocale === 'ko' ? 'English' : '한국어'}
     </button>
   );
 }
