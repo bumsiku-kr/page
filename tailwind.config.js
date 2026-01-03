@@ -7,8 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Noto Sans KR', 'sans-serif'],
-        mono: ['Noto Sans KR', 'monospace'],
+        sans: ['Pretendard Variable', 'Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'sans-serif'],
+        mono: ['ui-monospace', 'monospace'],
       },
       typography: {
         DEFAULT: {

@@ -5,25 +5,32 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-noto-sans-kr: 'Noto Sans KR', sans-serif;
+  --font-pretendard: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-noto-sans-kr);
-  --font-mono: var(--font-noto-sans-kr);
+  --font-sans: var(--font-pretendard);
+  --font-mono: ui-monospace, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-noto-sans-kr);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern' 1;
-  font-variant-ligatures: common-ligatures;
+}
+
+/* Locale-based font family */
+html[lang='ko'] body {
+  font-family: var(--font-pretendard);
+}
+
+html[lang='en'] body {
+  font-family: var(--font-inter);
 }
 
 /* Velog 스타일 글쓰기 에디터 개선 */
