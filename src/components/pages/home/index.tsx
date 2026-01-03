@@ -2,6 +2,7 @@
 
 import { usePostsWithParams } from '@/features/posts/hooks';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Container from '../../ui/Container';
 import HeroSection from '../../sections/HeroSection';
 import BlogSection from '../../sections/BlogSection';
@@ -34,6 +35,9 @@ interface HomePageProps {
  */
 const HomePage = ({ initialPosts, initialTags }: HomePageProps) => {
   const router = useRouter();
+  const t = useTranslations('hero');
+  const tPost = useTranslations('post');
+  const tSort = useTranslations('sort');
 
   // SWR hook handles all data fetching, caching, and URL param parsing
   const { posts, page, tag, sort, isLoading } = usePostsWithParams(initialPosts);
@@ -69,9 +73,10 @@ const HomePage = ({ initialPosts, initialTags }: HomePageProps) => {
   return (
     <Container size="md">
       <HeroSection
-        title="안녕하세요, SIKU(시쿠)입니다."
-        subtitle={`건국대학교 컴퓨터공학부 4학년 재학중이며,\n다양한 경험과 배움을 제것으로 만들고자 포스팅에 기록하고 있습니다.`}
+        title={t('title')}
+        subtitle={t('subtitle')}
         imageSrc="/profile.jpg"
+        profileAlt={t('profileAlt')}
       />
 
       <Divider variant="border" />
@@ -84,6 +89,13 @@ const HomePage = ({ initialPosts, initialTags }: HomePageProps) => {
           currentSort={sort}
           onSortChange={newSort => updateParams({ sort: newSort, page: '1' })}
           onPageChange={newPage => updateParams({ page: String(newPage) })}
+          translations={{
+            tags: tPost('tags'),
+            noPosts: tPost('noPosts'),
+            loadError: tPost('loadError'),
+            sortViews: tSort('views'),
+            sortLatest: tSort('latest'),
+          }}
         />
       </div>
     </Container>

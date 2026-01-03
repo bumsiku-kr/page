@@ -8,12 +8,14 @@ interface TagSidebarProps {
   selectedTag?: string;
   tags?: Tag[];
   totalPostCount?: number;
+  tagsLabel?: string;
 }
 
 export default function TagSidebar({
   selectedTag,
   tags = [],
   totalPostCount: _totalPostCount = 0,
+  tagsLabel,
 }: TagSidebarProps) {
   const searchParams = useSearchParams();
 
@@ -50,7 +52,7 @@ export default function TagSidebar({
 
   return (
     <div className="bg-white rounded-lg">
-      <h2 className="text-xl font-bold mb-4">태그</h2>
+      <h2 className="text-xl font-bold mb-4">{tagsLabel || 'Tags'}</h2>
       <ul className="space-y-2">
         {sortedTags.map(tag => (
           <li key={tag.id}>

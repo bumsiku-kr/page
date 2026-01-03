@@ -2,7 +2,28 @@
  * 날짜 포맷팅 유틸리티 (SSR 안전)
  */
 
+export type DateLocale = 'ko' | 'en';
+
 export const dateUtils = {
+  /**
+   * Locale 기반 날짜 포맷 (YYYY년 M월 D일 또는 Month D, YYYY)
+   */
+  formatByLocale(dateString: string, locale: DateLocale = 'ko'): string {
+    try {
+      const date = new Date(dateString);
+      if (locale === 'en') {
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      }
+      return this.formatKorean(dateString);
+    } catch (error) {
+      console.error('날짜 포맷팅 오류:', error);
+      return locale === 'en' ? 'Date unavailable' : '날짜 정보 없음';
+    }
+  },
   /**
    * YYYY.MM.DD 포맷 (간단한 표시용)
    * @example dateUtils.formatShort("2024-01-15") => "2024.01.15"

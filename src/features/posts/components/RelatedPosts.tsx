@@ -4,9 +4,10 @@ import { RelatedPost } from '@/types';
 interface RelatedPostsProps {
   posts: RelatedPost[];
   maxPosts?: number;
+  title?: string;
 }
 
-export default function RelatedPosts({ posts, maxPosts = 2 }: RelatedPostsProps) {
+export default function RelatedPosts({ posts, maxPosts = 2, title }: RelatedPostsProps) {
   const displayPosts = posts.slice(0, maxPosts);
 
   if (displayPosts.length === 0) {
@@ -15,7 +16,7 @@ export default function RelatedPosts({ posts, maxPosts = 2 }: RelatedPostsProps)
 
   return (
     <section className="mt-12 mb-8">
-      <h2 className="text-xl font-bold mb-6 mx-2">추천 게시물</h2>
+      <h2 className="text-xl font-bold mb-6 mx-2">{title || 'Related Posts'}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {displayPosts.map(post => (
           <Link

@@ -12,6 +12,7 @@ interface PostListProps {
   baseUrl?: string;
   onPageChange?: (page: number) => void;
   footerRight?: React.ReactNode;
+  noPostsText?: string;
 }
 
 /**
@@ -27,6 +28,7 @@ const PostList = memo(function PostList({
   baseUrl = '/',
   onPageChange,
   footerRight,
+  noPostsText,
 }: PostListProps) {
   return (
     <div className="max-w-3xl">
@@ -61,7 +63,7 @@ const PostList = memo(function PostList({
         </>
       ) : (
         <div className="text-center py-20">
-          <p className="text-gray-500">게시글이 없습니다.</p>
+          <p className="text-gray-500">{noPostsText || 'No posts found.'}</p>
         </div>
       )}
     </div>

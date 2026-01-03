@@ -2,23 +2,28 @@
 
 import { SortOption } from '@/types';
 
+interface SortButtonTranslations {
+  views: string;
+  latest: string;
+}
+
 interface SortButtonProps {
   currentSort: SortOption;
   onSortChange: (sort: SortOption) => void;
   className?: string;
+  translations?: SortButtonTranslations;
 }
 
-const SORT_OPTIONS = [
-  { value: 'views,desc' as SortOption, label: '조회순' },
-  { value: 'createdAt,desc' as SortOption, label: '최신순' },
-];
-
-const SortButton = ({ currentSort, onSortChange, className = '' }: SortButtonProps) => {
+const SortButton = ({ currentSort, onSortChange, className = '', translations }: SortButtonProps) => {
+  const sortOptions = [
+    { value: 'views,desc' as SortOption, label: translations?.views || 'Popular' },
+    { value: 'createdAt,desc' as SortOption, label: translations?.latest || 'Latest' },
+  ];
   const currentValue = currentSort.includes('views') ? 'views,desc' : 'createdAt,desc';
 
   return (
     <div className={`inline-flex rounded-lg bg-gray-100 p-1 ${className}`}>
-      {SORT_OPTIONS.map(option => {
+      {sortOptions.map(option => {
         const isActive = option.value === currentValue;
         return (
           <button

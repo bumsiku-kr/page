@@ -29,8 +29,8 @@ export async function generateMetadata({
 
   try {
     const post = /^\d+$/.test(slug)
-      ? await api.posts.getOne(parseInt(slug, 10))
-      : await api.posts.getBySlug(slug);
+      ? await api.posts.getOne(parseInt(slug, 10), locale)
+      : await api.posts.getBySlug(slug, locale);
 
     if (!post) {
       return {
@@ -72,7 +72,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     let post;
 
     if (/^\d+$/.test(slug)) {
-      post = await api.posts.getOne(parseInt(slug, 10));
+      post = await api.posts.getOne(parseInt(slug, 10), locale);
 
       const redirectPath = post.canonicalPath || `/${post.slug}`;
       const currentPath = `/${slug}`;
@@ -82,7 +82,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         return <RedirectHandler redirectPath={localePath} />;
       }
     } else {
-      post = await api.posts.getBySlug(slug);
+      post = await api.posts.getBySlug(slug, locale);
     }
 
     if (!post || !post.id) {
@@ -154,7 +154,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         {post.relatedPosts && post.relatedPosts.length > 0 && (
           <>
             <Divider variant="border" />
-            <RelatedPosts posts={post.relatedPosts} maxPosts={2} />
+            <RelatedPosts posts={post.relatedPosts} maxPosts={2} title={t('relatedPosts')} />
           </>
         )}
 

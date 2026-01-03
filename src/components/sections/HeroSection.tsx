@@ -7,6 +7,7 @@ interface HeroSectionProps {
   title: string;
   subtitle: string;
   imageSrc: string;
+  profileAlt?: string;
   className?: string;
 }
 
@@ -14,13 +15,13 @@ export default function HeroSection({
   title,
   subtitle,
   imageSrc,
+  profileAlt = 'Profile Image',
   className = '',
 }: HeroSectionProps) {
   return (
     <section className={`py-8 md:py-12 ${className}`}>
       <div className="flex flex-col md:flex-row items-center gap-8">
-        {/* 프로필 이미지 */}
-        <ProfileImage src={imageSrc} alt="프로필 이미지" size="xxl" priority />
+        <ProfileImage src={imageSrc} alt={profileAlt} size="xxl" priority />
 
         {/* 자기소개 */}
         <div className="flex flex-col space-y-6 text-center md:text-left">

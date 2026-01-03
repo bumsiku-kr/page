@@ -6,6 +6,14 @@ import { PostList, SortButton } from '@/features/posts/components';
 import { TagSidebar } from '@/features/tags/components';
 import ErrorMessage from '../ui/feedback/ErrorMessage';
 
+interface BlogSectionTranslations {
+  tags: string;
+  noPosts: string;
+  loadError: string;
+  sortViews: string;
+  sortLatest: string;
+}
+
 interface BlogSectionProps {
   posts?: {
     content: PostSummary[];
@@ -19,6 +27,7 @@ interface BlogSectionProps {
   onPageChange?: (page: number) => void;
   currentSort?: SortOption;
   onSortChange?: (sort: SortOption) => void;
+  translations?: BlogSectionTranslations;
 }
 
 /**
@@ -34,6 +43,7 @@ const BlogSection = memo(function BlogSection({
   onPageChange,
   currentSort,
   onSortChange,
+  translations,
 }: BlogSectionProps) {
   // Memoize pagination calculations (must be called before any early returns)
   const { totalPages, currentPage } = useMemo(() => {
@@ -48,7 +58,7 @@ const BlogSection = memo(function BlogSection({
   if (!posts || !tags) {
     return (
       <section className={`py-2 ${className}`}>
-        <ErrorMessage message="블로그 게시물을 불러오는 중 오류가 발생했습니다." />
+        <ErrorMessage message={translations?.loadError || 'Failed to load blog posts.'} />
       </section>
     );
   }
@@ -60,7 +70,14 @@ const BlogSection = memo(function BlogSection({
         <main className="lg:w-3/4">
           <div className="flex justify-end items-center mb-4">
             {currentSort && onSortChange && (
-              <SortButton currentSort={currentSort} onSortChange={onSortChange} />
+              <SortButton
+                currentSort={currentSort}
+                onSortChange={onSortChange}
+                translations={{
+                  views: translations?.sortViews || 'Popular',
+                  latest: translations?.sortLatest || 'Latest',
+                }}
+              />
             )}
           </div>
           <PostList
@@ -68,12 +85,18 @@ const BlogSection = memo(function BlogSection({
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
+            noPostsText={translations?.noPosts}
           />
         </main>
 
         {/* 사이드바 (태그) */}
         <aside className="lg:w-1/4 lg:mt-2">
-          <TagSidebar selectedTag={selectedTag} tags={tags} totalPostCount={posts.totalElements} />
+          <TagSidebar
+            selectedTag={selectedTag}
+            tags={tags}
+            totalPostCount={posts.totalElements}
+            tagsLabel={translations?.tags}
+          />
         </aside>
       </div>
     </section>

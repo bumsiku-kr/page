@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useCommentsQuery } from '../hooks';
 import { useCreateComment } from '../mutations';
 import type { CreateCommentRequest } from '@/types';
@@ -13,6 +14,10 @@ interface CommentsProps {
 }
 
 export default function Comments({ postId }: CommentsProps) {
+  const t = useTranslations('comment');
+  const tPost = useTranslations('post');
+  const locale = useLocale();
+
   // SWR hooks for data fetching
   const { data: comments = [], isLoading, error } = useCommentsQuery(postId);
   const { createComment } = useCreateComment(postId);
@@ -38,7 +43,7 @@ export default function Comments({ postId }: CommentsProps) {
     e.preventDefault();
 
     if (!author.trim() || !content.trim()) {
-      setSubmitError('작성자 이름과 댓글 내용을 모두 입력해주세요.');
+      setSubmitError(t('validationError'));
       return;
     }
 
@@ -57,7 +62,7 @@ export default function Comments({ postId }: CommentsProps) {
       setAuthor(generateRandomNickname());
       setContent('');
     } catch {
-      setSubmitError('댓글 작성 중 오류가 발생했습니다.');
+      setSubmitError(t('submitError'));
     } finally {
       setSubmitting(false);
     }
@@ -86,14 +91,14 @@ export default function Comments({ postId }: CommentsProps) {
         formatOptions.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       }
 
-      return new Intl.DateTimeFormat('ko-KR', formatOptions).format(utcDate);
+      return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'ko-KR', formatOptions).format(utcDate);
     } catch {
-      return '날짜 정보 없음';
+      return t('noDate');
     }
   };
 
   if (isLoading) return <Loading />;
-  if (error) return <ErrorMessage message="댓글을 불러오는 중 오류가 발생했습니다." />;
+  if (error) return <ErrorMessage message={t('loadError')} />;
 
   return (
     <div className="space-y-8">
@@ -122,13 +127,13 @@ export default function Comments({ postId }: CommentsProps) {
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
-          <p>아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
+          <p>{tPost('noComments')}</p>
         </div>
       )}
 
       {/* Comment form */}
       <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4">댓글 작성</h3>
+        <h3 className="text-lg font-semibold mb-4">{tPost('writeComment')}</h3>
 
         {submitError && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">{submitError}</div>
@@ -138,7 +143,7 @@ export default function Comments({ postId }: CommentsProps) {
           {/* Nickname input area */}
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-              닉네임
+              {t('nickname')}
             </label>
             <div className="flex gap-2 items-center">
               {/* Avatar icon */}
@@ -155,7 +160,7 @@ export default function Comments({ postId }: CommentsProps) {
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 disabled={submitting}
                 maxLength={20}
-                placeholder="닉네임을 입력하세요"
+                placeholder={t('nicknamePlaceholder')}
               />
 
               {/* Random button */}
@@ -165,14 +170,14 @@ export default function Comments({ postId }: CommentsProps) {
                 className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 disabled={submitting}
               >
-                랜덤 변경
+                {t('randomChange')}
               </button>
             </div>
           </div>
 
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-              댓글 내용
+              {t('content')}
             </label>
             <textarea
               id="content"
@@ -191,7 +196,7 @@ export default function Comments({ postId }: CommentsProps) {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
-              {submitting ? '등록 중...' : '댓글 등록'}
+              {submitting ? t('submitting') : t('submit')}
             </button>
           </div>
         </form>

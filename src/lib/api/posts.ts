@@ -96,13 +96,14 @@ export class PostsService {
     }
   }
 
-  async getOne(postId: number): Promise<Post> {
+  async getOne(postId: number, locale: string = 'ko'): Promise<Post> {
     try {
-      logger.debug('게시물 상세 요청', { postId });
+      logger.debug('게시물 상세 요청', { postId, locale });
       const response = await this.client.request<Post>({
         url: `${API_ENDPOINTS.POSTS}/${postId}`,
         method: 'GET',
-        domain: 'public', // Public API 사용
+        domain: 'public',
+        params: { locale },
       });
       logger.debug('게시물 상세 응답', response);
       return response;
@@ -128,13 +129,14 @@ export class PostsService {
     }
   }
 
-  async getBySlug(slug: string): Promise<Post> {
+  async getBySlug(slug: string, locale: string = 'ko'): Promise<Post> {
     try {
-      logger.debug('게시물 슬러그 요청', { slug });
+      logger.debug('게시물 슬러그 요청', { slug, locale });
       const response = await this.client.request<Post>({
         url: `${API_ENDPOINTS.POSTS}/${slug}`,
         method: 'GET',
-        domain: 'public', // Public API 사용
+        domain: 'public',
+        params: { locale },
       });
       logger.debug('게시물 슬러그 응답', response);
       return response;

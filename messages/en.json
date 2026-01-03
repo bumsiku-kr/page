@@ -14,16 +14,41 @@
     "back": "Back",
     "language": "Language"
   },
+  "hero": {
+    "title": "Hey! I'm Peter.",
+    "subtitle": "I'm a Product Engineer based in Korea,\nand this is where I archive my journey and insights.",
+    "profileAlt": "Profile Image"
+  },
   "post": {
     "publishedAt": "Published",
     "updatedAt": "Updated",
     "views": "Views",
+    "viewsCount": "{count} views",
+    "readMore": "Read more",
     "tags": "Tags",
     "relatedPosts": "Related Posts",
     "comments": "Comments",
     "writeComment": "Write a comment",
-    "noComments": "No comments yet",
+    "noComments": "No comments yet. Be the first to comment!",
+    "noPosts": "No posts found.",
+    "loadError": "Failed to load blog posts.",
     "availableIn": "This post is also available in"
+  },
+  "sort": {
+    "views": "Popular",
+    "latest": "Latest"
+  },
+  "comment": {
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Enter your nickname",
+    "randomChange": "Random",
+    "content": "Comment",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "validationError": "Please enter both your name and comment.",
+    "submitError": "Failed to submit comment.",
+    "loadError": "Failed to load comments.",
+    "noDate": "Date unavailable"
   },
   "admin": {
     "dashboard": "Dashboard",
