@@ -53,6 +53,7 @@ export interface AdminPostSummary {
   createdAt: string;
   updatedAt: string;
   views: number;
+  hasTranslation?: boolean;
 }
 
 export interface AdminPostsResponse {

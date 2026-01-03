@@ -157,10 +157,11 @@ export default function PostsManagementPage() {
           {activeTab === 'ko' && (
             <button
               onClick={() => handleTranslate(post.id)}
-              disabled={translatingId === post.id}
+              disabled={translatingId === post.id || post.hasTranslation}
               className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={post.hasTranslation ? '이미 번역됨' : '영어로 번역'}
             >
-              {translatingId === post.id ? '번역 중...' : '번역'}
+              {translatingId === post.id ? '번역 중...' : post.hasTranslation ? '번역됨' : '번역'}
             </button>
           )}
           <button
