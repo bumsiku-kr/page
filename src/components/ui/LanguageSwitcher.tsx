@@ -32,7 +32,8 @@ export function LanguageSwitcher({
     <div className={`inline-flex gap-2 ${className}`}>
       {availableLocales.map(({ locale, slug }) => {
         const isActive = locale === currentLocale;
-        const href = locale === 'ko' ? `/${slug}` : `/${locale}/${slug}`;
+        // Korean (default): /slug, English: /en/slug
+        const href = locale === 'ko' ? `/${slug}` : `/en/${slug}`;
 
         return (
           <Link
@@ -56,15 +57,17 @@ export function LanguageSwitcher({
 export function HeaderLanguageSwitcher({ className = '' }: { className?: string }) {
   const pathname = usePathname();
 
-  // Determine current locale from pathname
-  const isEnglish = pathname.startsWith('/en');
+  // Detect current locale from pathname
+  const isEnglish = pathname?.startsWith('/en');
 
-  // Switch to home page of other locale (post-specific switching uses LanguageSwitcher)
-  const alternatePath = isEnglish ? '/' : '/en';
+  // Get path without locale prefix, then add target locale prefix
+  const pathWithoutLocale = isEnglish ? pathname?.replace(/^\/en/, '') || '/' : pathname || '/';
+  // Korean: no prefix, English: /en prefix
+  const targetHref = isEnglish ? pathWithoutLocale : `/en${pathWithoutLocale}`;
 
   return (
     <Link
-      href={alternatePath}
+      href={targetHref}
       className={`px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100 transition-colors ${className}`}
     >
       {isEnglish ? '한국어' : 'EN'}
