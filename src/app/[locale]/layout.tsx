@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import Header from '@/components/layout/Header';
+import { LocaleHtmlLang } from '@/components/layout/LocaleHtmlLang';
 
 type Props = {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <LocaleHtmlLang locale={locale} />
       <Header />
       <main className="flex-grow pt-24 pb-6">{children}</main>
     </NextIntlClientProvider>
