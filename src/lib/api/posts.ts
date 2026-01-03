@@ -112,6 +112,22 @@ export class PostsService {
     }
   }
 
+  async getAdminOne(postId: number): Promise<Post> {
+    try {
+      logger.debug('관리자 게시물 상세 요청', { postId });
+      const response = await this.client.request<Post>({
+        url: `${API_ENDPOINTS.ADMIN_POSTS}/${postId}`,
+        method: 'GET',
+        domain: 'admin',
+      });
+      logger.debug('관리자 게시물 상세 응답', response);
+      return response;
+    } catch (error) {
+      logger.error('관리자 게시물 상세 조회 오류', error);
+      throw error;
+    }
+  }
+
   async getBySlug(slug: string): Promise<Post> {
     try {
       logger.debug('게시물 슬러그 요청', { slug });

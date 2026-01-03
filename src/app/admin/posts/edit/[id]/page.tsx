@@ -38,7 +38,7 @@ export default function EditPostPage() {
       try {
         // 게시글 데이터와 태그 목록을 병렬로 불러옴
         const [postData, tagsData] = await Promise.all([
-          api.posts.getOne(parseInt(postId, 10)),
+          api.posts.getAdminOne(parseInt(postId, 10)),
           api.tags.getList(),
         ]);
 
