@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
+import type { Locale } from '@/i18n/routing';
 
 interface LocaleInfo {
   locale: string;
@@ -55,22 +57,23 @@ export function LanguageSwitcher({
 
 // Header language switcher (for switching entire site language)
 export function HeaderLanguageSwitcher({ className = '' }: { className?: string }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
 
-  // Detect current locale from pathname
-  const isEnglish = pathname?.startsWith('/en');
+  const currentLocale = (params?.locale as Locale) || 'ko';
+  const targetLocale: Locale = currentLocale === 'ko' ? 'en' : 'ko';
 
-  // Get path without locale prefix, then add target locale prefix
-  const pathWithoutLocale = isEnglish ? pathname?.replace(/^\/en/, '') || '/' : pathname || '/';
-  // Korean: no prefix, English: /en prefix
-  const targetHref = isEnglish ? pathWithoutLocale : `/en${pathWithoutLocale}`;
+  const handleSwitch = () => {
+    router.replace(pathname, { locale: targetLocale });
+  };
 
   return (
-    <Link
-      href={targetHref}
+    <button
+      onClick={handleSwitch}
       className={`px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100 transition-colors ${className}`}
     >
-      {isEnglish ? '한국어' : 'EN'}
-    </Link>
+      {currentLocale === 'ko' ? 'EN' : '한국어'}
+    </button>
   );
 }
