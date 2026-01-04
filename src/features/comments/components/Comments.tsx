@@ -60,14 +60,14 @@ export default function Comments({ postId }: CommentsProps) {
 
   // Generate random nickname on mount
   useEffect(() => {
-    setAuthor(generateRandomNickname());
-  }, []);
+    setAuthor(generateRandomNickname(locale));
+  }, [locale]);
 
   // Random nickname regeneration handler
   const handleRandomNickname = useCallback(() => {
-    setAuthor(generateRandomNickname());
+    setAuthor(generateRandomNickname(locale));
     setTouched(prev => ({ ...prev, author: false }));
-  }, []);
+  }, [locale]);
 
   // Comment submission handler
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,7 +96,7 @@ export default function Comments({ postId }: CommentsProps) {
       setTimeout(() => setSubmitSuccess(false), 3000);
 
       // Reset form with new random nickname
-      setAuthor(generateRandomNickname());
+      setAuthor(generateRandomNickname(locale));
       setContent('');
       setTouched({ author: false, content: false });
     } catch {
@@ -199,23 +199,23 @@ export default function Comments({ postId }: CommentsProps) {
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
               {t('nickname')}
             </label>
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 sm:gap-3 items-center">
               {/* Avatar */}
               <div
-                className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-2xl shadow-sm"
+                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-xl sm:text-2xl shadow-sm"
                 aria-hidden="true"
               >
                 {getAnimalEmoji(author)}
               </div>
               {/* Input + Button 그룹 */}
-              <div className="flex-1 flex gap-2">
+              <div className="flex-1 flex gap-1.5 sm:gap-2">
                 <input
                   type="text"
                   id="author"
                   value={author}
                   onChange={e => setAuthor(e.target.value)}
                   onBlur={() => setTouched(prev => ({ ...prev, author: true }))}
-                  className={`min-w-0 flex-1 px-3 py-2.5 border rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`min-w-0 flex-1 px-3 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     touched.author && !validation.author
                       ? 'border-red-300 bg-red-50'
                       : 'border-gray-300 bg-white'
@@ -229,12 +229,12 @@ export default function Comments({ postId }: CommentsProps) {
                 <button
                   type="button"
                   onClick={handleRandomNickname}
-                  className="flex-shrink-0 w-11 h-11 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                  className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
                   disabled={submitting}
                   aria-label={t('randomChange')}
                   title={t('randomChange')}
                 >
-                  <RefreshIcon className="w-5 h-5" />
+                  <RefreshIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>

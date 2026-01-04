@@ -3,7 +3,7 @@
  * 토스 블로그 스타일: 형용사 + 동물명 조합
  */
 
-const ADJECTIVES = [
+const ADJECTIVES_KO = [
   '재미있는',
   '신나는',
   '명랑한',
@@ -26,7 +26,30 @@ const ADJECTIVES = [
   '유쾌한',
 ];
 
-const ANIMALS = [
+const ADJECTIVES_EN = [
+  'Happy',
+  'Cheerful',
+  'Brave',
+  'Clever',
+  'Friendly',
+  'Gentle',
+  'Jolly',
+  'Kind',
+  'Lively',
+  'Merry',
+  'Noble',
+  'Playful',
+  'Quick',
+  'Smart',
+  'Swift',
+  'Wise',
+  'Witty',
+  'Bright',
+  'Calm',
+  'Cool',
+];
+
+const ANIMALS_KO = [
   '돌고래',
   '코알라',
   '너구리',
@@ -49,13 +72,41 @@ const ANIMALS = [
   '기린',
 ];
 
+const ANIMALS_EN = [
+  'Dolphin',
+  'Koala',
+  'Raccoon',
+  'Lion',
+  'Parrot',
+  'Penguin',
+  'Rabbit',
+  'Panda',
+  'Tiger',
+  'Fox',
+  'Cat',
+  'Puppy',
+  'Hamster',
+  'Squirrel',
+  'Whale',
+  'Turtle',
+  'Owl',
+  'Eagle',
+  'Dove',
+  'Giraffe',
+];
+
 /**
  * 랜덤 닉네임 생성
- * @returns 형용사 + 동물명 조합 (예: "재미있는돌고래")
+ * @param locale - 언어 설정 ('ko' | 'en')
+ * @returns 형용사 + 동물명 조합 (예: "재미있는돌고래" 또는 "HappyDolphin")
  */
-export const generateRandomNickname = (): string => {
-  const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-  const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+export const generateRandomNickname = (locale: string = 'ko'): string => {
+  const isEnglish = locale === 'en';
+  const adjectives = isEnglish ? ADJECTIVES_EN : ADJECTIVES_KO;
+  const animals = isEnglish ? ANIMALS_EN : ANIMALS_KO;
+
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const animal = animals[Math.floor(Math.random() * animals.length)];
   return `${adjective}${animal}`;
 };
 
@@ -72,6 +123,7 @@ export const generateRandomAvatarId = (): number => {
  * 닉네임에 포함된 동물명에 따라 적절한 이모지 반환
  */
 const ANIMAL_EMOJI_MAP: Record<string, string> = {
+  // Korean
   돌고래: '🐬',
   코알라: '🐨',
   너구리: '🦝',
@@ -92,6 +144,27 @@ const ANIMAL_EMOJI_MAP: Record<string, string> = {
   독수리: '🦅',
   비둘기: '🕊️',
   기린: '🦒',
+  // English
+  Dolphin: '🐬',
+  Koala: '🐨',
+  Raccoon: '🦝',
+  Lion: '🦁',
+  Parrot: '🦜',
+  Penguin: '🐧',
+  Rabbit: '🐰',
+  Panda: '🐼',
+  Tiger: '🐯',
+  Fox: '🦊',
+  Cat: '🐱',
+  Puppy: '🐶',
+  Hamster: '🐹',
+  Squirrel: '🐿️',
+  Whale: '🐋',
+  Turtle: '🐢',
+  Owl: '🦉',
+  Eagle: '🦅',
+  Dove: '🕊️',
+  Giraffe: '🦒',
 };
 
 /**
