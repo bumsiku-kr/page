@@ -154,7 +154,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         {post.relatedPosts && post.relatedPosts.length > 0 && (
           <>
             <Divider variant="border" />
-            <RelatedPosts posts={post.relatedPosts} maxPosts={2} title={t('relatedPosts')} />
+            <RelatedPosts posts={post.relatedPosts} maxPosts={2} title={t('relatedPosts')} locale={locale} />
           </>
         )}
 
