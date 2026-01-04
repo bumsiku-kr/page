@@ -10,7 +10,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <ErrorBoundary>
       <SWRProvider>
-        <div className="antialiased min-h-screen flex flex-col">
+        <div className="antialiased min-h-screen flex flex-col overflow-x-hidden">
           <AuthProvider>
             <ToastProvider>{children}</ToastProvider>
           </AuthProvider>
