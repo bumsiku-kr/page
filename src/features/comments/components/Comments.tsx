@@ -132,7 +132,7 @@ export default function Comments({ postId }: CommentsProps) {
       )}
 
       {/* Comment form */}
-      <div className="bg-gray-50 p-6 rounded-lg">
+      <div className="bg-gray-50 p-6 rounded-lg overflow-hidden">
         <h3 className="text-lg font-semibold mb-4">{tPost('writeComment')}</h3>
 
         {submitError && (
@@ -183,7 +183,7 @@ export default function Comments({ postId }: CommentsProps) {
               id="content"
               value={content}
               onChange={e => setContent(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               rows={4}
               disabled={submitting}
               maxLength={500}
