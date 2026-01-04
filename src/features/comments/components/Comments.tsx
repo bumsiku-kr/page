@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useCommentsQuery } from '../hooks';
 import { useCreateComment } from '../mutations';
@@ -12,6 +12,26 @@ import { generateRandomNickname, getAnimalEmoji } from '@/shared/lib/nickname-ge
 interface CommentsProps {
   postId: string;
 }
+
+// 아이콘 컴포넌트들
+const RefreshIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  </svg>
+);
+
+const SendIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+  </svg>
+);
+
+const SpinnerIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
+  <svg className={`${className} animate-spin`} fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+  </svg>
+);
 
 export default function Comments({ postId }: CommentsProps) {
   const t = useTranslations('comment');
@@ -27,6 +47,16 @@ export default function Comments({ postId }: CommentsProps) {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [touched, setTouched] = useState({ author: false, content: false });
+
+  // 유효성 검사
+  const validation = {
+    author: author.trim().length >= 1 && author.trim().length <= 20,
+    content: content.trim().length >= 1 && content.trim().length <= 500,
+  };
+
+  const MAX_CONTENT_LENGTH = 500;
 
   // Generate random nickname on mount
   useEffect(() => {
@@ -34,15 +64,17 @@ export default function Comments({ postId }: CommentsProps) {
   }, []);
 
   // Random nickname regeneration handler
-  const handleRandomNickname = () => {
+  const handleRandomNickname = useCallback(() => {
     setAuthor(generateRandomNickname());
-  };
+    setTouched(prev => ({ ...prev, author: false }));
+  }, []);
 
   // Comment submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ author: true, content: true });
 
-    if (!author.trim() || !content.trim()) {
+    if (!validation.author || !validation.content) {
       setSubmitError(t('validationError'));
       return;
     }
@@ -50,17 +82,23 @@ export default function Comments({ postId }: CommentsProps) {
     try {
       setSubmitting(true);
       setSubmitError(null);
+      setSubmitSuccess(false);
 
       const commentData: CreateCommentRequest = {
-        author,
-        content,
+        author: author.trim(),
+        content: content.trim(),
       };
 
       await createComment(commentData);
 
+      // Success feedback
+      setSubmitSuccess(true);
+      setTimeout(() => setSubmitSuccess(false), 3000);
+
       // Reset form with new random nickname
       setAuthor(generateRandomNickname());
       setContent('');
+      setTouched({ author: false, content: false });
     } catch {
       setSubmitError(t('submitError'));
     } finally {
@@ -132,74 +170,128 @@ export default function Comments({ postId }: CommentsProps) {
       )}
 
       {/* Comment form */}
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4">{tPost('writeComment')}</h3>
+      <div className="bg-gradient-to-b from-gray-50 to-gray-100/50 p-4 sm:p-6 rounded-xl border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{tPost('writeComment')}</h3>
 
-        {submitError && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">{submitError}</div>
+        {/* 성공 메시지 */}
+        {submitSuccess && (
+          <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm flex items-center gap-2 animate-in fade-in duration-300">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {t('submitSuccess')}
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* 에러 메시지 */}
+        {submitError && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-center gap-2">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {submitError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Nickname input area */}
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
               {t('nickname')}
             </label>
-            {/* Mobile: 세로 배치, Desktop: 가로 배치 */}
-            <div className="space-y-2 sm:space-y-0 sm:flex sm:gap-2 sm:items-center">
-              <div className="flex gap-2 items-center flex-1">
-                {/* Avatar icon */}
-                <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">
-                  {getAnimalEmoji(author)}
-                </div>
-                {/* Nickname input field */}
+            <div className="flex gap-3 items-center">
+              {/* Avatar */}
+              <div
+                className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-2xl shadow-sm"
+                aria-hidden="true"
+              >
+                {getAnimalEmoji(author)}
+              </div>
+              {/* Input + Button 그룹 */}
+              <div className="flex-1 flex gap-2">
                 <input
                   type="text"
                   id="author"
                   value={author}
                   onChange={e => setAuthor(e.target.value)}
-                  className="min-w-0 flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  onBlur={() => setTouched(prev => ({ ...prev, author: true }))}
+                  className={`min-w-0 flex-1 px-3 py-2.5 border rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    touched.author && !validation.author
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 bg-white'
+                  }`}
                   disabled={submitting}
                   maxLength={20}
                   placeholder={t('nicknamePlaceholder')}
+                  aria-describedby={touched.author && !validation.author ? 'author-error' : undefined}
                 />
+                {/* Random button - 아이콘만 */}
+                <button
+                  type="button"
+                  onClick={handleRandomNickname}
+                  className="flex-shrink-0 w-11 h-11 flex items-center justify-center text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                  disabled={submitting}
+                  aria-label={t('randomChange')}
+                  title={t('randomChange')}
+                >
+                  <RefreshIcon className="w-5 h-5" />
+                </button>
               </div>
-              {/* Random button */}
-              <button
-                type="button"
-                onClick={handleRandomNickname}
-                className="w-full sm:w-auto px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                disabled={submitting}
-              >
-                {t('randomChange')}
-              </button>
             </div>
+            {touched.author && !validation.author && (
+              <p id="author-error" className="mt-1.5 text-sm text-red-600">{t('nicknameRequired')}</p>
+            )}
           </div>
 
+          {/* Content textarea */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('content')}
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                {t('content')}
+              </label>
+              <span className={`text-xs ${content.length > MAX_CONTENT_LENGTH * 0.9 ? 'text-orange-600' : 'text-gray-400'}`}>
+                {content.length}/{MAX_CONTENT_LENGTH}
+              </span>
+            </div>
             <textarea
               id="content"
               value={content}
               onChange={e => setContent(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 resize-none"
+              onBlur={() => setTouched(prev => ({ ...prev, content: true }))}
+              className={`w-full px-3 py-3 border rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+                touched.content && !validation.content
+                  ? 'border-red-300 bg-red-50'
+                  : 'border-gray-300 bg-white'
+              }`}
               rows={4}
               disabled={submitting}
-              maxLength={500}
-            ></textarea>
+              maxLength={MAX_CONTENT_LENGTH}
+              placeholder={t('contentPlaceholder')}
+              aria-describedby={touched.content && !validation.content ? 'content-error' : undefined}
+            />
+            {touched.content && !validation.content && (
+              <p id="content-error" className="mt-1.5 text-sm text-red-600">{t('contentRequired')}</p>
+            )}
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              disabled={submitting}
-            >
-              {submitting ? t('submitting') : t('submit')}
-            </button>
-          </div>
+          {/* Submit button */}
+          <button
+            type="submit"
+            className="w-full h-12 flex items-center justify-center gap-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            disabled={submitting || (!validation.author || !validation.content)}
+          >
+            {submitting ? (
+              <>
+                <SpinnerIcon className="w-5 h-5" />
+                {t('submitting')}
+              </>
+            ) : (
+              <>
+                <SendIcon className="w-5 h-5" />
+                {t('submit')}
+              </>
+            )}
+          </button>
         </form>
       </div>
     </div>
