@@ -26,7 +26,7 @@ export default function HeroSection({
         {/* 자기소개 */}
         <div className="flex flex-col space-y-6 text-center md:text-left">
           <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 whitespace-nowrap">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               {title}
             </h1>
             <p className="text-lg md:text-xl text-gray-600 whitespace-pre-line leading-relaxed">
