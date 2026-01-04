@@ -55,10 +55,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const path = sitemapPaths[index];
       // path는 '/{slug}' 형태
 
-      // 최신 순서에 따른 우선순위 계산
+      // 최신 순서에 따른 우선순위 계산 (최신 글이 높은 우선순위)
       let priority = 0.7;
-      if (index < 10) priority = 0.85;
-      if (index < 5) priority = 0.8;
+      if (index < 10) priority = 0.8;
+      if (index < 5) priority = 0.9;
 
       const changeFrequency = index < 30 ? 'weekly' : 'monthly';
 
