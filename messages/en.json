@@ -43,11 +43,15 @@
     "nicknamePlaceholder": "Enter your nickname",
     "randomChange": "Random",
     "content": "Comment",
+    "contentPlaceholder": "Write your comment here",
     "submit": "Submit",
     "submitting": "Submitting...",
     "validationError": "Please enter both your name and comment.",
+    "submitSuccess": "Comment submitted!",
     "submitError": "Failed to submit comment.",
     "loadError": "Failed to load comments.",
+    "nicknameRequired": "Please enter a nickname",
+    "contentRequired": "Please enter a comment",
     "noDate": "Date unavailable"
   },
   "admin": {
