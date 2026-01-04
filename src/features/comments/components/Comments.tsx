@@ -132,7 +132,7 @@ export default function Comments({ postId }: CommentsProps) {
       )}
 
       {/* Comment form */}
-      <div className="bg-gray-50 p-6 rounded-lg overflow-hidden">
+      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">{tPost('writeComment')}</h3>
 
         {submitError && (
@@ -142,32 +142,33 @@ export default function Comments({ postId }: CommentsProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nickname input area */}
           <div>
-            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
               {t('nickname')}
             </label>
-            <div className="flex gap-2 items-center">
-              {/* Avatar icon */}
-              <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">
-                {getAnimalEmoji(author)}
+            {/* Mobile: 세로 배치, Desktop: 가로 배치 */}
+            <div className="space-y-2 sm:space-y-0 sm:flex sm:gap-2 sm:items-center">
+              <div className="flex gap-2 items-center flex-1">
+                {/* Avatar icon */}
+                <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">
+                  {getAnimalEmoji(author)}
+                </div>
+                {/* Nickname input field */}
+                <input
+                  type="text"
+                  id="author"
+                  value={author}
+                  onChange={e => setAuthor(e.target.value)}
+                  className="min-w-0 flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  disabled={submitting}
+                  maxLength={20}
+                  placeholder={t('nicknamePlaceholder')}
+                />
               </div>
-
-              {/* Nickname input field */}
-              <input
-                type="text"
-                id="author"
-                value={author}
-                onChange={e => setAuthor(e.target.value)}
-                className="min-w-0 flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                disabled={submitting}
-                maxLength={20}
-                placeholder={t('nicknamePlaceholder')}
-              />
-
               {/* Random button */}
               <button
                 type="button"
                 onClick={handleRandomNickname}
-                className="flex-shrink-0 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full sm:w-auto px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 disabled={submitting}
               >
                 {t('randomChange')}
@@ -176,24 +177,24 @@ export default function Comments({ postId }: CommentsProps) {
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
               {t('content')}
             </label>
             <textarea
               id="content"
               value={content}
               onChange={e => setContent(e.target.value)}
-              className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 resize-none"
               rows={4}
               disabled={submitting}
               maxLength={500}
             ></textarea>
           </div>
 
-          <div className="text-right">
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               disabled={submitting}
             >
               {submitting ? t('submitting') : t('submit')}
